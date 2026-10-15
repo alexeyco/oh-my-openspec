@@ -54,7 +54,7 @@ export default Plugin.define({
     const cwd = ctx.location?.directory ?? process.cwd();
 
     // ── Agents ──────────────────────────────────────────────────────────
-    // Load the 6 role definitions from agents/*.md and register each as a
+    // Load the 7 role definitions from agents/*.md and register each as a
     // subagent. Behavior is bounded by role prompt + injected
     // SUBAGENT_CONTRACT + the OpenSpec artifacts themselves.
     const roles = loadRoles(agentsDir);
