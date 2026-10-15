@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
+
+# Local OpenCode sandbox config
+.opencode/

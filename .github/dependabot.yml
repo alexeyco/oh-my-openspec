@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # @fission-ai/openspec moves only through the vendor-sync PR so
+      # the pinned CLI and the re-vendored skills land atomically.
+      - dependency-name: "@fission-ai/openspec"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
