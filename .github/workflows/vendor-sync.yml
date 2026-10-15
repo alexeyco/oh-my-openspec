@@ -55,7 +55,7 @@ jobs:
           echo "target=$target" >> "$GITHUB_OUTPUT"
       - name: Open sync PR when anything changed
         if: steps.changed.outputs.count == '1'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: chore/vendor-openspec-skills
           base: master
