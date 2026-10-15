@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1128 191" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace">
+  <defs>
+    <!-- halftone dither waves, like the upstream OpenSpec banner -->
+    <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="3" height="3" fill="#ffffff"/>
+    </pattern>
+    <pattern id="dots-cyan" width="6" height="6" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="3" height="3" fill="#7dd3fc"/>
+    </pattern>
+    <pattern id="dots-violet" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="2" height="2" fill="#a78bfa"/>
+    </pattern>
+    <!-- CRT scanlines over everything -->
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="4" height="1" fill="#ffffff" opacity="0.045"/>
+    </pattern>
+
+    <linearGradient id="fade-right" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="fade-up" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+
+    <mask id="m-left" maskUnits="userSpaceOnUse" x="0" y="0" width="260" height="191">
+      <rect x="0" y="0" width="260" height="191" fill="url(#fade-right)"/>
+    </mask>
+    <mask id="m-streak" maskUnits="userSpaceOnUse" x="380" y="0" width="220" height="191">
+      <rect x="380" y="0" width="220" height="191" fill="url(#fade-up)"/>
+    </mask>
+    <mask id="m-corner" maskUnits="userSpaceOnUse" x="940" y="60" width="188" height="131">
+      <rect x="940" y="60" width="188" height="131" fill="url(#fade-right)" transform="rotate(180 1034 125)"/>
+    </mask>
+  </defs>
+
+  <rect width="1128" height="191" fill="#050507"/>
+
+  <!-- left dither blob -->
+  <g mask="url(#m-left)">
+    <path d="M 0 0 L 175 0 C 120 66 92 128 34 191 L 0 191 Z" fill="url(#dots)"/>
+    <path d="M 0 0 L 118 0 C 74 70 52 132 8 191 L 0 191 Z" fill="url(#dots-cyan)" opacity="0.85"/>
+  </g>
+
+  <!-- mid diagonal streaks -->
+  <g mask="url(#m-streak)">
+    <path d="M 402 191 L 492 0 L 534 0 L 444 191 Z" fill="url(#dots)"/>
+    <path d="M 508 191 L 598 0 L 616 0 L 526 191 Z" fill="url(#dots-violet)"/>
+  </g>
+
+  <!-- faint dither haze bottom-right -->
+  <g mask="url(#m-corner)" opacity="0.5">
+    <path d="M 1128 191 L 1128 96 L 1052 191 Z" fill="url(#dots)"/>
+  </g>
+
+  <!-- title: chromatic-aberration ghost + white face -->
+  <g text-anchor="end" font-size="40" font-weight="700" letter-spacing="4">
+    <text x="1102" y="74" fill="#22d3ee" opacity="0.55" transform="translate(-2 0)">OPENCODE-OPENSPEC</text>
+    <text x="1102" y="74" fill="#f472b6" opacity="0.45" transform="translate(2 0)">OPENCODE-OPENSPEC</text>
+    <text x="1102" y="74" fill="#f8fafc"><tspan>OPEN</tspan><tspan fill="#94a3b8">CODE</tspan><tspan>-</tspan><tspan fill="#94a3b8">OPEN</tspan><tspan>SPEC</tspan></text>
+  </g>
+  <rect x="620" y="88" width="486" height="3" fill="url(#accent)"/>
+
+  <text x="1102" y="126" text-anchor="end" font-size="24" letter-spacing="3" fill="#cbd5e1">OPENSPEC-DRIVEN SUBAGENT WORKFLOW</text>
+
+  <!-- six role chips -->
+  <g>
+    <rect x="1006" y="146" width="10" height="10" fill="#38bdf8"/>
+    <rect x="1024" y="146" width="10" height="10" fill="#a78bfa"/>
+    <rect x="1042" y="146" width="10" height="10" fill="#f472b6"/>
+    <rect x="1060" y="146" width="10" height="10" fill="#34d399"/>
+    <rect x="1078" y="146" width="10" height="10" fill="#fbbf24"/>
+    <rect x="1096" y="146" width="10" height="10" fill="#fb7185"/>
+  </g>
+
+  <rect width="1128" height="191" fill="url(#scan)"/>
+</svg>

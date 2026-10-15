@@ -1,0 +1,50 @@
+{
+  "name": "@alexeyco/opencode-openspec",
+  "version": "1.14.2",
+  "description": "OpenSpec multi-agent flow for OpenCode: /openspec.plan drafts a change through research and critique, /openspec.apply implements tasks.md through dependency-ordered parallel subagent waves with mechanical openspec CLI validation",
+  "keywords": [
+    "agents",
+    "opencode",
+    "opencode-plugin",
+    "openspec",
+    "skills",
+    "spec-driven-development",
+    "workflow"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./opencode/index.ts"
+  },
+  "files": [
+    "agents",
+    "core",
+    "docs",
+    "opencode",
+    "skills",
+    "vendor",
+    "index.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode/plugin": "^2.0.28",
+    "yaml": "^2"
+  },
+  "devDependencies": {
+    "@fission-ai/openspec": "^1.14.2",
+    "@types/node": "^26",
+    "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexeyco/opencode-openspec.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
