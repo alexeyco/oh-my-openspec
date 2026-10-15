@@ -16,8 +16,9 @@ Turn the confirmed brief into a complete OpenSpec change under
    otherwise create the directory following the shape of an existing change.
 2. `proposal.md` — Why now, What changes, impact on capabilities. One
    readable page, no restated code.
-3. `specs/<capability>/spec.md` — delta requirements: `## ADDED|MODIFIED|REMOVED
-Requirements`, each `### Requirement: ...` with a SHALL statement and at
+3. `specs/<capability>/spec.md` — delta requirements: `## ADDED|MODIFIED|REMOVED|RENAMED
+Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
+   with a SHALL statement and at
    least one `#### Scenario:` in `**WHEN** ... / **THEN** ...` form. Cover
    every behavior the brief promises; invent none beyond it.
 4. `design.md` — approach, files to touch, data shapes, trade-offs that were

@@ -4,6 +4,14 @@ Seven subagent roles drive the OpenSpec flow. Single source of truth:
 `agents/*.md` — filename minus `.md` is the role id. Every role is
 model-agnostic (no `model:` pin) and inherits the session model.
 
+The normative behavioral contracts live in
+[`openspec/specs/`](../openspec/specs) — see
+[`agent-role-contracts`](../openspec/specs/agent-role-contracts/spec.md),
+[`role-registration`](../openspec/specs/role-registration/spec.md), and
+[`subagent-execution-policy`](../openspec/specs/subagent-execution-policy/spec.md).
+This catalog is orientation: what each role is for and why the design looks
+like this. Where the two disagree, the specs and the code win.
+
 ## Overview
 
 The orchestrator (the main session running `/openspec.init`,
@@ -126,22 +134,20 @@ role is bounded by three layers:
 
 ## SUBAGENT_CONTRACT injection
 
-The plugin pushes `SUBAGENT_CONTRACT` (from [`core/prompts.ts`](../core/prompts.ts))
-into the system prompt of every role session via the `context` hook. It
-binds all roles at once: report style (findings, then evidence), artifacts
-under `openspec/` as the contract, **never run git write commands**,
-`BLOCKED: <reason>` on guardrail conflicts, `UNVERIFIED` labeling instead
-of guessing, no drive-by refactors.
+Role scoping is kept out of frontmatter on purpose (see Scoping above): a
+single shared contract binds all roles at once — report style, the git-write
+ban, `BLOCKED`/`UNVERIFIED` conventions — instead of duplicating them in
+seven prompts. The plugin injects it into every role session; the exact
+contents and injection mechanism are specified in
+[`subagent-execution-policy`](../openspec/specs/subagent-execution-policy/spec.md),
+implemented in [`core/prompts.ts`](../core/prompts.ts) and the `context` hook.
 
 ## openspec_validate
 
-The mechanical gate, registered by the plugin entry:
-`openspec_validate [change]` runs the upstream CLI
-(`openspec validate <change> --json`, or `--all --json`) and returns
-`VALID …` / `INVALID …:` with numbered violations, or `UNAVAILABLE` — the
-flow skills then offer to install the CLI (`npm install -g
-@fission-ai/openspec` or `brew install openspec`) with the user's explicit
-consent. Upstream owns the rules; this plugin only wraps and formats.
+The flow gates on the upstream CLI rather than reimplementing its rules:
+validation semantics belong to OpenSpec, the plugin only wraps and formats
+the report. The tool's exact contract (arguments, output strings, missing-CLI
+behavior) is specified in [`spec-validation`](../openspec/specs/spec-validation/spec.md).
 
 ## See also
 
