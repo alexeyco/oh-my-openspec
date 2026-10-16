@@ -14,7 +14,8 @@ this command never edits anything — findings are for a future PR.
 
 From the current session, assemble exactly:
 
-- commands run (`/openspec.init`, `/openspec.plan`, `/openspec.apply`) and
+- commands run (`/openspec.init`, `/openspec.plan`, `/openspec.apply`,
+  `/openspec.archive`) and
   their targets;
 - every role dispatch: role, one-line task, final report verbatim;
 - friction lines: `BLOCKED:`, `FAIL`, `NEEDS-FIX`, re-dispatches, extra

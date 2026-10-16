@@ -1,6 +1,7 @@
 // Command descriptions and instruction builders for /openspec.init,
-// /openspec.plan, /openspec.apply, and /openspec.retro. Also contains the
-// SUBAGENT_CONTRACT text injected into every role subagent session.
+// /openspec.plan, /openspec.apply, /openspec.archive, and /openspec.retro.
+// Also contains the SUBAGENT_CONTRACT text injected into every role
+// subagent session.
 
 export const INIT_COMMAND_DESCRIPTION =
   "Bootstrap the project's baseline capability specs through research and critique";
@@ -10,6 +11,9 @@ export const PLAN_COMMAND_DESCRIPTION =
 
 export const APPLY_COMMAND_DESCRIPTION =
   "Implement an OpenSpec change through parallel subagent waves";
+
+export const ARCHIVE_COMMAND_DESCRIPTION =
+  "Archive completed OpenSpec changes through the vendored archive workflows";
 
 export const RETRO_COMMAND_DESCRIPTION =
   "Retrospect the finished run: ≤8 cited findings on the plugin's own prompts";
@@ -48,15 +52,6 @@ export function initInstruction(focus: string, skillPath?: string): string {
   }
 
   return parts.join("\n");
-}
-
-// Build the instruction text for /openspec.retro.
-// It analyzes the current session; no arguments are taken.
-export function retroInstruction(skillPath?: string): string {
-  if (skillPath) {
-    return `Read the skill file ${skillPath} and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.`;
-  }
-  return "Load the openspec-retro skill and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.";
 }
 
 // Build the instruction text for /openspec.plan.
@@ -101,4 +96,58 @@ export function applyInstruction(changeId: string, skillPath?: string): string {
   }
 
   return parts.join("\n");
+}
+
+// Pick the skill id for /openspec.archive from the whitespace-split ids.
+// 0 or 1 ids bind the single-archive skill; only 2+ bind the bulk one.
+export function archiveSkillId(argText: string): string {
+  const ids = argText.trim().split(/\s+/).filter(Boolean);
+
+  return ids.length >= 2
+    ? "openspec-bulk-archive-change"
+    : "openspec-archive-change";
+}
+
+// Build the instruction text for /openspec.archive.
+// When no ids are given, the skill lists active changes and confirms first.
+// The third line is the validation gate and is always present.
+export function archiveInstruction(
+  argText: string,
+  skillPath?: string,
+): string {
+  const ids = argText.trim().split(/\s+/).filter(Boolean);
+  const parts: string[] = [];
+
+  if (skillPath) {
+    parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
+  } else {
+    parts.push(
+      `Load the ${archiveSkillId(argText)} skill and follow it exactly.`,
+    );
+  }
+
+  if (ids.length === 0) {
+    parts.push(
+      "No change ids given — list active changes, confirm with the user which to archive.",
+    );
+  } else if (ids.length === 1) {
+    parts.push(`Change: ${ids[0]}`);
+  } else {
+    parts.push(`Changes: ${ids.join(", ")}`);
+  }
+
+  parts.push(
+    "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.",
+  );
+
+  return parts.join("\n");
+}
+
+// Build the instruction text for /openspec.retro.
+// It analyzes the current session; no arguments are taken.
+export function retroInstruction(skillPath?: string): string {
+  if (skillPath) {
+    return `Read the skill file ${skillPath} and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.`;
+  }
+  return "Load the openspec-retro skill and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.";
 }

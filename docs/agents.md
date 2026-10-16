@@ -15,7 +15,8 @@ like this. Where the two disagree, the specs and the code win.
 ## Overview
 
 The orchestrator (the main session running `/openspec.init`,
-`/openspec.plan`, `/openspec.apply` or `/openspec.retro`) dispatches roles
+`/openspec.plan`, `/openspec.apply`, `/openspec.archive` or
+`/openspec.retro`) dispatches roles
 and never implements itself. Role dispatches are forced into the background by
 [`opencode/background.ts`](../opencode/background.ts), so independent work
 runs concurrently; the orchestrator collects results from completion

@@ -1,8 +1,8 @@
 // OpenCode v2 plugin entry: registers 7 subagent roles from bundled markdown,
-// 16 skills (4 flow skills + 12 vendored OpenSpec workflow skills), four
+// 16 skills (4 flow skills + 12 vendored OpenSpec workflow skills), five
 // commands (/openspec.init, /openspec.plan, /openspec.apply,
-// /openspec.retro), and the openspec_validate tool (mechanical gate
-// wrapping the upstream CLI).
+// /openspec.archive, /openspec.retro), and the openspec_validate tool
+// (mechanical gate wrapping the upstream CLI).
 // Injects SUBAGENT_CONTRACT into every role's session context.
 
 import { readFileSync } from "node:fs";
@@ -11,12 +11,15 @@ import { Agent, Plugin, Skill } from "@opencode/plugin";
 import { parseMarkdown, validateSkillDoc } from "../core/markdown.ts";
 import { loadRoles, ROLE_IDS } from "../core/roles.ts";
 import {
+  ARCHIVE_COMMAND_DESCRIPTION,
   APPLY_COMMAND_DESCRIPTION,
   INIT_COMMAND_DESCRIPTION,
   PLAN_COMMAND_DESCRIPTION,
   RETRO_COMMAND_DESCRIPTION,
   SUBAGENT_CONTRACT,
   applyInstruction,
+  archiveInstruction,
+  archiveSkillId,
   initInstruction,
   planInstruction,
   retroInstruction,
@@ -143,6 +146,9 @@ export default Plugin.define({
     // change artifacts, critic loop, mechanical validate gate.
     // /openspec.apply [change-id] — implement tasks.md through
     // dependency-ordered parallel subagent waves with verification.
+    // /openspec.archive [change-id ...] — archive completed changes through
+    // the vendored archive workflows: zero or one change id binds
+    // openspec-archive-change, two or more bind openspec-bulk-archive-change.
     // /openspec.retro — retrospect the finished run: evidence bundle →
     // openspec-retrospector → ≤8 cited findings on the plugin's own prompts.
     // None of the commands ever touches git.
@@ -177,6 +183,17 @@ export default Plugin.define({
             sessionID: sessionID as never,
             text: applyInstruction(prompt?.text ?? ""),
             skills: [{ id: Skill.ID.make("openspec-apply") }],
+          } as never);
+        },
+      });
+      editor.add({
+        name: "openspec.archive",
+        description: ARCHIVE_COMMAND_DESCRIPTION,
+        execute: async ({ sessionID, prompt }) => {
+          await ctx.session.prompt({
+            sessionID: sessionID as never,
+            text: archiveInstruction(prompt?.text ?? ""),
+            skills: [{ id: Skill.ID.make(archiveSkillId(prompt?.text ?? "")) }],
           } as never);
         },
       });
