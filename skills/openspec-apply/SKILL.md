@@ -96,7 +96,7 @@ Final report:
 - Verification summary: scenarios PASS count / total, gate VALID.
 - `git diff --stat` of the working tree.
 - Next steps for the user, in their hands: review the diff, commit, then
-  archive with `/openspec-archive-change <change-id>`.
+  archive with `/openspec.archive <change-id>`.
 
 ## Guardrails
 

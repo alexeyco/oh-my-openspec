@@ -4,11 +4,14 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   APPLY_COMMAND_DESCRIPTION,
+  ARCHIVE_COMMAND_DESCRIPTION,
   INIT_COMMAND_DESCRIPTION,
   PLAN_COMMAND_DESCRIPTION,
   RETRO_COMMAND_DESCRIPTION,
   SUBAGENT_CONTRACT,
   applyInstruction,
+  archiveInstruction,
+  archiveSkillId,
   initInstruction,
   planInstruction,
   retroInstruction,
@@ -56,6 +59,98 @@ describe("applyInstruction", () => {
   });
 });
 
+const GATE_LINE =
+  "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.";
+
+describe("archiveInstruction", () => {
+  it("pins the single-id output", () => {
+    assert.equal(
+      archiveInstruction("add-dark-mode"),
+      [
+        "Load the openspec-archive-change skill and follow it exactly.",
+        "Change: add-dark-mode",
+        GATE_LINE,
+      ].join("\n"),
+    );
+  });
+
+  it("pins the bulk output", () => {
+    assert.equal(
+      archiveInstruction("add-a add-b"),
+      [
+        "Load the openspec-bulk-archive-change skill and follow it exactly.",
+        "Changes: add-a, add-b",
+        GATE_LINE,
+      ].join("\n"),
+    );
+  });
+
+  it("trims and collapses ids, preserving order", () => {
+    const text = archiveInstruction("  add-b   add-a  ");
+    assert.equal(
+      text.split("\n")[1],
+      "Changes: add-b, add-a",
+      "no stray spacing around commas",
+    );
+  });
+
+  it("pins the empty fallback with no Change:/Changes: line", () => {
+    const text = archiveInstruction("   ");
+    assert.equal(
+      text,
+      [
+        "Load the openspec-archive-change skill and follow it exactly.",
+        "No change ids given — list active changes, confirm with the user which to archive.",
+        GATE_LINE,
+      ].join("\n"),
+    );
+    assert.doesNotMatch(text, /^Change(s)?:/m);
+  });
+
+  it("ends with the gate line in every form", () => {
+    for (const argText of ["add-dark-mode", "add-a add-b add-c", ""]) {
+      const lines = archiveInstruction(argText).split("\n");
+      assert.equal(lines.at(-1), GATE_LINE, `gate last for: ${argText}`);
+    }
+  });
+
+  it("prefers an explicit skill path", () => {
+    const text = archiveInstruction("add-dark-mode", "/abs/SKILL.md");
+    assert.equal(
+      text.split("\n")[0],
+      "Read the skill file /abs/SKILL.md and follow it exactly.",
+    );
+    assert.doesNotMatch(text, /Load the openspec-archive-change/);
+  });
+});
+
+describe("archiveSkillId", () => {
+  it("binds the single skill for zero or one id", () => {
+    for (const argText of ["", "  ", "add-dark-mode"]) {
+      assert.equal(
+        archiveSkillId(argText),
+        "openspec-archive-change",
+        `argText: ${JSON.stringify(argText)}`,
+      );
+    }
+  });
+
+  it("binds the bulk skill for two or more ids", () => {
+    for (const argText of [
+      "add-a add-b",
+      "add-a add-b add-c",
+      "  add-a   add-b  ",
+      "  add-a  add-b   add-c ",
+    ]) {
+      assert.equal(
+        archiveSkillId(argText),
+        "openspec-bulk-archive-change",
+        `argText: ${JSON.stringify(argText)}`,
+      );
+    }
+  });
+});
+
 describe("retroInstruction", () => {
   it("names the skill and the bundle step", () => {
     const text = retroInstruction();
@@ -85,6 +180,7 @@ describe("command descriptions", () => {
       INIT_COMMAND_DESCRIPTION,
       PLAN_COMMAND_DESCRIPTION,
       APPLY_COMMAND_DESCRIPTION,
+      ARCHIVE_COMMAND_DESCRIPTION,
       RETRO_COMMAND_DESCRIPTION,
     ]) {
       assert.ok(d.length > 10 && !d.includes("\n"));
