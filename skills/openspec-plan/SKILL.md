@@ -45,8 +45,11 @@ Ask about at most 5 questions per round, ordered by `Impact × Uncertainty`
 - Out of scope: what this change must not touch.
 - Capability name(s) the behavior belongs to.
 
-Skip questions the request already answers. Label anything the user leaves
-implicit `ASSUMPTION:` — the planner seeds these into the artifacts.
+Skip questions the request already answers. Every question defines its terms
+with a concrete example or an either/or gloss; when the user signals
+non-understanding, in any language, restate the question with the gloss before
+recording an answer as `ASSUMPTION:`. Label anything the user leaves implicit
+`ASSUMPTION:` — the planner seeds these into the artifacts.
 
 ### 4. Research
 
@@ -83,9 +86,11 @@ intent before it becomes paper.
 
 ### 6. Playback gate
 
-Restate intent in six lines — `Outcome / Why now / Success / Constraints /
-Out of scope / Rejected risks` — and get explicit confirmation before any
-file is written.
+Restate intent in seven lines — `Outcome / Why now / Success / Constraints /
+Out of scope / Rejected risks / Established` — and get explicit confirmation
+before any file is written. `Established:` recites up to five decision-relevant
+research findings the user might re-ask, one per line, absences included (e.g.
+"X exposes no theme API").
 
 ### 7. Draft
 

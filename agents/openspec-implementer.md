@@ -29,6 +29,14 @@ Report format:
 - Evidence: commands executed with key output lines (test results, build output).
 - Status: DONE or BLOCKED with reason.
 - If BLOCKED: state which guardrail, scenario, or conflict caused it, verbatim.
+- DEFERRED: one line per spec-mapped task left unticked, required alongside
+  the status — `DEFERRED: <task-id> — <reason> — <user action>`. This is the
+  only legal way to leave a spec-mapped task unticked, admissible only when
+  completing the task requires actions or authority outside the
+  implementer's remit (a user request, an external resource). Never
+  admissible for tasks in manual/eyeball acceptance groups — the §6 gate
+  runs those with the user, so they end ticked or the run halts. Every
+  other unfinished task means `BLOCKED`, never a deferral.
 - Choices: every decision taken where the artifacts were silent (naming,
   error handling, edge-case behavior, library pick), one line each as
   `<decision> — <reason>`. Write `Choices: none` when there were none.

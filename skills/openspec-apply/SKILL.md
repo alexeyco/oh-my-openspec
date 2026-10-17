@@ -49,6 +49,10 @@ For each wave, in order:
   requirement/scenario sections they implement, design.md decisions touching
   the group, and the wave table row it belongs to.
 - Implementers tick their own `- [ ]` → `- [x]` in `tasks.md`.
+- A user request arriving mid-wave is first checked against the wave table —
+  the single source of execution order (Guardrails) — and the remaining
+  `tasks.md` items; a covering task is cited, never duplicated by a new
+  dispatch.
 
 ### 5. Blockage and conflict
 
@@ -59,9 +63,19 @@ affected wave:
   mini-wave after its conflicting sibling completes.
 - Guardrail or plan defect → halt and ask the user (irreversible action,
   security change, external side effect, broken plan are always user
-  decisions). Never lower the bar to get green.
+  decisions). Never lower the bar to get green. Exception: a
+  prompt-truncation `BLOCKED:` is the orchestrator's defect, not the
+  plan's — re-dispatch the group with a numbered edit list of ≤150 lines
+  referencing `file:line`, not inlined spec or transcript text.
 
 ### 6. Verify
+
+Before §7 Review, the orchestrator's ordering gate: every manual/eyeball
+acceptance group in `tasks.md` is executed with the user and its
+confirmation recorded — no change enters Review with any such group
+unticked. `DEFERRED:` is inadmissible for tasks in those groups — they end
+ticked or the run halts. This gate is ordering only; the verifier's
+`tasks.md` consistency check stays a separate mechanical audit.
 
 After the final wave: dispatch one `openspec-verifier` per capability spec
 file in parallel. Each runs the mechanical gate, executes every scenario's
@@ -73,6 +87,10 @@ WHEN/THEN, and checks `tasks.md` consistency.
 - Rejected: verifier reports that repeat the original claim with a weakened
   bar (skipped test, widened assertion) → treat as FAIL, do not re-dispatch
   the same implementer unchanged.
+- Relay every implementer `DEFERRED:` line (`DEFERRED: <task-id> — <reason>
+— <user action>`) verbatim to the user before §7 Review starts; a
+  deferral naming a task in a manual/eyeball group halts at the gate above
+  instead of being relayed.
 
 ### 7. Review
 
@@ -82,6 +100,10 @@ table and verifier notes.
 
 - `CHANGES-REQUESTED` → fix round (implementer), then scoped re-review: only
   the open findings, answered `ADDRESSED` / `NOT-ADDRESSED`.
+- On `CHANGES-REQUESTED`, before dispatching the re-review, run the repo's
+  own markdown/lint check over every `openspec/` artifact the fix round
+  touched, when the repo has one, and paste its output into the re-review
+  dispatch.
 - BLOCKING findings left at the user's explicit choice only, recorded as
   `ruling:` lines.
 
@@ -93,10 +115,15 @@ Final report:
 - `choice:` entries — every implementer `Choices:` decision worth the user's
   eye, one line each (`none` if empty).
 - `ruling:` entries — user-approved deviations, verbatim.
+- `DEFERRED:` entries — verbatim, one line each
+  (`DEFERRED: <task-id> — <reason> — <user action>`).
 - Verification summary: scenarios PASS count / total, gate VALID.
 - `git diff --stat` of the working tree.
 - Next steps for the user, in their hands: review the diff, commit, then
   archive with `/openspec.archive <change-id>`.
+- Branching questions are answered by citing the repo's `CONTRIBUTING.md`
+  branch-naming convention, e.g. `feat/<topic>` — branch creation, renaming,
+  and commits stay the user's; the flow performs no git writes.
 
 ## Guardrails
 
