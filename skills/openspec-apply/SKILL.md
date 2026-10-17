@@ -34,7 +34,9 @@ Run `openspec_validate` with the change id.
 Dispatch `openspec-planner` with `MODE: waves` over `tasks.md` + `design.md`.
 It returns ordered waves of task groups (groups run in parallel within a
 wave; overlapping files serialize groups into later waves; conservative
-choices on uncertainty). Record the wave table in the session before
+choices on uncertainty). Each wave-table row lists its groups' exact file
+paths, and the planner's `MODE: waves` rules are the source of truth for
+how waves are formed. Record the wave table in the session before
 dispatching.
 
 ### 4. Execute waves
@@ -47,7 +49,7 @@ For each wave, in order:
   completion notifications, never by polling.
 - Each implementer prompt carries verbatim: the group's tasks, the spec
   requirement/scenario sections they implement, design.md decisions touching
-  the group, and the wave table row it belongs to.
+  the group, and the full wave table, including each group's assigned files.
 - Implementers tick their own `- [ ]` → `- [x]` in `tasks.md`.
 - A user request arriving mid-wave is first checked against the wave table —
   the single source of execution order (Guardrails) — and the remaining
@@ -91,12 +93,17 @@ WHEN/THEN, and checks `tasks.md` consistency.
 — <user action>`) verbatim to the user before §7 Review starts; a
   deferral naming a task in a manual/eyeball group halts at the gate above
   instead of being relayed.
+- After the final wave, before §7 Review, the orchestrator (or a designated
+  dispatch) performs the post-final-wave full check suite run once and
+  cites its output in the reviewer payload; implementer-scoped runs do
+  not replace it.
 
 ### 7. Review
 
 Dispatch `openspec-reviewer` over the cumulative diff (`git diff --stat` +
 full diff) with a `REVIEW FOCUS:` block: the riskiest hunks from the wave
-table and verifier notes.
+table, verifier notes, and the verbatim `Choices:` report lines of every
+wave implementer (including `Choices: none`).
 
 - `CHANGES-REQUESTED` → fix round (implementer), then scoped re-review: only
   the open findings, answered `ADDRESSED` / `NOT-ADDRESSED`.
@@ -117,10 +124,17 @@ Final report:
 - `ruling:` entries — user-approved deviations, verbatim.
 - `DEFERRED:` entries — verbatim, one line each
   (`DEFERRED: <task-id> — <reason> — <user action>`).
-- Verification summary: scenarios PASS count / total, gate VALID.
+- Verification summary: scenarios PASS count / total, gate VALID;
+  `PASS (composited)` lines count as passes.
+- `NO-REGRESSION-TEST:` entries — every verifier line relayed verbatim,
+  one line each.
 - `git diff --stat` of the working tree.
 - Next steps for the user, in their hands: review the diff, commit, then
-  archive with `/openspec.archive <change-id>`.
+  archive with `/openspec.archive <change-id>`. Offered commands are this
+  plugin's slash commands (`/openspec.<name>`) whenever one exists for the
+  action; a skill id is never offered as a command; the upstream `openspec`
+  CLI or a vendored `/openspec-<name>` command is offered only where the
+  plugin has no equivalent.
 - Branching questions are answered by citing the repo's `CONTRIBUTING.md`
   branch-naming convention, e.g. `feat/<topic>` — branch creation, renaming,
   and commits stay the user's; the flow performs no git writes.

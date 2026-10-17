@@ -33,6 +33,7 @@ export const SUBAGENT_CONTRACT = [
   "stop and report `BLOCKED: <reason>`. Label anything you could not verify",
   "as UNVERIFIED — never guess. Do exactly the scoped work; no drive-by",
   "refactors.",
+  "Write every report in English, regardless of the session's reply language.",
 ].join("\n");
 
 // Build the instruction text for /openspec.init.

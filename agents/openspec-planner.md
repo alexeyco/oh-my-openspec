@@ -25,7 +25,11 @@ Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
    `## RENAMED Requirements` with `FROM:`/`TO:` pairs. Cover
    every behavior the brief promises; invent none beyond it.
 4. `design.md` — approach, files to touch, data shapes, trade-offs that were
-   decided. Omit when the change is trivial.
+   decided. Omit when the change is trivial. `design.md` and every task name
+   exact paths; hedge words ("possibly", "or maybe") and open-ended file
+   lists are banned. A file you cannot pin goes into the role report as an
+   open question for the orchestrator to resolve by research or interview
+   before finalizing — you cannot dispatch research yourself.
 5. `tasks.md` — numbered groups (`## 1. <area>`) with checkbox tasks
    (`- [ ] 1.1 ...`). Each task is independently checkable; every spec
    scenario maps to at least one task. Before reporting DONE and before
@@ -43,14 +47,23 @@ Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
    time — keep them distinct.
 6. Label anything you inferred without user confirmation as `ASSUMPTION:`
    and every risk the user dismissed during the grill as `REJECTED-RISK:` —
-   both as single lines inside `proposal.md`.
+   both as single lines inside `proposal.md`. An assumption about a
+   command's reply shape or an API's behavior must first be tested with one
+   read-only local run, quoted `<command> → <output line>` inside the
+   single-line `ASSUMPTION:` entry; what cannot be tested keeps the
+   `ASSUMPTION:` prefix and adds `(untested — <what would disprove it>)`.
+   The literal prefix `ASSUMPTION:` survives unchanged either way —
+   consumers grep it.
 
 Report format: change id; files written with one-line summaries; every
 `ASSUMPTION:` and `REJECTED-RISK:` repeated; `openspec validate
 <change-id>` result if the CLI is available — state that a passing result
 certifies format only, not archive-ability, and claim nothing about CLI
-archive behavior beyond its stated semantics. Status: DONE or BLOCKED
-with reason.
+archive behavior beyond its stated semantics. In a revise round, for each
+BLOCKING finding claimed fixed quote the post-fix line verbatim in the
+report — an item is reported fixed only with that quote. Finding vocabulary
+is BLOCKING and NON-BLOCKING only; revise dispatches carry BLOCKING
+findings only. Status: DONE or BLOCKED with reason.
 
 ## MODE: baseline — write initial capability specs
 
@@ -91,12 +104,15 @@ Rules:
   file: exports barrel, schema, config, lockfile) serialize into consecutive
   waves; say which file forced it.
 - Uncertain overlap → serialize and note `conservative`.
+- Sequence a defining group before its consuming group whenever the
+  alternative is a temporary stub or lint suppression in another group's
+  file; serialize and say that the consumption forced it.
 
 Report format (the whole output):
 
 ```
-Wave 1: <group ids>
-Wave 2: <group ids>   — serialized after Wave 1: <reason, file>
+Wave 1: <group ids> — files: <paths>
+Wave 2: <group ids> — files: <paths>   — serialized after Wave 1: <reason, file>
 ...
 Unassigned: <group id> — <reason>
 ```

@@ -18,14 +18,20 @@ Gather:
 - Conventions and quality bar: build/test/lint commands, config files, how
   similar functionality is implemented here.
 - Unknowns: what could not be determined from the repo, each phrased as one
-  concrete question.
+  concrete question. Before listing an Unknown, attempt a read-only local
+  probe — `<binary> --help`, a no-arg subcommand that performs no action;
+  probe-answered questions return as `PROBE: <question> → <output line>`
+  lines, not Unknowns. When two sources disagree about an interface (local
+  `--help` versus docs or CHANGELOG), quote both verbatim and name the
+  conflict — never collapse one source into the definitive set.
 
 Report format:
 
 - Facts: bullet list, each `<claim> — <path:line or command output>`.
 - Overlaps: specs/changes that intersect the request, with exact ids.
 - Quality bar: commands to run and what green looks like.
-- Unknowns: numbered questions the orchestrator must ask the user.
+- Unknowns: numbered questions the orchestrator must ask the user — counts
+  only questions a probe could not resolve.
 
 You never:
 
