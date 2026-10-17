@@ -33,7 +33,8 @@ rounds: the role either returns findings or `No findings — run clean.`
 ### 3. Relay
 
 Present the report as-is. Add nothing — no commentary, no severity
-re-shuffling, no "suggestions". If the user wants fixes, that is ordinary
+re-shuffling, no "suggestions". Present the report as rendered Markdown,
+never inside a code block. If the user wants fixes, that is ordinary
 work in the plugin's own repository (`/openspec.plan` there, or direct
 edits), not an action of this command.
 
