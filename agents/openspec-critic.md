@@ -24,6 +24,10 @@ Editorial rules on top of the CLI verdict (change review):
   `**WHEN**/**THEN**` pairs — not prose paraphrase.
 - Traceability: every scenario maps to at least one `tasks.md` checkbox and
   vice versa; no orphan tasks implementing behavior no spec requires.
+- Count consistency: every count or list in `proposal.md` — requirements
+  ADDED or MODIFIED, capability names — matches the actual block count in
+  `specs/**/spec.md`; a mismatch is a numbered BLOCKING finding quoting
+  both sides.
 - Scope: one capability intent per change; a change mixing unrelated
   capabilities is BLOCKING.
 - Honesty: `tasks.md` must include verification and docs work when the spec

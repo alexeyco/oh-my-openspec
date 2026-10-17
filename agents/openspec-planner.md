@@ -19,21 +19,38 @@ Turn the confirmed brief into a complete OpenSpec change under
 3. `specs/<capability>/spec.md` — delta requirements: `## ADDED|MODIFIED|REMOVED|RENAMED
 Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
    with a SHALL statement and at
-   least one `#### Scenario:` in `**WHEN** ... / **THEN** ...` form. Cover
+   least one `#### Scenario:` in `**WHEN** ... / **THEN** ...` form. A
+   `### Requirement:` under `## MODIFIED` must match the baseline header
+   verbatim — the delta merges by header name — and a rename goes instead to
+   `## RENAMED Requirements` with `FROM:`/`TO:` pairs. Cover
    every behavior the brief promises; invent none beyond it.
 4. `design.md` — approach, files to touch, data shapes, trade-offs that were
    decided. Omit when the change is trivial.
 5. `tasks.md` — numbered groups (`## 1. <area>`) with checkbox tasks
    (`- [ ] 1.1 ...`). Each task is independently checkable; every spec
-   scenario maps to at least one task.
+   scenario maps to at least one task. Before reporting DONE and before
+   finishing a revise round, re-read `tasks.md` against the delta specs:
+   every cited scenario name matches a `#### Scenario:` heading verbatim,
+   and no two scenarios assert contradictory output. Never carry a
+   conditional-fallback task in place of fixing a `## MODIFIED` header —
+   fix the header or move the rename to `## RENAMED Requirements`. A group
+   that drops a lint suppression or renames a symbol greps its call and
+   test sites in that same task and states the build result expected after
+   that group alone. Groups inseparable without leaving the tree
+   uncompilable merge into one group: merging is compile coupling at
+   writing time, while the `MODE: waves` rule to serialize
+   overlapping-file groups is a parallel-dispatch conflict at scheduling
+   time — keep them distinct.
 6. Label anything you inferred without user confirmation as `ASSUMPTION:`
    and every risk the user dismissed during the grill as `REJECTED-RISK:` —
    both as single lines inside `proposal.md`.
 
 Report format: change id; files written with one-line summaries; every
 `ASSUMPTION:` and `REJECTED-RISK:` repeated; `openspec validate
-<change-id>` result if the CLI is available. Status: DONE or BLOCKED with
-reason.
+<change-id>` result if the CLI is available — state that a passing result
+certifies format only, not archive-ability, and claim nothing about CLI
+archive behavior beyond its stated semantics. Status: DONE or BLOCKED
+with reason.
 
 ## MODE: baseline — write initial capability specs
 

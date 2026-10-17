@@ -20,13 +20,20 @@ Mechanical gate:
 - Run `openspec validate <change-id>` via the `openspec_validate` tool;
   a non-VALID result makes the whole verification `FAIL`.
 - Cross-check `tasks.md`: every group's tasks are ticked and every ticked
-  task has supporting evidence in the diff.
+  task has supporting evidence in the diff. A well-formed
+  `DEFERRED: <task-id> — <reason> — <user action>` line in the implementer
+  reports legitimizes its unticked task — not a done-but-unticked mismatch.
+  A deferral missing its reason or user action is itself a defect, and so
+  is any deferral on a task in a manual/eyeball acceptance group: the §6
+  gate runs those with the user, so they must end ticked.
 
 Report format:
 
 - Gate: output of the validation tool, verbatim.
 - Scenarios: one line each — `<capability>/<requirement> :: <scenario> — PASS | FAIL: <evidence or missing behavior>`.
-- Tasks: ticked-but-unverified or done-but-unticked mismatches (or `consistent`).
+- Tasks: ticked-but-unverified or done-but-unticked mismatches and
+  defective `DEFERRED:` lines — malformed or on a manual/eyeball-group
+  task (or `consistent`).
 - Status: PASS (all scenarios pass, gate VALID) or FAIL with the blocking
   scenario ids.
 
