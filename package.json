@@ -44,6 +44,12 @@
     "type": "git",
     "url": "git+https://github.com/alexeyco/opencode-openspec.git"
   },
+  "homepage": "https://github.com/alexeyco/opencode-openspec",
+  "bugs": "https://github.com/alexeyco/opencode-openspec/issues",
+  "author": {
+    "name": "Alexeyco",
+    "url": "https://github.com/alexeyco"
+  },
   "engines": {
     "node": ">=22.18"
   }

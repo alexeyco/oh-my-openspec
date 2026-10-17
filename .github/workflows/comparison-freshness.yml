@@ -1,0 +1,76 @@
+# Monthly freshness check of the README `## Comparison` section: drift
+# files or updates the single `comparison-drift` issue (the issue is the
+# alarm, so drift alone stays green), and an unreachable source goes red
+# without touching the issue — a run that could not reach its sources
+# cannot vouch for the table.
+name: comparison-freshness
+
+on:
+  schedule:
+    # Day 1 at 06:00 UTC — monthly, so the rot window is bounded. It
+    # shares the 06 hour with vendor-sync's daily 06:17 run but never
+    # the same minute.
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+# Serialize dispatch against the scheduled run: two concurrent runs
+# could both see zero open comparison-drift issues in the dedup GET
+# and both POST. Pending runs wait rather than cancel — the check is
+# cheap and the rot window is a month wide.
+concurrency:
+  group: comparison-freshness
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Actions does not export the token as an environment variable
+      # automatically; publish.yml is the repo precedent for the explicit
+      # secret-to-env mapping. Job level, not step level, because both
+      # consumers need it: the check step's commits call (authenticated
+      # 5000/h instead of the shared-runner-IP anonymous 60/h) and the
+      # issue step's REST calls.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # DUAL-UPDATE RULE: on drift, update BOTH the README Comparison
+      # section and these env lines together — the script judges these
+      # values against the live sources and checks the README's
+      # presence substrings against them. No self-package entry here:
+      # this package's version is machine-owned.
+      EXPECT_PACKAGES: opencode-plugin-openspec@0.1.4,@moyaspace/openspec-superpowers-opencode@1.1.1,@lininn/openflow@0.5.2
+      ABSENT_PACKAGES: opencode-openspec
+      SINGLE_COMMIT_REPO: AngDrew/opencode-openspec@2026-02-01
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          # No cache key: the script imports Node builtins only, so
+          # dependencies are never installed.
+      - name: Check the README comparison table
+        id: check
+        # Capture the exit code instead of failing the step: 0 clean,
+        # 1 drift (issue filed below), 2 unreachable source (red run
+        # below). Any other code is an environment failure (127 node
+        # missing, 137 killed): fail the step now — the conditional
+        # steps below key on exact codes, so no issue is filed.
+        # Every run, clean ones included, leaves a job-summary audit trail.
+        run: |
+          set +e
+          node scripts/check-comparison.mjs --report drift-report.md --summary "$GITHUB_STEP_SUMMARY"
+          code=$?
+          case "$code" in 0|1|2) ;; *) echo "comparison-check: unknown exit code $code" >&2; exit "$code";; esac
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: File or update the comparison-drift issue
+        if: steps.check.outputs.code == '1'
+        run: node scripts/check-comparison.mjs --report-issue drift-report.md
+      - name: Go red when a source was unreachable
+        if: steps.check.outputs.code == '2'
+        run: |
+          echo "comparison-check: exit 2 — a source was unreachable, so no issue was filed; see the findings above" >&2
+          exit 1
