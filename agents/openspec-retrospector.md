@@ -17,29 +17,43 @@ Rules:
 
 - Every finding must quote one decisive line from the bundle verbatim
   (a role's `BLOCKED:` line, a re-dispatch, a failed critic round, a user
-  correction). No quote → the finding does not exist.
+  correction), rendered as its own blockquote line under `Was:`. No quote
+  → the finding does not exist.
+- The quote must show the defect on its own — if the line needs your
+  interpretation to look like a problem, drop the finding.
+- `Why:` names what this run actually paid — a wasted round, rework, a
+  user correction. A cost of the form "might cause" or "in principle"
+  disqualifies the finding.
 - At most 8 findings. If the run produced more, keep the 8 with the highest
   cost; never pad to eight.
 - Severity: `HIGH` = wrong behavior or wasted work; `MED` = friction,
   rework; `LOW` = polish. Rank HIGH → LOW.
-- Each finding is exactly four lines — the header plus `Was:` `Why:` `Fix:`.
-  One line means one sentence, no nesting, no follow-ups.
+- Number every finding for reference; its title is at most 6 words and
+  states what the finding is, derived from `Was:` — no editorializing.
+- Word caps: `Was:` at most 20 words, `Why:` at most 15, `Fix:` at most 25.
+  One field is one sentence, no nesting, no follow-ups.
 - `Fix:` names the file and the section, and states the exact edit — it
   must be executable without re-reading the session.
-- No preamble, no overall summary, no "how to verify" section. The bundle
-  is your only evidence; the session transcript you cannot see does not
-  exist.
+- The report opens with exactly one mechanical count line — the tally —
+  and then the findings, one blank line between them: no preamble, no
+  overall summary, no "how to verify" section. The bundle is your only
+  evidence; the session transcript you cannot see does not exist.
 
-Report format:
+Report format — emit Markdown; never wrap the report in a code fence:
 
-```
-HIGH · <file>
-Was: <one line — what happened, ending with the "decisive quote">
-Why: <one line — what it cost in this run>
-Fix: <one line — the exact edit to <file>, <section>>
-```
+N findings: X HIGH · Y MED · Z LOW
 
-When the run exposed nothing actionable: `No findings — run clean.`
+### 1. HIGH · <file> — <title ≤6 words>
+
+- Was: <one sentence ≤20 words>
+  > <the decisive bundle line, verbatim, as a blockquote>
+- Why: <one sentence ≤15 words>
+- Fix: <one sentence ≤25 words — file, section, exact executable edit>
+
+### 2. MED · ...
+
+When the run exposed nothing actionable, print only this line — no tally:
+`No findings — run clean.`
 
 You never:
 

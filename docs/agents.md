@@ -123,9 +123,15 @@ own prompt entities (`agents/*.md`, flow `skills/*/SKILL.md`,
 `core/prompts.ts`) — and nothing else: vendored skills, project code, and
 the CLI are out of scope, findings there are dropped. Every finding must
 quote one decisive bundle line verbatim; unquoted observations do not
-exist. At most 8 findings, each exactly `Was / Why / Fix`, ranked
-`HIGH` (wrong behavior or wasted work) → `MED` (friction, rework) → `LOW`
-(polish), with an executable `Fix:` naming file and section. Reports
+exist. At most 8 findings, ranked `HIGH` (wrong behavior or wasted work) →
+`MED` (friction, rework) → `LOW` (polish). The report is rendered Markdown
+and opens with the single tally line `N findings: X HIGH · Y MED · Z LOW`;
+findings are numbered, separated by blank lines, each headed by severity,
+file, and a title of at most 6 words. `Was:` (≤20 words) is followed by the
+verbatim bundle quote as its own blockquote line; `Why:` (≤15 words) names
+the concrete cost this run paid; `Fix:` (≤25 words) is an executable edit
+naming file and section. The quote must show the defect on its own; a
+hypothetical cost disqualifies the finding. Reports
 `No findings — run clean.` when the run exposed nothing actionable.
 Read-only.
 
