@@ -556,9 +556,10 @@ check-comparison Makefile .github/workflows/ci.yml` → 0 matches
 
 ## 5. Manual acceptance (user-confirmed)
 
-- [ ] 5.1 After push, the user triggers one `workflow_dispatch` run
-      on the feature branch (Actions lets selecting the branch; merge
-      not required) of `comparison-freshness` and confirms: the run
+- [ ] 5.1 After merge to the default branch (a newly added workflow
+      appears in the Actions tab only once its file is on the default
+      branch), the user triggers one `workflow_dispatch` run
+      of `comparison-freshness` and confirms: the run
       is green and no
       issue was created (the README is drift-free today), AND —
       reading the run's job summary in the Actions UI — the job
