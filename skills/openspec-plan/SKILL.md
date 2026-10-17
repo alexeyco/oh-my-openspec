@@ -55,8 +55,11 @@ recording an answer as `ASSUMPTION:`. Label anything the user leaves implicit
 
 Dispatch `openspec-researcher` subagents in parallel — one per unknown area
 (codebase region, existing capability, conventions). Wait for every report.
-Feed facts into the next steps; surface their `Unknowns:` questions in the
-following interview round.
+Every Unknown a read-only local command can answer (`<binary> --help`, a
+no-arg subcommand that performs no action) is re-dispatched to a researcher
+with a `PROBE:` line; no probe-resolvable Unknown survives into the §6
+playback. Feed facts into the next steps; surface their `Unknowns:` questions
+in the following interview round.
 
 ### 5. Grill (1–3 rounds, up to 5)
 
@@ -105,8 +108,16 @@ Dispatch `openspec-critic` on the drafted change.
 
 - `NEEDS-FIX` → dispatch `openspec-planner` with the exact BLOCKING list to
   revise; repeat.
-- `CLEAN` → continue. After 3 rounds still `NEEDS-FIX` → present the open
-  findings to the user and ask whether to accept or stop.
+- Wait for the planner revision to report DONE (the role's Status line)
+  before dispatching the next critic; never batch a critic with the revision
+  whose files it reads.
+- `CLEAN` → continue.
+- After 3 rounds still `NEEDS-FIX` → present the open findings to the user
+  and ask: accept them, run one final planner revise plus mechanical
+  `openspec_validate` with no further critic, or stop. A final revise ending
+  with INVALID output is fixed mechanically and re-validated until VALID —
+  never waived, the next bullet holds at loop end; only editorial findings
+  are acceptable by user choice.
 - Mechanical INVALID lines from the critic are always fixed first, never
   waived by you.
 
@@ -116,8 +127,14 @@ Present: change id, file list with one-line summaries, every `ASSUMPTION:`
 and `REJECTED-RISK:` line verbatim, validation result. Ask the user to
 confirm.
 
-- Confirmed → final report: files, gate output, next step
+- Confirmed → final report: files, gate output, the current branch read from
+  a read-only `git branch --show-current`-style check or "no branch yet"
+  (reporting only — not a §1 precondition, no branch creation), next step
   `/openspec.apply <change-id>`. Stop — do not implement in the same breath.
+  Offered commands are this plugin's slash commands (`/openspec.<name>`)
+  whenever one exists for the action; a skill id is never offered as a
+  command; the upstream `openspec` CLI or a vendored `/openspec-<name>`
+  command is offered only where the plugin has no equivalent.
 - Rejected → collect the fix list as one interview round, go to §7.
 
 ## Guardrails

@@ -15,8 +15,11 @@ Rules:
   correct the artifacts.
 - Tick `- [ ]` → `- [x]` for tasks you actually completed — in your group
   only. Never reorder, renumber, or edit other groups' lines.
-- Run the project's checks (tests, lint, typecheck) when they exist —
-  evidence must come from a full run, not a cherry-picked subset.
+- When you are the sole implementer of your wave, run the project's full
+  check suite (tests, lint, typecheck) when it exists — evidence must come
+  from a full run, not a cherry-picked subset. Otherwise run the suite
+  scoped to the group's files, state the scope in Evidence, and defer the
+  full run to the apply flow's post-final-wave full check suite run.
 - Never lower the bar to reach green — no threshold moves, test weakening,
   checker silencing, unfinished stubs, or exception carve-outs. If a check
   cannot pass without one, report `BLOCKED: <reason>` instead.
@@ -34,8 +37,9 @@ Report format:
   only legal way to leave a spec-mapped task unticked, admissible only when
   completing the task requires actions or authority outside the
   implementer's remit (a user request, an external resource). Never
-  admissible for tasks in manual/eyeball acceptance groups — the §6 gate
-  runs those with the user, so they end ticked or the run halts. Every
+  admissible for tasks in manual/eyeball acceptance groups — the apply
+  flow's manual/eyeball acceptance gate runs those with the user, so they
+  end ticked or the run halts. Every
   other unfinished task means `BLOCKED`, never a deferral.
 - Choices: every decision taken where the artifacts were silent (naming,
   error handling, edge-case behavior, library pick), one line each as

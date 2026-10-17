@@ -52,8 +52,9 @@ notifications, never by polling.
 
 Explores the repository and existing OpenSpec artifacts for verifiable
 facts: code with `path:line`, live specs that constrain the request, active
-changes that overlap, project quality bar. Read-only. Unknowns come back as
-numbered questions for the next interview round.
+changes that overlap, project quality bar. Read-only. Questions a read-only
+local probe can answer come back as `PROBE:` answer lines; only numbered
+questions a probe could not resolve reach the next interview round.
 
 ### openspec-planner
 
@@ -91,9 +92,12 @@ say so. Reports `CLEAN` or
 
 Executes exactly one numbered task group. The spec scenarios quoted into
 its prompt are the contract; it ticks only its own `- [ ]` boxes, runs the
-project's full checks, and reports DONE/BLOCKED with evidence, `Choices:`
-lines for every decision the artifacts left open, and plan divergences. A
-file conflict with a sibling implementer stops it (`BLOCKED: file conflict`).
+project's full check suite when it is the sole implementer of its wave and
+otherwise a suite scoped to the group's files — deferring the full run to
+the apply flow's post-final-wave full check suite run — and reports
+DONE/BLOCKED with evidence, `Choices:` lines for every decision the
+artifacts left open, and plan divergences. A file conflict with a sibling
+implementer stops it (`BLOCKED: file conflict`).
 
 ### openspec-verifier
 
@@ -106,9 +110,11 @@ scenario, `PASS`/`FAIL` lines. Rejects lowered bars. Read-only.
 
 Critiques the cumulative diff against proposal, spec delta, and design:
 scope creep, happy-path-only scenarios, silent design divergence, leftover
-TODOs, and the implementers' `Choices:` lines. Verdict `APPROVE` or
-`CHANGES-REQUESTED`; re-review of fixed findings is scoped to
-`ADDRESSED`/`NOT-ADDRESSED`. Reads `git diff`, writes nothing.
+TODOs, and the implementers' `Choices:` lines — the verbatim `Choices:`
+report lines of every wave implementer arrive in the `REVIEW FOCUS:`
+payload. Verdict `APPROVE` or `CHANGES-REQUESTED`; re-review of fixed
+findings is scoped to `ADDRESSED`/`NOT-ADDRESSED`. Reads `git diff`,
+writes nothing.
 
 ### openspec-retrospector
 
