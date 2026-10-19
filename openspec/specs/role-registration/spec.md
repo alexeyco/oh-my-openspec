@@ -22,8 +22,8 @@ files SHALL be ignored (core/roles.ts:26-39, tests/roles.test.ts:34-49).
 
 #### Scenario: Filenames become sorted role ids
 
-- **WHEN** `loadRoles` is run over a directory containing `openspec-verifier.md` and `openspec-researcher.md` plus an unrelated `notes.txt`
-- **THEN** exactly two roles are returned, with ids `openspec-researcher` first and `openspec-verifier` second, and `notes.txt` is not loaded
+- **WHEN** `loadRoles` is run over a directory containing `omos-verifier.md` and `omos-researcher.md` plus an unrelated `notes.txt`
+- **THEN** exactly two roles are returned, with ids `omos-researcher` first and `omos-verifier` second, and `notes.txt` is not loaded
 
 #### Scenario: Body is preserved for later trimming
 
@@ -32,9 +32,9 @@ files SHALL be ignored (core/roles.ts:26-39, tests/roles.test.ts:34-49).
 
 ### Requirement: Role id set is pinned to seven flow roles
 
-`ROLE_IDS` SHALL be exactly the seven ids `openspec-researcher`,
-`openspec-planner`, `openspec-critic`, `openspec-implementer`,
-`openspec-verifier`, `openspec-reviewer`, `openspec-retrospector`
+`ROLE_IDS` SHALL be exactly the seven ids `omos-researcher`,
+`omos-planner`, `omos-critic`, `omos-implementer`,
+`omos-verifier`, `omos-reviewer`, `omos-retrospector`
 (core/roles.ts:8-16), and the real `agents/` directory SHALL contain files
 matching that set exactly — no more, no fewer — as enforced by the assets
 integration test (tests/assets.test.ts:34-40).

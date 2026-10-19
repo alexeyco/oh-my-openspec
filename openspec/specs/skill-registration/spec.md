@@ -17,8 +17,8 @@ immediately with an actionable message.
 ### Requirement: Flow skills registered from fixed ids
 
 The plugin SHALL register exactly the four flow skills named in
-`FLOW_SKILL_IDS` (`openspec-init`, `openspec-plan`, `openspec-apply`,
-`openspec-retro`), each read from `skills/<id>/SKILL.md`
+`FLOW_SKILL_IDS` (`omos-init`, `omos-plan`, `omos-apply`,
+`omos-retro`), each read from `skills/<id>/SKILL.md`
 (opencode/index.ts:39-44,90-95). Each flow skill's frontmatter `name` SHALL
 equal its directory id and its body SHALL be non-empty, as enforced by the
 assets test (tests/assets.test.ts:52-60).
@@ -53,7 +53,7 @@ for 16 skills total with the flow set.
 Before registering any skill, the plugin SHALL compare the discovered vendored
 ids against `manifest.skills`; if the counts differ or any id differs at any
 position, setup SHALL throw
-`opencode-openspec: vendor/openspec tree does not match its manifest — run `make sync``
+`oh-my-openspec: vendor/openspec tree does not match its manifest — run `make sync``
 (opencode/index.ts:79-88). The assets test additionally asserts the sorted
 disk ids equal the sorted manifest ids and that at least 12 skills are
 vendored (tests/assets.test.ts:114-118).

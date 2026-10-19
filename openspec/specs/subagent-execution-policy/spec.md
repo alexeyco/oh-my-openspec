@@ -23,7 +23,7 @@ receive no contract text (opencode/index.ts:123-131).
 
 #### Scenario: Role session gets the contract
 
-- **WHEN** a session context event fires with `agent = "openspec-planner"`
+- **WHEN** a session context event fires with `agent = "omos-planner"`
 - **THEN** the system text list gains the full SUBAGENT_CONTRACT block
 
 #### Scenario: Non-role session unaffected
@@ -85,12 +85,12 @@ even an explicit `background: false` (opencode/background.ts:6-14,39-64).
 
 #### Scenario: Explicit foreground request overridden
 
-- **WHEN** a `subagent` call inputs `{ agent: "openspec-verifier", background: false }`
-- **THEN** the hook input becomes `{ agent: "openspec-verifier", background: true }` (tests/background.test.ts:23-30)
+- **WHEN** a `subagent` call inputs `{ agent: "omos-verifier", background: false }`
+- **THEN** the hook input becomes `{ agent: "omos-verifier", background: true }` (tests/background.test.ts:23-30)
 
 #### Scenario: Legacy task tool and field recognized
 
-- **WHEN** a `task` call inputs `{ subagent_type: "openspec-implementer" }`
+- **WHEN** a `task` call inputs `{ subagent_type: "omos-implementer" }`
 - **THEN** the returned copy has `background: true` (tests/background.test.ts:32-39)
 
 ### Requirement: Non-role and non-dispatch calls pass through unmutated
