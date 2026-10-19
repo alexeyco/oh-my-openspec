@@ -20,6 +20,10 @@ check: node_modules ## Run repo sanity checks (same as CI)
 sync: node_modules ## Re-vendor OpenSpec skills from the installed CLI
 	@node scripts/sync-vendor.mjs
 
+.PHONY: codex
+codex: node_modules ## Regenerate the Codex plugin bundle under plugins/
+	@node codex/render.ts
+
 node_modules: package.json package-lock.json
 	@npm ci --silent
 	@touch node_modules
