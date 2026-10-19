@@ -1,9 +1,9 @@
 ---
-name: openspec-apply
-description: "Apply an OpenSpec change via /openspec.apply — implement task groups in parallel waves, verify scenarios, review the diff. Never commits."
+name: omos-apply
+description: "Apply an OpenSpec change via /omos.apply — implement task groups in parallel waves, verify scenarios, review the diff. Never commits."
 ---
 
-# openspec-apply
+# omos-apply
 
 Implement `openspec/changes/<change-id>/` through dependency-ordered parallel
 subagent waves with verification and review. The OpenSpec artifacts are the
@@ -16,7 +16,7 @@ contract. You never run git write commands — the user reviews and commits.
 - `Change: <id>` given → use it.
 - Otherwise run `openspec list --json` (or read `openspec/changes/`).
   Exactly one active change → confirm it. Several → ask, one per run.
-  None → tell the user to run `/openspec.plan` and stop.
+  None → tell the user to run `/omos.plan` and stop.
 
 ### 2. Mechanical gate
 
@@ -27,11 +27,11 @@ Run `openspec_validate` with the change id.
   required). **Declined** → stop — unlike plan, apply cannot verify without
   the gate.
 - Not VALID → stop, report the numbered violations, suggest a
-  `/openspec.plan` fix round. Do not proceed.
+  `/omos.plan` fix round. Do not proceed.
 
 ### 3. Wave plan
 
-Dispatch `openspec-planner` with `MODE: waves` over `tasks.md` + `design.md`.
+Dispatch `omos-planner` with `MODE: waves` over `tasks.md` + `design.md`.
 It returns ordered waves of task groups (groups run in parallel within a
 wave; overlapping files serialize groups into later waves; conservative
 choices on uncertainty). Each wave-table row lists its groups' exact file
@@ -43,7 +43,7 @@ dispatching.
 
 For each wave, in order:
 
-- Dispatch one `openspec-implementer` per group in the wave, all in a single
+- Dispatch one `omos-implementer` per group in the wave, all in a single
   parallel batch. On OpenCode the batch is one set of background dispatches,
   each returning `sessionID` and status `running` — collect results from
   completion notifications, never by polling.
@@ -79,11 +79,11 @@ unticked. `DEFERRED:` is inadmissible for tasks in those groups — they end
 ticked or the run halts. This gate is ordering only; the verifier's
 `tasks.md` consistency check stays a separate mechanical audit.
 
-After the final wave: dispatch one `openspec-verifier` per capability spec
+After the final wave: dispatch one `omos-verifier` per capability spec
 file in parallel. Each runs the mechanical gate, executes every scenario's
 WHEN/THEN, and checks `tasks.md` consistency.
 
-- Any FAIL → one fix round: dispatch `openspec-implementer` per failing
+- Any FAIL → one fix round: dispatch `omos-implementer` per failing
   capability with the exact scenario lines, then re-run only the failed
   verifiers.
 - Rejected: verifier reports that repeat the original claim with a weakened
@@ -100,7 +100,7 @@ WHEN/THEN, and checks `tasks.md` consistency.
 
 ### 7. Review
 
-Dispatch `openspec-reviewer` over the cumulative diff (`git diff --stat` +
+Dispatch `omos-reviewer` over the cumulative diff (`git diff --stat` +
 full diff) with a `REVIEW FOCUS:` block: the riskiest hunks from the wave
 table, verifier notes, and the verbatim `Choices:` report lines of every
 wave implementer (including `Choices: none`).
@@ -130,8 +130,8 @@ Final report:
   one line each.
 - `git diff --stat` of the working tree.
 - Next steps for the user, in their hands: review the diff, commit, then
-  archive with `/openspec.archive <change-id>`. Offered commands are this
-  plugin's slash commands (`/openspec.<name>`) whenever one exists for the
+  archive with `/omos.archive <change-id>`. Offered commands are this
+  plugin's slash commands (`/omos.<name>`) whenever one exists for the
   action; a skill id is never offered as a command; the upstream `openspec`
   CLI or a vendored `/openspec-<name>` command is offered only where the
   plugin has no equivalent.

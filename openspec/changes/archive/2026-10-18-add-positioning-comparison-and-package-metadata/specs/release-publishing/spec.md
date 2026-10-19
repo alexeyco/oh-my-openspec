@@ -59,4 +59,4 @@ the rest of the Install section stays unchanged.
 - **WHEN** `grep -n "20\.19" README.md` runs after the fix
 - **THEN** it prints nothing; before the change the sole hit was the
   Install lead-in `Requires [Node.js ≥ 20.19](https://nodejs.org) and
-  the …` (verified 2026-10-17)
+the …` (verified 2026-10-17)

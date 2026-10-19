@@ -2,7 +2,7 @@
 
 .PHONY: help
 help: ## Show this help
-	@printf "@alexeyco/opencode-openspec — make targets:\n"
+	@printf "oh-my-openspec — make targets:\n"
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "  \033[1m%-6s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: fmt

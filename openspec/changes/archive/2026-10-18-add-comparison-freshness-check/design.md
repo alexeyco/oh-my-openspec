@@ -288,7 +288,7 @@ ok` and exits 0. A successful write prints nothing to stdout and
 - The unreadable-`--readme` branch — exit 2 before any check ran —
   writes its summary before the prefixed line and exit 2: the same
   header, `Checked at:` line, and expectations-as-given entries, `_No
-  checks ran._` under all four class headings, and the classification
+checks ran._` under all four class headings, and the classification
   `unavailable — 0 checks, 0 drift, 1 unavailable` (the read failure
   itself is the one unavailable); a failed write there changes nothing
   — the original exit 2 stands, no recursion.

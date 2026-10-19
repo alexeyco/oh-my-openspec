@@ -1,4 +1,4 @@
-// Pure helper for the OpenCode v2 plugin: forces openspec-role subagents to
+// Pure helper for the OpenCode v2 plugin: forces omos-role subagents to
 // dispatch in the background. Deliberately host-API free (no Plugin/ctx
 // imports) so it stays unit-testable; the plugin entry wires it into the
 // tool hook.

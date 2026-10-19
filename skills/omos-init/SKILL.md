@@ -1,9 +1,9 @@
 ---
-name: openspec-init
-description: "Bootstrap baseline specs via /openspec.init — research the codebase, agree on capabilities, write openspec/specs/** describing what exists, critique and validate."
+name: omos-init
+description: "Bootstrap baseline specs via /omos.init — research the codebase, agree on capabilities, write openspec/specs/** describing what exists, critique and validate."
 ---
 
-# openspec-init
+# omos-init
 
 Form the project's initial spec: baseline capability specs under
 `openspec/specs/` describing what the code does today. The orchestrator
@@ -17,7 +17,7 @@ dispatches, never drafts. You never run git write commands.
   install it now: run `npm install -g @fission-ai/openspec` (suggest
   `brew install openspec` on macOS when the user prefers it) — a global
   install is a system change, so proceed only on an explicit yes. Installed
-  → re-check and continue. **Declined** → stop: unlike `/openspec.plan`,
+  → re-check and continue. **Declined** → stop: unlike `/omos.plan`,
   this command cannot degrade — bootstrapping specs without the mechanical
   gate is how baselines rot.
 - Check the project: `openspec/` must exist. **Missing** → ask consent, run
@@ -35,7 +35,7 @@ Read `openspec/specs/`.
 
 ### 3. Capability discovery
 
-Dispatch `openspec-researcher` subagents in parallel — one per suspected
+Dispatch `omos-researcher` subagents in parallel — one per suspected
 area (entry points, packages, services; use the user's `Focus areas:` when
 given). Each reports observable behaviors with `path:line` evidence.
 
@@ -52,18 +52,18 @@ researcher evidenced is dropped, not guessed.
 
 ### 5. Draft baselines
 
-Dispatch `openspec-planner` with `MODE: baseline`: the confirmed map plus the
+Dispatch `omos-planner` with `MODE: baseline`: the confirmed map plus the
 research facts. It writes `openspec/specs/<capability>/spec.md` —
 `## Purpose` (a real paragraph, not a stub), `## Requirements` with
 `### Requirement:` SHALL statements and `#### Scenario:` WHEN/THEN blocks
 describing **current, observed behavior only**. Aspirations belong in
-`/openspec.plan`, not here.
+`/omos.plan`, not here.
 
 ### 6. Critique loop (≤3 rounds)
 
-Dispatch `openspec-critic` in spec-review mode over the new files.
+Dispatch `omos-critic` in spec-review mode over the new files.
 
-- `NEEDS-FIX` → `openspec-planner` revises the exact findings; repeat.
+- `NEEDS-FIX` → `omos-planner` revises the exact findings; repeat.
 - `CLEAN` → continue. Still `NEEDS-FIX` after 3 rounds → present open
   findings, ask whether to accept or stop.
 - Mechanical INVALID lines from `openspec_validate` are always fixed first.
@@ -75,7 +75,7 @@ list with requirement/scenario counts, gate output verbatim, every
 `UNVERIFIED` line the critic flagged.
 
 - Confirmed → final report: files, counts, gate result; next step —
-  future work goes through `/openspec.plan <idea>`. Stop.
+  future work goes through `/omos.plan <idea>`. Stop.
 - Rejected → collect the fix list, go to §5.
 
 ## Guardrails

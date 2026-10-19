@@ -10,7 +10,7 @@ import { loadRoles, ROLE_IDS } from "../core/roles.ts";
 let tempDir: string;
 
 before(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "o-opos-roles-"));
+  tempDir = mkdtempSync(join(tmpdir(), "o-omos-roles-"));
 });
 
 after(() => {
@@ -33,24 +33,20 @@ function writeRole(
 describe("loadRoles", () => {
   it("loads fixtures keyed by filename, sorted by id", () => {
     const dir = mkdtempSync(join(tempDir, "ok-"));
-    writeRole(dir, "openspec-verifier.md", 'description: "V"\nmode: subagent');
-    writeRole(
-      dir,
-      "openspec-researcher.md",
-      'description: "R"\nmode: subagent',
-    );
+    writeRole(dir, "omos-verifier.md", 'description: "V"\nmode: subagent');
+    writeRole(dir, "omos-researcher.md", 'description: "R"\nmode: subagent');
     writeFileSync(join(dir, "notes.txt"), "not a role", "utf-8");
 
     const roles = loadRoles(dir);
     assert.equal(roles.length, 2);
-    assert.equal(roles[0]!.id, "openspec-researcher");
-    assert.equal(roles[1]!.id, "openspec-verifier");
+    assert.equal(roles[0]!.id, "omos-researcher");
+    assert.equal(roles[1]!.id, "omos-verifier");
     assert.equal(roles[1]!.body.trim(), "Role body content");
   });
 
   it("fails loudly on a broken frontmatter", () => {
     const dir = mkdtempSync(join(tempDir, "bad-"));
-    writeRole(dir, "openspec-critic.md", "description: 42\nmode: subagent");
+    writeRole(dir, "omos-critic.md", "description: 42\nmode: subagent");
     assert.throws(() => loadRoles(dir), /missing string 'description'/);
   });
 
@@ -58,7 +54,7 @@ describe("loadRoles", () => {
     const dir = mkdtempSync(join(tempDir, "pin-"));
     writeRole(
       dir,
-      "openspec-planner.md",
+      "omos-planner.md",
       'description: "P"\nmode: subagent\nmodel: openai/gpt',
     );
     assert.throws(() => loadRoles(dir), /inherit the session model/);

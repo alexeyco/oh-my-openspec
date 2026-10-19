@@ -20,7 +20,7 @@ import {
 describe("initInstruction", () => {
   it("names the skill and passes focus areas", () => {
     const text = initInstruction("http client, storage");
-    assert.match(text, /openspec-init/);
+    assert.match(text, /omos-init/);
     assert.match(text, /Focus areas: http client, storage/);
   });
 
@@ -32,7 +32,7 @@ describe("initInstruction", () => {
 describe("planInstruction", () => {
   it("names the skill and echoes the request", () => {
     const text = planInstruction("add dark mode");
-    assert.match(text, /openspec-plan/);
+    assert.match(text, /omos-plan/);
     assert.match(text, /User request: add dark mode/);
   });
 
@@ -43,14 +43,14 @@ describe("planInstruction", () => {
   it("prefers an explicit skill path", () => {
     const text = planInstruction("x", "/abs/SKILL.md");
     assert.match(text, /Read the skill file \/abs\/SKILL\.md/);
-    assert.doesNotMatch(text, /Load the openspec-plan/);
+    assert.doesNotMatch(text, /Load the omos-plan/);
   });
 });
 
 describe("applyInstruction", () => {
   it("passes a change id through", () => {
     const text = applyInstruction("add-dark-mode");
-    assert.match(text, /openspec-apply/);
+    assert.match(text, /omos-apply/);
     assert.match(text, /Change: add-dark-mode/);
   });
 
@@ -154,14 +154,14 @@ describe("archiveSkillId", () => {
 describe("retroInstruction", () => {
   it("names the skill and the bundle step", () => {
     const text = retroInstruction();
-    assert.match(text, /openspec-retro/);
+    assert.match(text, /omos-retro/);
     assert.match(text, /evidence bundle/);
   });
 
   it("prefers an explicit skill path", () => {
     const text = retroInstruction("/abs/SKILL.md");
     assert.match(text, /Read the skill file \/abs\/SKILL\.md/);
-    assert.doesNotMatch(text, /Load the openspec-retro/);
+    assert.doesNotMatch(text, /Load the omos-retro/);
   });
 });
 

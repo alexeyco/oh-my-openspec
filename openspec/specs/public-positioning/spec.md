@@ -9,12 +9,12 @@ TBD — update Purpose after archive (the delta carried no Purpose section).
 ### Requirement: README comparison table is sourced and dated
 
 The README SHALL carry a `## Comparison` section between `## QuickStart`
-and `## Why` in the hybrid form, in this order: intro sentence and
-disambiguation sentence, legend line, at-a-glance matrix, numbered
+and `## Why` in the hybrid form, in this order: intro sentence, legend
+line, at-a-glance matrix, numbered
 footnote block (`[^1]`–`[^13]`), the checked-date line, a `<details>`
 block summarized "Detailed comparison" holding the detailed text table
 with its own definition `[^14]` directly under it, and the positioning
-paragraph. Both tables compare `@alexeyco/opencode-openspec` with
+paragraph. Both tables compare `oh-my-openspec` with
 AngDrew/opencode-openspec, Octane0411/opencode-plugin-openspec,
 moyaspace/openspec-superpowers-opencode ("oso"), and lininn/openflow. The
 matrix SHALL cover seven binary axes (OpenCode-native plugin, AI-drafted
@@ -46,7 +46,10 @@ Each competitor column header SHALL
 link its GitHub repo in both tables; header display text SHALL be short
 (author or short project name: `@alexeyco`, `AngDrew`, `Octane0411`,
 `oso`, `openflow`), with the full names remaining discoverable through
-the linked repos, the AngDrew footnote, and the detailed-table cells. The
+the linked repos, the AngDrew footnote, and the detailed-table cells.
+The self-column links SHALL target the renamed package page
+`https://www.npmjs.com/package/oh-my-openspec`; the `@alexeyco` display
+label stays (author unchanged). The
 line `All cells checked 2026-10-17 against the linked public sources.`
 SHALL sit directly under the footnote block and cover both tables.
 
@@ -156,19 +159,6 @@ registry URL as sources.
   and the npm-unpublished status (registry 404), linked to
   https://github.com/AngDrew/opencode-openspec and
   https://registry.npmjs.org/opencode-openspec
-
-### Requirement: README disambiguates the package-name collision
-
-The `## Comparison` section SHALL contain one disambiguation sentence
-stating that `@alexeyco/opencode-openspec` is not AngDrew's
-`opencode-openspec` package despite the shared name.
-
-#### Scenario: Collision disambiguated
-
-- **WHEN** a user searching for "opencode-openspec" lands on the README
-- **THEN** the section states in one sentence that this scoped package
-  is unrelated to the AngDrew project of the same unscoped name, with a
-  link to that repo
 
 ### Requirement: README leads with the sales ordering
 

@@ -42,8 +42,8 @@ is in scope as a merge-audit target and is expected to stay unchanged
    `## Why`, in the user-confirmed hybrid format from revision 1
    (content unchanged, new position): intro sentence + disambiguation
    sentence → legend line (`✅ documented in the linked sources ·
-   ⚠️ partial or implemented differently · ❌ not found in the public
-   sources checked`) → at-a-glance matrix (5 columns × 7 binary axes:
+⚠️ partial or implemented differently · ❌ not found in the public
+sources checked`) → at-a-glance matrix (5 columns × 7 binary axes:
    OpenCode-native plugin, AI-drafted artifacts pipeline, adversarial
    review in planning, parallel subagent implementation waves,
    mechanical `openspec validate` gate, retro, published on npm) →

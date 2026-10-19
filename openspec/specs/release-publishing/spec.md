@@ -79,7 +79,7 @@ and no model pins (`:69-102`); (3) `FLOW_SKILL_IDS` matches `skills/` on disk
 both ways (`:104-138`); (4) the vendor tree matches its manifest, each skill is
 self-stamped with `generatedBy`, and `package.json` version mirrors the
 manifest (`:140-197`); (5) relative links in README/CONTRIBUTING/AGENTS resolve
-(`:199-218`); (6) plugin id is `"opencode-openspec"` and no stray `pi` section
+(`:199-218`); (6) plugin id is `"oh-my-openspec"` and no stray `pi` section
 exists in `package.json` (`:220-229`).
 
 #### Scenario: All invariants hold
@@ -128,9 +128,11 @@ declares `engines.node >= 22.18` (`package.json:47-49`).
 ### Requirement: package.json declares homepage, bugs, and author
 
 `package.json` SHALL declare
-`"homepage": "https://github.com/alexeyco/opencode-openspec"`,
-`"bugs": "https://github.com/alexeyco/opencode-openspec/issues"` in the
-plain-string npm form, and
+`"homepage": "https://github.com/alexeyco/oh-my-openspec"`,
+`"bugs": "https://github.com/alexeyco/oh-my-openspec/issues"` in the
+plain-string npm form,
+`"repository.url": "git+https://github.com/alexeyco/oh-my-openspec.git"`,
+and
 `"author": { "name": "Alexeyco", "url": "https://github.com/alexeyco" }`
 with no email key. It SHALL NOT declare a `funding` field, and the
 `engines.node` key SHALL remain `">=22.18"` unchanged.

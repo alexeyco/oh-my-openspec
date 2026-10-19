@@ -18,7 +18,7 @@ comparison table's text:
    split on the LAST `@`: everything before it is the package name,
    everything after is the expected `dist-tags.latest` version. This
    package's own version is machine-owned by the vendor-sync mirror, so
-   the list carries no `@alexeyco/opencode-openspec` self entry.
+   the list carries no `oh-my-openspec` self entry.
 2. `ABSENT_PACKAGES`: a comma-separated list of package names expected
    to answer 404 on the registry.
 3. `SINGLE_COMMIT_REPO`: a single `owner/repo@YYYY-MM-DD` entry — the
@@ -49,7 +49,11 @@ The workflow's job-level `env` block SHALL set the three variables to
 the pinned expectation values alongside the existing `GITHUB_TOKEN`
 mapping. The exact values are drift-maintenance data, updated together
 with the README table when a drift issue is resolved (dual-update
-rule), so the values themselves are not spec.
+rule), so the values themselves are not spec. The rename leaves the
+pinned values untouched: `ABSENT_PACKAGES: opencode-openspec` and
+`SINGLE_COMMIT_REPO: AngDrew/opencode-openspec@2026-02-01`
+(.github/workflows/comparison-freshness.yml:45-46) name the third-party
+AngDrew package, not this one.
 
 #### Scenario: Env version entry yields registry expectation
 

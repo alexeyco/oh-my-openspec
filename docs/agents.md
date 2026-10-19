@@ -14,41 +14,41 @@ like this. Where the two disagree, the specs and the code win.
 
 ## Overview
 
-The orchestrator (the main session running `/openspec.init`,
-`/openspec.plan`, `/openspec.apply`, `/openspec.archive` or
-`/openspec.retro`) dispatches roles
+The orchestrator (the main session running `/omos.init`,
+`/omos.plan`, `/omos.apply`, `/omos.archive` or
+`/omos.retro`) dispatches roles
 and never implements itself. Role dispatches are forced into the background by
 [`opencode/background.ts`](../opencode/background.ts), so independent work
 runs concurrently; the orchestrator collects results from completion
 notifications, never by polling.
 
-| Phase (init) | Roles                                       |
-| ------------ | ------------------------------------------- |
-| Discovery    | openspec-researcher ×N (parallel, per area) |
-| Baseline     | openspec-planner (`MODE: baseline`)         |
-| Critique ≤3× | openspec-critic (`REVIEW: specs`) ⇄ planner |
+| Phase (init) | Roles                                   |
+| ------------ | --------------------------------------- |
+| Discovery    | omos-researcher ×N (parallel, per area) |
+| Baseline     | omos-planner (`MODE: baseline`)         |
+| Critique ≤3× | omos-critic (`REVIEW: specs`) ⇄ planner |
 
 | Phase (plan) | Roles                                                  |
 | ------------ | ------------------------------------------------------ |
-| Research     | openspec-researcher ×N (parallel, per area)            |
+| Research     | omos-researcher ×N (parallel, per area)                |
 | Grill        | orchestrator, attacks grounded in facts (1–3, up to 5) |
-| Draft        | openspec-planner (`MODE: plan`)                        |
-| Critique ≤3× | openspec-critic ⇄ openspec-planner revisions           |
+| Draft        | omos-planner (`MODE: plan`)                            |
+| Critique ≤3× | omos-critic ⇄ omos-planner revisions                   |
 
-| Phase (apply) | Roles                                                          |
-| ------------- | -------------------------------------------------------------- |
-| Wave plan     | openspec-planner (`MODE: waves`)                               |
-| Execute waves | openspec-implementer ×1 per task group, parallel within a wave |
-| Verify        | openspec-verifier ×1 per capability (parallel)                 |
-| Review        | openspec-reviewer, then scoped re-review                       |
+| Phase (apply) | Roles                                                      |
+| ------------- | ---------------------------------------------------------- |
+| Wave plan     | omos-planner (`MODE: waves`)                               |
+| Execute waves | omos-implementer ×1 per task group, parallel within a wave |
+| Verify        | omos-verifier ×1 per capability (parallel)                 |
+| Review        | omos-reviewer, then scoped re-review                       |
 
-| Phase (retro) | Roles                                                     |
-| ------------- | --------------------------------------------------------- |
-| Reflect       | openspec-retrospector ×1 (evidence bundle in, report out) |
+| Phase (retro) | Roles                                                 |
+| ------------- | ----------------------------------------------------- |
+| Reflect       | omos-retrospector ×1 (evidence bundle in, report out) |
 
 ## Roles
 
-### openspec-researcher
+### omos-researcher
 
 Explores the repository and existing OpenSpec artifacts for verifiable
 facts: code with `path:line`, live specs that constrain the request, active
@@ -56,7 +56,7 @@ changes that overlap, project quality bar. Read-only. Questions a read-only
 local probe can answer come back as `PROBE:` answer lines; only numbered
 questions a probe could not resolve reach the next interview round.
 
-### openspec-planner
+### omos-planner
 
 Three modes, named at the top of the dispatch prompt:
 
@@ -74,7 +74,7 @@ Three modes, named at the top of the dispatch prompt:
 
 Together these make the planner the only role that writes OpenSpec artifacts.
 
-### openspec-critic
+### omos-critic
 
 Guards artifacts before user approval — a drafted change (default) or
 baseline specs (`REVIEW: specs`). Mechanical first: runs the
@@ -88,7 +88,7 @@ say so. Reports `CLEAN` or
 `NEEDS-FIX` with numbered BLOCKING/NON-BLOCKING findings and every
 `ASSUMPTION:` line. Read-only.
 
-### openspec-implementer
+### omos-implementer
 
 Executes exactly one numbered task group. The spec scenarios quoted into
 its prompt are the contract; it ticks only its own `- [ ]` boxes, runs the
@@ -99,14 +99,14 @@ DONE/BLOCKED with evidence, `Choices:` lines for every decision the
 artifacts left open, and plan divergences. A file conflict with a sibling
 implementer stops it (`BLOCKED: file conflict`).
 
-### openspec-verifier
+### omos-verifier
 
 Checks implementation against artifacts by executing scenarios — actually
 triggering WHEN and observing THEN, plus the mechanical
 `openspec_validate` gate and `tasks.md` consistency. Fresh-run evidence per
 scenario, `PASS`/`FAIL` lines. Rejects lowered bars. Read-only.
 
-### openspec-reviewer
+### omos-reviewer
 
 Critiques the cumulative diff against proposal, spec delta, and design:
 scope creep, happy-path-only scenarios, silent design divergence, leftover
@@ -116,7 +116,7 @@ payload. Verdict `APPROVE` or `CHANGES-REQUESTED`; re-review of fixed
 findings is scoped to `ADDRESSED`/`NOT-ADDRESSED`. Reads `git diff`,
 writes nothing.
 
-### openspec-retrospector
+### omos-retrospector
 
 Mines the evidence bundle of one finished run for defects in the plugin's
 own prompt entities (`agents/*.md`, flow `skills/*/SKILL.md`,
@@ -164,13 +164,13 @@ behavior) is specified in [`spec-validation`](../openspec/specs/spec-validation/
 
 ## See also
 
-- [../skills/openspec-init/SKILL.md](../skills/openspec-init/SKILL.md) — the
+- [../skills/omos-init/SKILL.md](../skills/omos-init/SKILL.md) — the
   bootstrap flow that builds the baseline specs.
-- [../skills/openspec-plan/SKILL.md](../skills/openspec-plan/SKILL.md) — the
+- [../skills/omos-plan/SKILL.md](../skills/omos-plan/SKILL.md) — the
   briefing flow that dispatches plan-phase roles.
-- [../skills/openspec-apply/SKILL.md](../skills/openspec-apply/SKILL.md) —
+- [../skills/omos-apply/SKILL.md](../skills/omos-apply/SKILL.md) —
   the execution flow that dispatches apply-phase roles.
-- [../skills/openspec-retro/SKILL.md](../skills/openspec-retro/SKILL.md) —
+- [../skills/omos-retro/SKILL.md](../skills/omos-retro/SKILL.md) —
   the retrospective flow that feeds the retrospector.
 - [vendor-sync.md](vendor-sync.md) — where the vendored workflow skills
   come from and how they stay fresh.

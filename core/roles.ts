@@ -6,13 +6,13 @@ import { join } from "node:path";
 import { parseMarkdown, validateRoleDoc, type RoleDoc } from "./markdown.ts";
 
 export const ROLE_IDS = [
-  "openspec-researcher",
-  "openspec-planner",
-  "openspec-critic",
-  "openspec-implementer",
-  "openspec-verifier",
-  "openspec-reviewer",
-  "openspec-retrospector",
+  "omos-researcher",
+  "omos-planner",
+  "omos-critic",
+  "omos-implementer",
+  "omos-verifier",
+  "omos-reviewer",
+  "omos-retrospector",
 ] as const;
 
 export type RoleId = (typeof ROLE_IDS)[number];

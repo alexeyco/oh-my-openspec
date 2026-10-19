@@ -47,7 +47,7 @@ invariant) are specified in
    bump would break the vendor gate. The vendor-sync PR is the only path
    for that package.
 4. **User side** — end users pick up refreshed skills by bumping
-   `@alexeyco/opencode-openspec` in `opencode.json`.
+   `oh-my-openspec` in `opencode.json`.
 
 ## Versioning: a strict mirror
 
