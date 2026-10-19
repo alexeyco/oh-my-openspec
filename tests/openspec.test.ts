@@ -113,8 +113,8 @@ describe("validateProject with a stub CLI", () => {
   let savedPath: string | undefined;
 
   before(() => {
-    bin = mkdtempSync(join(tmpdir(), "o-opos-bin-"));
-    proj = mkdtempSync(join(tmpdir(), "o-opos-proj-"));
+    bin = mkdtempSync(join(tmpdir(), "o-omos-bin-"));
+    proj = mkdtempSync(join(tmpdir(), "o-omos-proj-"));
     savedPath = process.env.PATH;
   });
 

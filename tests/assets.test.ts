@@ -23,12 +23,7 @@ const repoRoot = path.join(import.meta.dirname, "..");
 const agentsDir = path.join(repoRoot, "agents");
 const skillsRoot = path.join(repoRoot, "skills");
 const vendorDir = path.join(repoRoot, VENDOR_ROOT);
-const FLOW_SKILL_IDS = [
-  "openspec-init",
-  "openspec-plan",
-  "openspec-apply",
-  "openspec-retro",
-];
+const FLOW_SKILL_IDS = ["omos-init", "omos-plan", "omos-apply", "omos-retro"];
 
 describe("roles assets", () => {
   it("agents/ contains exactly the ROLE_IDS", () => {
@@ -61,49 +56,49 @@ describe("flow skills", () => {
 
   it("flow skill bodies reference the roles and tools they dispatch", () => {
     const init = readFileSync(
-      path.join(skillsRoot, "openspec-init", "SKILL.md"),
+      path.join(skillsRoot, "omos-init", "SKILL.md"),
       "utf8",
     );
     for (const ref of [
-      "openspec-researcher",
-      "openspec-planner",
-      "openspec-critic",
+      "omos-researcher",
+      "omos-planner",
+      "omos-critic",
       "openspec_validate",
     ]) {
-      assert.ok(init.includes(ref), `openspec-init must reference ${ref}`);
+      assert.ok(init.includes(ref), `omos-init must reference ${ref}`);
     }
     const plan = readFileSync(
-      path.join(skillsRoot, "openspec-plan", "SKILL.md"),
+      path.join(skillsRoot, "omos-plan", "SKILL.md"),
       "utf8",
     );
     for (const ref of [
-      "openspec-researcher",
-      "openspec-planner",
-      "openspec-critic",
+      "omos-researcher",
+      "omos-planner",
+      "omos-critic",
       "openspec_validate",
     ]) {
-      assert.ok(plan.includes(ref), `openspec-plan must reference ${ref}`);
+      assert.ok(plan.includes(ref), `omos-plan must reference ${ref}`);
     }
     const apply = readFileSync(
-      path.join(skillsRoot, "openspec-apply", "SKILL.md"),
+      path.join(skillsRoot, "omos-apply", "SKILL.md"),
       "utf8",
     );
     for (const ref of [
-      "openspec-planner",
-      "openspec-implementer",
-      "openspec-verifier",
-      "openspec-reviewer",
+      "omos-planner",
+      "omos-implementer",
+      "omos-verifier",
+      "omos-reviewer",
       "openspec_validate",
     ]) {
-      assert.ok(apply.includes(ref), `openspec-apply must reference ${ref}`);
+      assert.ok(apply.includes(ref), `omos-apply must reference ${ref}`);
     }
     const retro = readFileSync(
-      path.join(skillsRoot, "openspec-retro", "SKILL.md"),
+      path.join(skillsRoot, "omos-retro", "SKILL.md"),
       "utf8",
     );
     assert.ok(
-      retro.includes("openspec-retrospector"),
-      "openspec-retro must reference openspec-retrospector",
+      retro.includes("omos-retrospector"),
+      "omos-retro must reference omos-retrospector",
     );
   });
 });

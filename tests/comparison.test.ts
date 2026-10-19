@@ -130,7 +130,7 @@ function close(target: Server): Promise<void> {
 }
 
 before(async () => {
-  tempDir = mkdtempSync(join(tmpdir(), "o-opos-comparison-"));
+  tempDir = mkdtempSync(join(tmpdir(), "o-omos-comparison-"));
   server = createServer(handleRequest);
   await listen(server);
   port = (server.address() as AddressInfo).port;
@@ -1524,7 +1524,7 @@ describe("comparison check: audit summary", () => {
         reportPath("summary-secrets.report.md"),
         {
           GITHUB_TOKEN: "s3cr3t-fake-token",
-          GITHUB_REPOSITORY: "alexeyco/opencode-openspec",
+          GITHUB_REPOSITORY: "alexeyco/oh-my-openspec",
         },
         registryBase(),
         summary,
@@ -1543,7 +1543,7 @@ describe("comparison check: audit summary", () => {
       assert.ok(!content.includes("s3cr3t-fake-token"), content);
       assert.ok(!content.includes("GITHUB_TOKEN"), content);
       assert.ok(!content.includes("GITHUB_REPOSITORY"), content);
-      assert.ok(!content.includes("alexeyco/opencode-openspec"), content);
+      assert.ok(!content.includes("alexeyco/oh-my-openspec"), content);
       for (const value of [BASE_EXPECT, BASE_ABSENT, BASE_COMMIT]) {
         assert.ok(content.includes(value), `missing value: ${value}`);
       }

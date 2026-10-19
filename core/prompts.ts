@@ -1,5 +1,5 @@
-// Command descriptions and instruction builders for /openspec.init,
-// /openspec.plan, /openspec.apply, /openspec.archive, and /openspec.retro.
+// Command descriptions and instruction builders for /omos.init,
+// /omos.plan, /omos.apply, /omos.archive, and /omos.retro.
 // Also contains the SUBAGENT_CONTRACT text injected into every role
 // subagent session.
 
@@ -36,7 +36,7 @@ export const SUBAGENT_CONTRACT = [
   "Write every report in English, regardless of the session's reply language.",
 ].join("\n");
 
-// Build the instruction text for /openspec.init.
+// Build the instruction text for /omos.init.
 // When focus is empty, the skill discovers capabilities from the codebase.
 export function initInstruction(focus: string, skillPath?: string): string {
   const parts: string[] = [];
@@ -44,7 +44,7 @@ export function initInstruction(focus: string, skillPath?: string): string {
   if (skillPath) {
     parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
   } else {
-    parts.push("Load the openspec-init skill and follow it exactly.");
+    parts.push("Load the omos-init skill and follow it exactly.");
   }
 
   if (focus.trim()) {
@@ -58,7 +58,7 @@ export function initInstruction(focus: string, skillPath?: string): string {
   return parts.join("\n");
 }
 
-// Build the instruction text for /openspec.plan.
+// Build the instruction text for /omos.plan.
 // When request is empty, tells the agent to elicit it first.
 export function planInstruction(request: string, skillPath?: string): string {
   const parts: string[] = [];
@@ -66,7 +66,7 @@ export function planInstruction(request: string, skillPath?: string): string {
   if (skillPath) {
     parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
   } else {
-    parts.push("Load the openspec-plan skill and follow it exactly.");
+    parts.push("Load the omos-plan skill and follow it exactly.");
   }
 
   if (!request.trim()) {
@@ -80,7 +80,7 @@ export function planInstruction(request: string, skillPath?: string): string {
   return parts.join("\n");
 }
 
-// Build the instruction text for /openspec.apply.
+// Build the instruction text for /omos.apply.
 // When changeId is empty, the skill selects from active changes and confirms.
 export function applyInstruction(changeId: string, skillPath?: string): string {
   const parts: string[] = [];
@@ -88,7 +88,7 @@ export function applyInstruction(changeId: string, skillPath?: string): string {
   if (skillPath) {
     parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
   } else {
-    parts.push("Load the openspec-apply skill and follow it exactly.");
+    parts.push("Load the omos-apply skill and follow it exactly.");
   }
 
   if (changeId.trim()) {
@@ -102,7 +102,7 @@ export function applyInstruction(changeId: string, skillPath?: string): string {
   return parts.join("\n");
 }
 
-// Pick the skill id for /openspec.archive from the whitespace-split ids.
+// Pick the skill id for /omos.archive from the whitespace-split ids.
 // 0 or 1 ids bind the single-archive skill; only 2+ bind the bulk one.
 export function archiveSkillId(argText: string): string {
   const ids = argText.trim().split(/\s+/).filter(Boolean);
@@ -112,7 +112,7 @@ export function archiveSkillId(argText: string): string {
     : "openspec-archive-change";
 }
 
-// Build the instruction text for /openspec.archive.
+// Build the instruction text for /omos.archive.
 // When no ids are given, the skill lists active changes and confirms first.
 // The third line is the validation gate and is always present.
 export function archiveInstruction(
@@ -147,11 +147,11 @@ export function archiveInstruction(
   return parts.join("\n");
 }
 
-// Build the instruction text for /openspec.retro.
+// Build the instruction text for /omos.retro.
 // It analyzes the current session; no arguments are taken.
 export function retroInstruction(skillPath?: string): string {
   if (skillPath) {
     return `Read the skill file ${skillPath} and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.`;
   }
-  return "Load the openspec-retro skill and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.";
+  return "Load the omos-retro skill and follow it exactly.\nCompile the evidence bundle from this session and dispatch the retrospector.";
 }

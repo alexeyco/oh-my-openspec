@@ -1,9 +1,9 @@
 ---
-name: openspec-plan
-description: "Plan an OpenSpec change via /openspec.plan — coverage interview, parallel research, adversarial grill, agent-drafted artifacts, critique loop, mechanical CLI validation."
+name: omos-plan
+description: "Plan an OpenSpec change via /omos.plan — coverage interview, parallel research, adversarial grill, agent-drafted artifacts, critique loop, mechanical CLI validation."
 ---
 
-# openspec-plan
+# omos-plan
 
 Turn the user's request into one complete, validated OpenSpec change under
 `openspec/changes/<change-id>/`. The orchestrator dispatches, never drafts —
@@ -53,7 +53,7 @@ recording an answer as `ASSUMPTION:`. Label anything the user leaves implicit
 
 ### 4. Research
 
-Dispatch `openspec-researcher` subagents in parallel — one per unknown area
+Dispatch `omos-researcher` subagents in parallel — one per unknown area
 (codebase region, existing capability, conventions). Wait for every report.
 Every Unknown a read-only local command can answer (`<binary> --help`, a
 no-arg subcommand that performs no action) is re-dispatched to a researcher
@@ -97,16 +97,16 @@ research findings the user might re-ask, one per line, absences included (e.g.
 
 ### 7. Draft
 
-Dispatch `openspec-planner` with `MODE: plan`: the confirmed playback,
+Dispatch `omos-planner` with `MODE: plan`: the confirmed playback,
 research facts, assumptions, `REJECTED-RISK:` lines, and a proposed change
 id (kebab-case verb-ish noun). It writes proposal, spec deltas, design
 (when non-trivial), tasks.
 
 ### 8. Critique loop (≤3 rounds)
 
-Dispatch `openspec-critic` on the drafted change.
+Dispatch `omos-critic` on the drafted change.
 
-- `NEEDS-FIX` → dispatch `openspec-planner` with the exact BLOCKING list to
+- `NEEDS-FIX` → dispatch `omos-planner` with the exact BLOCKING list to
   revise; repeat.
 - Wait for the planner revision to report DONE (the role's Status line)
   before dispatching the next critic; never batch a critic with the revision
@@ -130,8 +130,8 @@ confirm.
 - Confirmed → final report: files, gate output, the current branch read from
   a read-only `git branch --show-current`-style check or "no branch yet"
   (reporting only — not a §1 precondition, no branch creation), next step
-  `/openspec.apply <change-id>`. Stop — do not implement in the same breath.
-  Offered commands are this plugin's slash commands (`/openspec.<name>`)
+  `/omos.apply <change-id>`. Stop — do not implement in the same breath.
+  Offered commands are this plugin's slash commands (`/omos.<name>`)
   whenever one exists for the action; a skill id is never offered as a
   command; the upstream `openspec` CLI or a vendored `/openspec-<name>`
   command is offered only where the plugin has no equivalent.

@@ -1,7 +1,7 @@
 // OpenCode v2 plugin entry: registers 7 subagent roles from bundled markdown,
 // 16 skills (4 flow skills + 12 vendored OpenSpec workflow skills), five
-// commands (/openspec.init, /openspec.plan, /openspec.apply,
-// /openspec.archive, /openspec.retro), and the openspec_validate tool
+// commands (/omos.init, /omos.plan, /omos.apply,
+// /omos.archive, /omos.retro), and the openspec_validate tool
 // (mechanical gate wrapping the upstream CLI).
 // Injects SUBAGENT_CONTRACT into every role's session context.
 
@@ -40,10 +40,10 @@ const vendorDir = path.join(import.meta.dirname, "..", VENDOR_ROOT);
 // vendor/openspec/manifest.json so upstream workflow additions need no code
 // change. Names here must match skills/<id>/SKILL.md frontmatter name.
 const FLOW_SKILL_IDS = [
-  "openspec-init",
-  "openspec-plan",
-  "openspec-apply",
-  "openspec-retro",
+  "omos-init",
+  "omos-plan",
+  "omos-apply",
+  "omos-retro",
 ] as const;
 
 function readText(file: string): string {
@@ -51,7 +51,7 @@ function readText(file: string): string {
 }
 
 export default Plugin.define({
-  id: "opencode-openspec",
+  id: "oh-my-openspec",
   async setup(ctx) {
     // cwd for CLI operations: prefer the plugin location, fall back to process cwd.
     const cwd = ctx.location?.directory ?? process.cwd();
@@ -86,7 +86,7 @@ export default Plugin.define({
       vendoredIds.some((id, i) => id !== manifest.skills[i])
     ) {
       throw new Error(
-        "opencode-openspec: vendor/openspec tree does not match its manifest — run `make sync`",
+        "oh-my-openspec: vendor/openspec tree does not match its manifest — run `make sync`",
       );
     }
 
@@ -140,54 +140,54 @@ export default Plugin.define({
     });
 
     // ── Commands ────────────────────────────────────────────────────────
-    // /openspec.init [focus] — bootstrap baseline capability specs from
+    // /omos.init [focus] — bootstrap baseline capability specs from
     // what the code actually does.
-    // /openspec.plan <idea> — interview, research, draft the OpenSpec
+    // /omos.plan <idea> — interview, research, draft the OpenSpec
     // change artifacts, critic loop, mechanical validate gate.
-    // /openspec.apply [change-id] — implement tasks.md through
+    // /omos.apply [change-id] — implement tasks.md through
     // dependency-ordered parallel subagent waves with verification.
-    // /openspec.archive [change-id ...] — archive completed changes through
+    // /omos.archive [change-id ...] — archive completed changes through
     // the vendored archive workflows: zero or one change id binds
     // openspec-archive-change, two or more bind openspec-bulk-archive-change.
-    // /openspec.retro — retrospect the finished run: evidence bundle →
-    // openspec-retrospector → ≤8 cited findings on the plugin's own prompts.
+    // /omos.retro — retrospect the finished run: evidence bundle →
+    // omos-retrospector → ≤8 cited findings on the plugin's own prompts.
     // None of the commands ever touches git.
     await ctx.command.transform((editor) => {
       editor.add({
-        name: "openspec.init",
+        name: "omos.init",
         description: INIT_COMMAND_DESCRIPTION,
         execute: async ({ sessionID, prompt }) => {
           await ctx.session.prompt({
             sessionID: sessionID as never,
             text: initInstruction(prompt?.text ?? ""),
-            skills: [{ id: Skill.ID.make("openspec-init") }],
+            skills: [{ id: Skill.ID.make("omos-init") }],
           } as never);
         },
       });
       editor.add({
-        name: "openspec.plan",
+        name: "omos.plan",
         description: PLAN_COMMAND_DESCRIPTION,
         execute: async ({ sessionID, prompt }) => {
           await ctx.session.prompt({
             sessionID: sessionID as never,
             text: planInstruction(prompt?.text ?? ""),
-            skills: [{ id: Skill.ID.make("openspec-plan") }],
+            skills: [{ id: Skill.ID.make("omos-plan") }],
           } as never);
         },
       });
       editor.add({
-        name: "openspec.apply",
+        name: "omos.apply",
         description: APPLY_COMMAND_DESCRIPTION,
         execute: async ({ sessionID, prompt }) => {
           await ctx.session.prompt({
             sessionID: sessionID as never,
             text: applyInstruction(prompt?.text ?? ""),
-            skills: [{ id: Skill.ID.make("openspec-apply") }],
+            skills: [{ id: Skill.ID.make("omos-apply") }],
           } as never);
         },
       });
       editor.add({
-        name: "openspec.archive",
+        name: "omos.archive",
         description: ARCHIVE_COMMAND_DESCRIPTION,
         execute: async ({ sessionID, prompt }) => {
           await ctx.session.prompt({
@@ -198,13 +198,13 @@ export default Plugin.define({
         },
       });
       editor.add({
-        name: "openspec.retro",
+        name: "omos.retro",
         description: RETRO_COMMAND_DESCRIPTION,
         execute: async ({ sessionID }) => {
           await ctx.session.prompt({
             sessionID: sessionID as never,
             text: retroInstruction(),
-            skills: [{ id: Skill.ID.make("openspec-retro") }],
+            skills: [{ id: Skill.ID.make("omos-retro") }],
           } as never);
         },
       });

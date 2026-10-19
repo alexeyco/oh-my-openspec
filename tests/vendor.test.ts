@@ -10,7 +10,7 @@ import { loadVendorManifest, listVendoredSkillIds } from "../core/vendor.ts";
 let tempDir: string;
 
 before(() => {
-  tempDir = mkdtempSync(join(tmpdir(), "o-opos-vendor-"));
+  tempDir = mkdtempSync(join(tmpdir(), "o-omos-vendor-"));
 });
 
 after(() => {

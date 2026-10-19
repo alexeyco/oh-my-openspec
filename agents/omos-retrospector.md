@@ -7,7 +7,7 @@ Analyze the evidence bundle of one finished run and report defects in the
 plugin's own prompt entities — and only those:
 
 - `agents/*.md` — role prompts
-- `skills/openspec-*/SKILL.md` — flow skills
+- `skills/omos-*/SKILL.md` — flow skills
 - `core/prompts.ts` — SUBAGENT_CONTRACT and command instructions
 
 Never report on: vendored OpenSpec skills, the user's project code, the

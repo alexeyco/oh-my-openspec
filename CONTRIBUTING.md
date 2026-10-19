@@ -5,7 +5,7 @@
 - Never push to `master`.
 - Branch from `master`: `git checkout -b feat/<topic>`.
 - Commit messages: no conventional prefixes (`feat:`, `fix:`, …), past tense —
-  e.g. `Added openspec-plan skill`, `Fixed validateProject empty-report check`.
+  e.g. `Added omos-plan skill`, `Fixed validateProject empty-report check`.
 
 ## Development
 
@@ -24,7 +24,7 @@ Test locally without publishing (local installs are not copied, edits are live):
 
 ```sh
 # sandbox opencode.jsonc
-{ "plugins": ["/absolute/path/to/opencode-openspec"] }
+{ "plugins": ["/absolute/path/to/oh-my-openspec"] }
 ```
 
 Point OpenCode at the absolute path; edits take effect on the next session
@@ -58,7 +58,7 @@ or `/reload` — no copying, no reinstall.
 ## Layout
 
 ```
-opencode-openspec/
+oh-my-openspec/
 ├── index.ts                     # shim: export { default } from "./opencode/index.ts"
 ├── package.json                 # opencode plugin (exports "." → ./opencode/index.ts)
 ├── core/                        # framework-agnostic logic
@@ -71,18 +71,18 @@ opencode-openspec/
 │   ├── index.ts                 # plugin entry: agents + skills + commands + contract injection + openspec_validate
 │   └── background.ts            # forceBackgroundEvent pure helper
 ├── agents/                      # 7 role definitions, shared markdown
-│   ├── openspec-researcher.md   # facts + quality bar (read-only)
-│   ├── openspec-planner.md      # change artifacts (plan) / baseline specs (baseline) / wave table (waves)
-│   ├── openspec-critic.md       # mechanical + editorial review: CLEAN or NEEDS-FIX
-│   ├── openspec-implementer.md  # exactly one task group
-│   ├── openspec-verifier.md     # scenarios verified by execution
-│   ├── openspec-reviewer.md     # diff vs proposal, spec delta, design
-│   └── openspec-retrospector.md # run evidence → ≤8 cited prompt defects
+│   ├── omos-researcher.md       # facts + quality bar (read-only)
+│   ├── omos-planner.md          # change artifacts (plan) / baseline specs (baseline) / wave table (waves)
+│   ├── omos-critic.md           # mechanical + editorial review: CLEAN or NEEDS-FIX
+│   ├── omos-implementer.md      # exactly one task group
+│   ├── omos-verifier.md         # scenarios verified by execution
+│   ├── omos-reviewer.md         # diff vs proposal, spec delta, design
+│   └── omos-retrospector.md     # run evidence → ≤8 cited prompt defects
 ├── skills/
-│   ├── openspec-init/SKILL.md   # flow: discovery → capability map → baseline specs → critique → approval
-│   ├── openspec-plan/SKILL.md   # flow: interview → research → draft → critique → validate
-│   ├── openspec-apply/SKILL.md  # flow: waves → verify → review → report
-│   └── openspec-retro/SKILL.md  # flow: evidence bundle → retrospector → relay
+│   ├── omos-init/SKILL.md       # flow: discovery → capability map → baseline specs → critique → approval
+│   ├── omos-plan/SKILL.md       # flow: interview → research → draft → critique → validate
+│   ├── omos-apply/SKILL.md      # flow: waves → verify → review → report
+│   └── omos-retro/SKILL.md      # flow: evidence bundle → retrospector → relay
 ├── vendor/openspec/             # GENERATED — skills/ + manifest.json, via `make sync`
 ├── docs/
 │   ├── agents.md                # role catalog + dispatch mechanics

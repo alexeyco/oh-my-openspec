@@ -1,4 +1,4 @@
-# @alexeyco/opencode-openspec
+# oh-my-openspec
 
 Repo guide for AI agents working on this repository.
 Human-facing docs: [README.md](README.md), [CONTRIBUTING.md](CONTRIBUTING.md).

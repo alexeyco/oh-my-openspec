@@ -221,8 +221,8 @@ function parseFrontmatter(text) {
 
 {
   const entrySrc = readText(join(ROOT, "opencode", "index.ts"));
-  if (!entrySrc.includes('id: "opencode-openspec"'))
-    fail('opencode/index.ts: plugin id must be "opencode-openspec"');
+  if (!entrySrc.includes('id: "oh-my-openspec"'))
+    fail('opencode/index.ts: plugin id must be "oh-my-openspec"');
 
   const pkgJson = JSON.parse(readText(join(ROOT, "package.json")));
   if (pkgJson.pi) fail('package.json: stray "pi" manifest section');
