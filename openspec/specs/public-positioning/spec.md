@@ -2,7 +2,9 @@
 
 ## Purpose
 
-TBD — update Purpose after archive (the delta carried no Purpose section).
+Governs the plugin's public README positioning: the sourced and dated
+comparison tables, their legend and footnotes, neutral claims, and the
+sales-order section layout of the README.
 
 ## Requirements
 
@@ -44,12 +46,12 @@ in the project's public sources — negative searches performed
 "not found in the public sources checked" state and the dated line.
 Each competitor column header SHALL
 link its GitHub repo in both tables; header display text SHALL be short
-(author or short project name: `@alexeyco`, `AngDrew`, `Octane0411`,
+(author or short project name: `omos`, `AngDrew`, `Octane0411`,
 `oso`, `openflow`), with the full names remaining discoverable through
 the linked repos, the AngDrew footnote, and the detailed-table cells.
 The self-column links SHALL target the renamed package page
-`https://www.npmjs.com/package/oh-my-openspec`; the `@alexeyco` display
-label stays (author unchanged). The
+`https://www.npmjs.com/package/oh-my-openspec`; the self-column display
+label is the short project name `omos`. The
 line `All cells checked 2026-10-17 against the linked public sources.`
 SHALL sit directly under the footnote block and cover both tables.
 

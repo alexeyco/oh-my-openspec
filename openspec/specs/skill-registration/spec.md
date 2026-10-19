@@ -3,8 +3,8 @@
 ## Purpose
 
 Defines how the plugin registers its skill catalog with OpenCode: four
-orchestration "flow" skills authored in this repository (`openspec-init`,
-`openspec-plan`, `openspec-apply`, `openspec-retro`) plus the vendored
+orchestration "flow" skills authored in this repository (`omos-init`,
+`omos-plan`, `omos-apply`, `omos-retro`) plus the vendored
 upstream OpenSpec workflow skills generated under `vendor/openspec/`.
 Registration reads each `SKILL.md`, validates its frontmatter, and adds the
 parsed skill to the host. A startup integrity gate compares the vendored

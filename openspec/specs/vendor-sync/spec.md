@@ -3,7 +3,7 @@
 ## Purpose
 
 The plugin bundles OpenSpec's OpenCode workflow skills verbatim so that
-installing `@alexeyco/opencode-openspec` from npm is enough — a user never
+installing `oh-my-openspec` from npm is enough — a user never
 runs `openspec init` to get the upstream skills. `scripts/sync-vendor.mjs`
 drives the CLI pinned as the `@fission-ai/openspec` devDependency
 (`scripts/sync-vendor.mjs:38-45`) inside a throwaway sandbox, renders every
