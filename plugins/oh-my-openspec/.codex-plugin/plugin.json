@@ -1,0 +1,22 @@
+{
+  "name": "oh-my-openspec",
+  "version": "1.14.3",
+  "description": "OpenSpec multi-agent flow for Codex CLI: $omos-init / $omos-plan / $omos-apply / $omos-retro with seven role subagents and a mechanical openspec_validate MCP gate",
+  "author": {
+    "name": "Alexeyco",
+    "url": "https://github.com/alexeyco"
+  },
+  "homepage": "https://github.com/alexeyco/oh-my-openspec",
+  "repository": "https://github.com/alexeyco/oh-my-openspec",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "codex-plugin",
+    "openspec",
+    "spec-driven-development",
+    "workflow",
+    "subagents"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

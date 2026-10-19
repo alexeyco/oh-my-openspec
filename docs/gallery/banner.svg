@@ -62,7 +62,7 @@
   <g text-anchor="end" font-size="40" font-weight="700" letter-spacing="4">
     <text x="1102" y="74" fill="#22d3ee" opacity="0.55" transform="translate(-2 0)">OH-MY-OPENSPEC</text>
     <text x="1102" y="74" fill="#f472b6" opacity="0.45" transform="translate(2 0)">OH-MY-OPENSPEC</text>
-    <text x="1102" y="74" fill="#f8fafc"><tspan>OH</tspan><tspan fill="#94a3b8">-MY</tspan><tspan>-</tspan><tspan fill="#94a3b8">OPEN</tspan><tspan>SPEC</tspan></text>
+    <text x="1102" y="74" fill="#f8fafc">OH-MY-OPENSPEC</text>
   </g>
   <rect x="620" y="88" width="486" height="3" fill="url(#accent)"/>
 

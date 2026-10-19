@@ -12,5 +12,11 @@
     "noUncheckedIndexedAccess": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["index.ts", "core/**/*.ts", "opencode/**/*.ts", "tests/**/*.ts"]
+  "include": [
+    "index.ts",
+    "core/**/*.ts",
+    "opencode/**/*.ts",
+    "codex/**/*.ts",
+    "tests/**/*.ts"
+  ]
 }
