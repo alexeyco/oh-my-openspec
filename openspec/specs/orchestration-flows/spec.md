@@ -3,7 +3,7 @@
 ## Purpose
 
 This capability covers the four flow skills shipped under `skills/`:
-openspec-plan, openspec-init, openspec-apply, and openspec-retro. Each flow is
+omos-plan, omos-init, omos-apply, and omos-retro. Each flow is
 the orchestrator's script for one command — plan a change, bootstrap baseline
 specs, implement a change, retrospect a finished run. The shipped instructions
 guarantee a shared discipline: the orchestrator dispatches role subagents and

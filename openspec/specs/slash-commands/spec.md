@@ -3,8 +3,8 @@
 ## Purpose
 
 Defines the five user-facing OpenCode commands the plugin registers —
-`/openspec.init`, `/openspec.plan`, `/openspec.apply`, `/openspec.archive`,
-`/openspec.retro` — and how each turns user input into a session prompt.
+`/omos.init`, `/omos.plan`, `/omos.apply`, `/omos.archive`,
+`/omos.retro` — and how each turns user input into a session prompt.
 Executing a command
 does not perform the workflow itself: it composes a short instruction from a
 pure builder function and sends it to the current session bound to exactly

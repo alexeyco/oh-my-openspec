@@ -2,7 +2,9 @@
 
 ## Purpose
 
-TBD — update Purpose after archive (the delta carried no Purpose section).
+Governs the plugin's public README positioning: the sourced and dated
+comparison tables, their legend and footnotes, neutral claims, and the
+sales-order section layout of the README.
 
 ## Requirements
 
