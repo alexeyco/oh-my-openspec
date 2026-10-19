@@ -51,6 +51,7 @@
 
       Covers scenario "Mechanics prose moved, not rewritten"
       (word-for-word body).
+
 - [x] 3.2 Merge audit of `docs/vendor-sync.md`: verify every fact of the
       current `## Keeping skills current` prose (README.md:98-105)
       already exists there — the `generatedBy` stamp ("How each file
@@ -121,6 +122,7 @@
       | Retro | ✅ | ❌ | ❌ | ✅[^12] | ❌ |
       | Published on npm | ✅ | ❌[^13] | ✅ | ✅ | ✅ |
       ```
+
 - [x] 4.3 Under the matrix place the footnote block verbatim — the
       thirteen numbered definitions `[^1]`–`[^13]` directly under the
       matrix in numerical order (single-line definitions, no blank lines
@@ -151,6 +153,7 @@
       Covers scenarios "AngDrew footnote facts" (`[^13]` keeps the
       pinned facts) and "Every cell carries its source" (footnote
       definitions carry the public links).
+
 - [x] 4.4 Place the detailed table in a `<details>` block pinned as
       below: short header labels, the seven landed body rows
       byte-identical to the current ones except the "npm package" row's
@@ -189,6 +192,7 @@
 
       </details>
       ```
+
 - [x] 4.5 Pin the Install lead-in (first line of `## Install`) as:
       `Requires [OpenCode v2](https://opencode.ai) (plugin API), [Node.js ≥ 22.18](https://nodejs.org) and the [OpenSpec CLI](https://openspec.dev/docs/installation) — the plugin delegates every mechanical gate to it:`
       — the rest of the Install section (npm command block, "Not

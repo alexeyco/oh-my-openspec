@@ -82,7 +82,7 @@ SHALL sit directly under the footnote block and cover both tables.
 - **WHEN** a reader sees ✅, ⚠️, or ❌ cells in the matrix
 - **THEN** the legend line directly above the matrix defines all three
   states — `✅ documented in the linked sources · ⚠️ partial or
-  implemented differently · ❌ not found in the public sources checked` —
+implemented differently · ❌ not found in the public sources checked` —
   and the ❌ wording states the bare-❌ rule that keeps unfootnoted ❌
   cells sourced negative claims (negative searches performed 2026-10-17)
 
