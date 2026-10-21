@@ -1,4 +1,4 @@
-# subagent-execution-policy
+# Subagent execution policy
 
 ## Purpose
 

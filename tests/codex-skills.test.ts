@@ -18,6 +18,7 @@ import { parseMarkdown, validateSkillDoc } from "../core/markdown.ts";
 import { archiveInstruction } from "../core/prompts.ts";
 
 const repoRoot = join(import.meta.dirname, "..");
+const CODEX_ARCHIVE_MENTION = "$oh-my-openspec:omos-archive";
 
 function readFlowSkill(id: string): string {
   return readFileSync(join(repoRoot, "skills", id, "SKILL.md"), "utf-8");
@@ -28,6 +29,43 @@ function interpolatedHeader(id: string): string {
 }
 
 describe("renderFlowSkill", () => {
+  it("Shared apply source stays host-neutral while Codex renders namespaced skills", () => {
+    const applySource = readFlowSkill("omos-apply");
+    assert.ok(
+      applySource.includes("archive with `/omos.archive <change-id>`"),
+      "shared apply source retains its host-neutral archive command",
+    );
+    assert.ok(
+      !applySource.includes(CODEX_ARCHIVE_MENTION),
+      "shared apply source contains no Codex-only archive mention",
+    );
+
+    const renderedApply = parseMarkdown<unknown>(
+      renderFlowSkill(applySource),
+    ).body;
+    assert.ok(
+      renderedApply.includes(
+        `archive with \`${CODEX_ARCHIVE_MENTION} <change-id>\``,
+      ),
+      "Codex renderer converts the shared archive command",
+    );
+
+    for (const id of FLOW_SKILL_IDS) {
+      const rendered = renderFlowSkill(readFlowSkill(id));
+      const { frontmatter, body } = parseMarkdown<unknown>(rendered);
+      const doc = validateSkillDoc(frontmatter);
+      assert.ok(doc.description.includes(`$oh-my-openspec:${id}`));
+      for (const target of FLOW_SKILL_IDS) {
+        const unnamespaced = new RegExp(`\\$${target}(?![\\w:-])`);
+        assert.doesNotMatch(
+          body,
+          unnamespaced,
+          `${id}: ${target} must be namespaced`,
+        );
+      }
+    }
+  });
+
   it("Rendered flow skill carries the Codex host header", () => {
     assert.equal(FLOW_SKILL_IDS.length, 4, "exactly four flow skills render");
     for (const id of FLOW_SKILL_IDS) {
@@ -73,13 +111,13 @@ describe("renderFlowSkill", () => {
         "no-substitution rule stated",
       );
       assert.ok(
-        header.includes("run `$omos-setup` once"),
-        "$omos-setup remedy present",
+        header.includes("run `$oh-my-openspec:omos-setup` once"),
+        "namespaced $omos-setup remedy present",
       );
       // The invocation bullet advertises the mention form (and the
       // /skills picker) only — no slash alias.
       assert.ok(
-        header.includes(`\`$${id}\` mention`),
+        header.includes(`\`$oh-my-openspec:${id}\` mention`),
         `${id}: mention form named`,
       );
       assert.ok(
@@ -171,7 +209,7 @@ describe("renderFlowSkill", () => {
       // The emitted frontmatter re-parses and still passes validation.
       const doc = validateSkillDoc(frontmatter);
       assert.equal(doc.name, id);
-      const suffix = ` Invoke via $${id}.`;
+      const suffix = ` Invoke via $oh-my-openspec:${id}.`;
       assert.ok(
         doc.description.endsWith(suffix),
         `${id}: description must end with "${suffix}"`,
@@ -188,7 +226,7 @@ describe("renderFlowSkill", () => {
       );
       const adapted = sourceDoc.description.replaceAll(
         `/${id.replaceAll("-", ".")}`,
-        `$${id}`,
+        `$oh-my-openspec:${id}`,
       );
       assert.equal(doc.description, adapted + suffix);
     }
@@ -198,8 +236,7 @@ describe("renderFlowSkill", () => {
     // Scenario (specs/codex-host-integration, add-codex-cli-support):
     // "Rendered bodies advertise no slash commands" — WHEN any flow
     // skill is rendered THEN its body contains no `/omos.` text and
-    // every next-step hint names a `$omos-*` mention, with archive
-    // hints naming the project-level `$openspec-archive-change` skill.
+    // every plugin-owned next-step hint names a namespaced mention.
     // (The delta spec wording is current: spec.md:171-173 says archive
     // hints name the "bundled" `$openspec-archive-change` skill, synced
     // with the round-6 bundled-vendored-skills redesign — the assertion
@@ -222,47 +259,51 @@ describe("renderFlowSkill", () => {
       );
     }
 
-    // Every next-step hint names a `$omos-*` mention…
+    // Every next-step hint names a namespaced plugin skill mention…
     assert.ok(
       bodies
         .get("omos-init")!
-        .includes("future work goes through `$omos-plan <idea>`"),
-      "omos-init next-step hint names $omos-plan",
+        .includes(
+          "future work goes through `$oh-my-openspec:omos-plan <idea>`",
+        ),
+      "omos-init next-step hint names namespaced $omos-plan",
     );
     assert.ok(
       bodies
         .get("omos-plan")!
-        .includes("next step\n  `$omos-apply <change-id>`"),
-      "omos-plan next-step hint names $omos-apply",
+        .includes("next step\n  `$oh-my-openspec:omos-apply <change-id>`"),
+      "omos-plan next-step hint names namespaced $omos-apply",
     );
-    assert.ok(
-      bodies.get("omos-apply")!.includes("run `$omos-plan` and stop"),
-      "omos-apply plan-pointer hint names $omos-plan",
-    );
-    assert.ok(
-      bodies.get("omos-apply")!.includes("`$omos-plan` fix round"),
-      "omos-apply fix-round hint names $omos-plan",
-    );
-    assert.ok(
-      bodies.get("omos-init")!.includes("unlike `$omos-plan`"),
-      "omos-init gate-comparison hint names $omos-plan",
-    );
-    assert.ok(
-      bodies.get("omos-retro")!.includes("(`$omos-plan` there, or direct"),
-      "omos-retro repository hint names $omos-plan",
-    );
-
-    // …archive hints name the bundled `$openspec-archive-change` skill
-    // (the phrase-table archive entry, byte-exact — round-6 re-pin: the
-    // vendored archive skills ship in the bundle, no project-level init
-    // step).
     assert.ok(
       bodies
         .get("omos-apply")!
-        .includes(
-          "archive with the bundled `$openspec-archive-change` skill, passing `<change-id>`",
-        ),
-      "omos-apply archive hint names $openspec-archive-change",
+        .includes("run `$oh-my-openspec:omos-plan` and stop"),
+      "omos-apply plan-pointer hint names namespaced $omos-plan",
+    );
+    assert.ok(
+      bodies
+        .get("omos-apply")!
+        .includes("`$oh-my-openspec:omos-plan` fix round"),
+      "omos-apply fix-round hint names namespaced $omos-plan",
+    );
+    assert.ok(
+      bodies.get("omos-init")!.includes("unlike `$oh-my-openspec:omos-plan`"),
+      "omos-init gate-comparison hint names namespaced $omos-plan",
+    );
+    assert.ok(
+      bodies
+        .get("omos-retro")!
+        .includes("(`$oh-my-openspec:omos-plan` there, or direct"),
+      "omos-retro repository hint names namespaced $omos-plan",
+    );
+
+    // The host-neutral shared hint is rendered as the namespaced Codex
+    // archive skill mention.
+    assert.ok(
+      bodies
+        .get("omos-apply")!
+        .includes("archive with `$oh-my-openspec:omos-archive <change-id>`"),
+      "omos-apply archive hint names the namespaced Codex skill",
     );
 
     // The pinned offered-invocations rewrites replace both
@@ -271,7 +312,7 @@ describe("renderFlowSkill", () => {
       bodies
         .get("omos-apply")!
         .includes(
-          "Offered invocations are the\n  plugin's `$omos-*` skill mentions whenever one exists for the action;\n  the upstream `openspec` CLI is offered only where the plugin has no\n  equivalent.",
+          "Offered invocations are the\n  plugin's `$oh-my-openspec:omos-*` skill mentions whenever one exists for the action;\n  the upstream `openspec` CLI is offered only where the plugin has no\n  equivalent.",
         ),
       "omos-apply carries the pinned offered-invocations rewrite",
     );
@@ -279,7 +320,7 @@ describe("renderFlowSkill", () => {
       bodies
         .get("omos-plan")!
         .includes(
-          "Offered invocations are the plugin's `$omos-*` skill mentions\n  whenever one exists for the action; the upstream `openspec` CLI is\n  offered only where the plugin has no equivalent.",
+          "Offered invocations are the plugin's `$oh-my-openspec:omos-*` skill mentions\n  whenever one exists for the action; the upstream `openspec` CLI is\n  offered only where the plugin has no equivalent.",
         ),
       "omos-plan carries the pinned offered-invocations rewrite",
     );
@@ -295,7 +336,7 @@ describe("renderFlowSkill", () => {
       bodies
         .get("omos-retro")!
         .includes(
-          "commands run (`$omos-init`, `$omos-plan`, `$omos-apply`,\n  `$openspec-archive-change`) and",
+          "commands run (`$oh-my-openspec:omos-init`, `$oh-my-openspec:omos-plan`, `$oh-my-openspec:omos-apply`,\n  `$oh-my-openspec:omos-archive`) and",
         ),
       "omos-retro enumeration names the mention forms",
     );
@@ -321,7 +362,7 @@ describe("renderArchiveSkill", () => {
   it("Archive surface mirrors OpenCode", () => {
     // Scenario (specs/codex-host-integration, add-codex-cli-support):
     // "Archive surface mirrors OpenCode" — WHEN a Codex user invokes
-    // `$omos-archive` THEN the wrapper resolves from the bundle,
+    // `$oh-my-openspec:omos-archive` THEN the wrapper resolves from the bundle,
     // delegates to the bundled `$openspec-archive-change` skill
     // (`$openspec-bulk-archive-change` for two or more change ids), and
     // its instruction carries the validation gate line verbatim from
@@ -333,10 +374,14 @@ describe("renderArchiveSkill", () => {
     const { frontmatter, body } = parseMarkdown<unknown>(rendered);
     const doc = validateSkillDoc(frontmatter);
     assert.equal(doc.name, "omos-archive");
-    const suffix = " Invoke via $omos-archive.";
+    const suffix = " Invoke via $oh-my-openspec:omos-archive.";
     assert.ok(
       doc.description.endsWith(suffix),
       `description must end with "${suffix}"`,
+    );
+    assert.ok(
+      body.includes("`$oh-my-openspec:omos-archive` mention"),
+      "archive wrapper self-reference is namespaced",
     );
     assert.ok(
       !doc.description.includes("/omos."),
@@ -376,17 +421,33 @@ describe("renderArchiveSkill", () => {
       "two-or-more-ids branch carries the changes line",
     );
 
-    // The validation gate line appears verbatim — byte-equal both to
-    // the pinned literal and to archiveInstruction's own gate line
-    // (single source, no fork).
+    // The initial validation gate remains verbatim from the shared builder.
     const gateLine =
       "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.";
-    assert.ok(body.includes(gateLine), "gate line must appear verbatim");
+    assert.ok(
+      body.includes(gateLine),
+      "initial gate line must appear verbatim",
+    );
     assert.equal(
-      archiveInstruction("").split("\n").at(-1),
+      archiveInstruction("").split("\n")[2],
       gateLine,
       "core/prompts.ts gate line matches the pinned literal",
     );
+
+    const orderedSteps = [
+      "Use the delegated archive skill for its other checks. These plugin-mandated steps override any conflicting upstream sync or archive choices: do not ask whether to sync, and stop before archiving if required sync is blocked.",
+      "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
+      "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing authored titles and machine-named capability paths.",
+      "If required specification sync is blocked, stop without archiving and report the blocker.",
+      "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
+      "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
+    ];
+    let previous = body.indexOf(gateLine);
+    for (const step of orderedSteps) {
+      const current = body.indexOf(step);
+      assert.ok(current > previous, `archive step appears in order: ${step}`);
+      previous = current;
+    }
 
     // The wrapper body advertises no slash commands either.
     assert.ok(
@@ -402,7 +463,9 @@ describe("renderSetupSkill", () => {
     const { frontmatter, body } = parseMarkdown<unknown>(rendered);
     const doc = validateSkillDoc(frontmatter);
     assert.equal(doc.name, "omos-setup");
-    assert.ok(doc.description.endsWith("Invoke via $omos-setup."));
+    assert.ok(
+      doc.description.endsWith("Invoke via $oh-my-openspec:omos-setup."),
+    );
     assert.ok(body.startsWith("\n# omos-setup"));
 
     // The pinned setup content: installer path, marketplace lookup,

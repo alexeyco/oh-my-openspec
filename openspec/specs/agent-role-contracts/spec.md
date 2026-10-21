@@ -1,4 +1,4 @@
-# agent-role-contracts
+# Agent role contracts
 
 ## Purpose
 
@@ -99,6 +99,41 @@ the critic's editorial rule (agents/omos-critic.md:19-21).
 - **THEN** the report states the result certifies format only, not
   archive-ability, and claims nothing about CLI archive behavior beyond
   its stated semantics (agents/omos-planner.md:50-52)
+
+In `MODE: plan` and `MODE: baseline`, the planner SHALL give each
+`### Requirement:` heading a human-readable name and each capability
+specification a human-readable top-level markdown title. These displayed
+titles SHALL describe the requirement or capability rather than repeat its
+machine identifier. The change's migration SHALL also replace
+machine-identifier top-level titles in every existing main capability
+specification under `openspec/specs/**/spec.md` with human-readable titles.
+Technical change IDs, capability directory names, and paths SHALL remain
+stable; content other than a migrated top-level title remains unchanged.
+Archive change artifacts and historical archived specifications are outside
+this migration. In `MODE: plan`, a `MODIFIED` requirement heading SHALL still
+match the baseline header verbatim; when that header is not human-readable,
+the planner SHALL use the existing `RENAMED Requirements` mechanism rather
+than silently changing the merge key.
+
+#### Scenario: Drafted requirement names are human-readable
+
+- **WHEN** the planner writes an added requirement in plan mode or any requirement in baseline mode
+- **THEN** its `### Requirement:` heading is a readable description rather than an identifier such as `archive-validation`
+
+#### Scenario: Capability spec has a readable title
+
+- **WHEN** the planner writes a capability spec file under its machine-named directory
+- **THEN** the file's top-level heading is a human-readable capability name and the directory path remains unchanged
+
+#### Scenario: Existing main specification titles are migrated
+
+- **WHEN** an existing main specification under `openspec/specs/**/spec.md` has a machine-identifier top-level title, such as `# codex-host-integration Specification`
+- **THEN** its top-level title is rewritten as a readable capability name, such as `# Codex host integration`, while its path and all other file content remain unchanged
+
+#### Scenario: Modified merge key preserves a non-readable baseline name
+
+- **WHEN** a baseline requirement heading is not human-readable and the planner changes its behavior
+- **THEN** the planner preserves the exact baseline heading in a `MODIFIED` delta or expresses the heading change through `RENAMED Requirements`
 
 ### Requirement: Research, validation, and review roles are read-only with evidence-bound claims
 

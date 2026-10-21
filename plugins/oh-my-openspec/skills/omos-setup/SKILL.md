@@ -1,6 +1,6 @@
 ---
 name: omos-setup
-description: "Install the oh-my-openspec Codex host pieces: the seven ~/.codex/agents/omos-*.toml role agents via the bundled installer, then the openspec MCP-server approval. Invoke via $omos-setup."
+description: "Install the oh-my-openspec Codex host pieces: the seven ~/.codex/agents/omos-*.toml role agents via the bundled installer, then the openspec MCP-server approval. Invoke via $oh-my-openspec:omos-setup."
 ---
 
 # omos-setup

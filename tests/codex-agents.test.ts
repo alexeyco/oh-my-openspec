@@ -103,7 +103,11 @@ function parseEmittedDoc(doc: string): Array<[string, string]> {
     i += multiline ? 3 : 1;
     const { value, end } = readBasicString(doc, i, multiline);
     i = end;
-    assert.equal(doc[i], "\n", `parser: expected LF after the value for ${key}`);
+    assert.equal(
+      doc[i],
+      "\n",
+      `parser: expected LF after the value for ${key}`,
+    );
     i += 1;
     fields.push([key, value]);
   }
@@ -165,6 +169,31 @@ describe("renderAgentToml over the seven real roles", () => {
         `contract must be the verbatim suffix for ${role.id}`,
       );
     }
+  });
+});
+
+describe("omos-planner heading contract", () => {
+  it("requires readable requirement and spec titles while preserving MODIFIED keys", () => {
+    const planner = loadRoles(join(import.meta.dirname, "..", "agents")).find(
+      (role) => role.id === "omos-planner",
+    );
+    assert.ok(planner, "omos-planner role is registered");
+    assert.match(
+      planner.body,
+      /Give every `### Requirement:` heading a readable\s+name/,
+    );
+    assert.match(
+      planner.body,
+      /Give each capability spec a readable top-level `#`\s+title/,
+    );
+    assert.match(
+      planner.body,
+      /under `## MODIFIED` must match the\s+baseline header verbatim/,
+    );
+    assert.match(
+      planner.body,
+      /use\s+`## RENAMED Requirements` with exact `FROM:`\/`TO:` pairs/,
+    );
   });
 });
 

@@ -1,4 +1,4 @@
-# role-registration
+# Role registration
 
 ## Purpose
 

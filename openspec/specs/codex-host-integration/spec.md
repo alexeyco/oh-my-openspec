@@ -1,4 +1,4 @@
-# codex-host-integration Specification
+# Codex host integration
 
 ## Purpose
 
@@ -53,8 +53,8 @@ under `assets/agents/`, `assets/mcp-server.mjs`,
 #### Scenario: Marketplace install succeeds on Codex 0.163.0
 
 - **WHEN** a user runs `codex plugin marketplace add
-  alexeyco/oh-my-openspec` and `codex plugin add
-  oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
+alexeyco/oh-my-openspec` and `codex plugin add
+oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
 - **THEN** the plugin is listed as installed, its six flow-family
   skills are visible namespaced `oh-my-openspec:omos-*` alongside the
   twelve vendored `openspec-*` skills, and the plugin cache tree holds
@@ -136,7 +136,7 @@ prepending the generated host-adaptation header from `codex/skills.ts`
 (spawn_agent/send_input/wait_agent/close_agent semantics with the async
 default of up to six concurrent threads; `openspec_validate` exposed as
 `mcp__openspec__openspec_validate` and called with `cwd` set to the
-session's project directory; the `$omos-*` mention as the only
+session's project directory; the `$oh-my-openspec:omos-*` mention as the only
 invocation shape; arguments as plain text after the mention with no
 substitution) and by applying the pinned substitution machinery: a
 phrase table carrying an entry for every host-bound sentence — the
@@ -144,8 +144,8 @@ OpenCode dispatch sentence at `skills/omos-apply/SKILL.md:47-49`
 replaced with its `spawn_agent`/`wait_agent` equivalent, and the
 next-step hint sentences rewritten to the Codex reality — followed by a
 whole-body token pass swapping `/omos.init`, `/omos.plan`,
-`/omos.apply`, `/omos.retro` to their `$omos-*` mention forms and
-`/omos.archive` to the bundled `$openspec-archive-change` skill.
+`/omos.apply`, `/omos.retro`, and `/omos.archive` to their
+`$oh-my-openspec:omos-*` mention forms.
 After both passes the renderer SHALL fail naming the phrase when any
 `/omos.` text remains in the body. Rendering SHALL fail when a
 substitution key is absent from its source file. The OpenCode `skills/`
@@ -157,7 +157,7 @@ files SHALL NOT be modified by this path.
 - **THEN** its body starts with the `CODEX_SKILL_HEADER` blockquote
   naming `spawn_agent`/`wait_agent` dispatch, the
   `mcp__openspec__openspec_validate` tool, the no-argument-substitution
-  rule, and the `$omos-setup` remedy for missing role TOMLs
+  rule, and the `$oh-my-openspec:omos-setup` remedy for missing role TOMLs
 
 #### Scenario: OpenCode dispatch sentence is replaced
 
@@ -177,9 +177,9 @@ files SHALL NOT be modified by this path.
 #### Scenario: Rendered bodies advertise no slash commands
 
 - **WHEN** any flow skill is rendered
-- **THEN** its body contains no `/omos.` text and every next-step hint
-  names a `$omos-*` mention, with archive hints naming the
-  bundled `$openspec-archive-change` skill
+- **THEN** its body contains no `/omos.` text and every plugin-owned
+  next-step hint names a `$oh-my-openspec:omos-*` mention, with archive
+  hints naming `$oh-my-openspec:omos-archive`
 - **WHEN** a source skill grows a `/omos.` reference the token pass and
   the pinned table cannot cover, leaving a residual after substitution
 - **THEN** rendering throws naming the phrase, so slash hints can never
@@ -246,9 +246,10 @@ protocol-level failures. In Codex sessions the tool SHALL surface as
 
 ### Requirement: Invocation surface — guaranteed mentions only
 
-The invocation surface SHALL be the six `$omos-*` skill mentions
-(`$omos-init`, `$omos-plan`, `$omos-apply`, `$omos-retro`,
-`$omos-archive`, `$omos-setup`), the /skills picker, and the twelve
+The invocation surface SHALL be the six `$oh-my-openspec:omos-*` skill mentions
+(`$oh-my-openspec:omos-init`, `$oh-my-openspec:omos-plan`,
+`$oh-my-openspec:omos-apply`, `$oh-my-openspec:omos-retro`,
+`$oh-my-openspec:omos-archive`, `$oh-my-openspec:omos-setup`), the /skills picker, and the twelve
 bundled `$openspec-*` vendored-skill mentions for the upstream
 workflows, and nothing else: the bundle SHALL NOT ship `hooks.json`, any
 alias-mapping hook script, or any `/omos.*` slash-alias advertisement —
@@ -277,12 +278,35 @@ copied from `vendor/openspec/skills/`; no project-level `openspec init
 
 #### Scenario: Archive surface mirrors OpenCode
 
-- **WHEN** a Codex user invokes `$omos-archive`
+- **WHEN** a Codex user invokes `$oh-my-openspec:omos-archive`
 - **THEN** the wrapper resolves from the bundle, delegates to the
   bundled `$openspec-archive-change` skill
   (`$openspec-bulk-archive-change` for two or more change ids), and its
   instruction carries the validation gate line verbatim from
   `core/prompts.ts::archiveInstruction`
+
+The Codex renderer in `codex/skills.ts` SHALL transform the shared apply
+recommendation `/omos.archive <change-id>` into
+`$oh-my-openspec:omos-archive <change-id>`, without changing
+`skills/omos-apply/SKILL.md`. Codex-generated recommendations for every
+other plugin-owned skill SHALL also use the `$oh-my-openspec:<skill-id>`
+form. The renderer's substitutions SHALL be pinned by
+`tests/codex-skills.test.ts`.
+
+#### Scenario: Renderer adapts the apply archive recommendation
+
+- **WHEN** a Codex user completes the apply flow
+- **THEN** `codex/skills.ts` renders the shared `/omos.archive <change-id>` recommendation as `$oh-my-openspec:omos-archive <change-id>` and `tests/codex-skills.test.ts` asserts the rendered text
+
+#### Scenario: Plugin skill recommendations are namespaced
+
+- **WHEN** a Codex-generated skill recommends another skill shipped by this plugin
+- **THEN** the mention uses `$oh-my-openspec:<skill-id>`
+
+#### Scenario: Shared apply source retains its host-neutral command
+
+- **WHEN** the OpenCode apply source skill is read
+- **THEN** `skills/omos-apply/SKILL.md` recommends `/omos.archive <change-id>` and does not contain the Codex-only `$oh-my-openspec:omos-archive` form
 
 ### Requirement: Host isolation keeps the OpenCode path intact
 

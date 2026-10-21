@@ -1,4 +1,4 @@
-# vendor-sync
+# Vendor sync
 
 ## Purpose
 

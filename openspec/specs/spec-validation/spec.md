@@ -1,4 +1,4 @@
-# spec-validation
+# Specification validation
 
 ## Purpose
 

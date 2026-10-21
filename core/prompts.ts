@@ -114,7 +114,8 @@ export function archiveSkillId(argText: string): string {
 
 // Build the instruction text for /omos.archive.
 // When no ids are given, the skill lists active changes and confirms first.
-// The third line is the validation gate and is always present.
+// The initial validation gate applies to every id-count branch; sync is
+// mandatory before archive, followed by post-archive validation and repair.
 export function archiveInstruction(
   argText: string,
   skillPath?: string,
@@ -142,6 +143,12 @@ export function archiveInstruction(
 
   parts.push(
     "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.",
+    "Use the delegated archive skill for its other checks. These plugin-mandated steps override any conflicting upstream sync or archive choices: do not ask whether to sync, and stop before archiving if required sync is blocked.",
+    "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
+    "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing authored titles and machine-named capability paths.",
+    "If required specification sync is blocked, stop without archiving and report the blocker.",
+    "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
+    "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
   );
 
   return parts.join("\n");
