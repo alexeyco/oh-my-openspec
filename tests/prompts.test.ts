@@ -61,6 +61,14 @@ describe("applyInstruction", () => {
 
 const GATE_LINE =
   "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.";
+const ARCHIVE_STEPS = [
+  "Use the delegated archive skill for its other checks. These plugin-mandated steps override any conflicting upstream sync or archive choices: do not ask whether to sync, and stop before archiving if required sync is blocked.",
+  "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
+  "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing authored titles and machine-named capability paths.",
+  "If required specification sync is blocked, stop without archiving and report the blocker.",
+  "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
+  "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
+];
 
 describe("archiveInstruction", () => {
   it("pins the single-id output", () => {
@@ -70,6 +78,7 @@ describe("archiveInstruction", () => {
         "Load the openspec-archive-change skill and follow it exactly.",
         "Change: add-dark-mode",
         GATE_LINE,
+        ...ARCHIVE_STEPS,
       ].join("\n"),
     );
   });
@@ -81,6 +90,7 @@ describe("archiveInstruction", () => {
         "Load the openspec-bulk-archive-change skill and follow it exactly.",
         "Changes: add-a, add-b",
         GATE_LINE,
+        ...ARCHIVE_STEPS,
       ].join("\n"),
     );
   });
@@ -102,15 +112,21 @@ describe("archiveInstruction", () => {
         "Load the openspec-archive-change skill and follow it exactly.",
         "No change ids given — list active changes, confirm with the user which to archive.",
         GATE_LINE,
+        ...ARCHIVE_STEPS,
       ].join("\n"),
     );
     assert.doesNotMatch(text, /^Change(s)?:/m);
   });
 
-  it("ends with the gate line in every form", () => {
+  it("keeps the initial gate, mandatory sync, blocker, repair and stop steps in every form", () => {
     for (const argText of ["add-dark-mode", "add-a add-b add-c", ""]) {
       const lines = archiveInstruction(argText).split("\n");
-      assert.equal(lines.at(-1), GATE_LINE, `gate last for: ${argText}`);
+      assert.equal(lines[2], GATE_LINE, `initial gate for: ${argText}`);
+      assert.deepEqual(
+        lines.slice(3),
+        ARCHIVE_STEPS,
+        `archive steps: ${argText}`,
+      );
     }
   });
 

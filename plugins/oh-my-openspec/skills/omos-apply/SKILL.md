@@ -1,13 +1,13 @@
 ---
 name: omos-apply
-description: "Apply an OpenSpec change via $omos-apply — implement task groups in parallel waves, verify scenarios, review the diff. Never commits. Invoke via $omos-apply."
+description: "Apply an OpenSpec change via $oh-my-openspec:omos-apply — implement task groups in parallel waves, verify scenarios, review the diff. Never commits. Invoke via $oh-my-openspec:omos-apply."
 ---
 
 > Codex host adaptation (generated from skills/omos-apply/SKILL.md — source of truth stays there):
 > - Dispatch roles with `spawn_agent` / `send_input` / `wait_agent` / `close_agent`. Subagents are asynchronous (default up to 6 concurrent threads), so a wave is one batch of `spawn_agent` calls followed by `wait_agent` collection — never poll.
 > - `openspec_validate` is provided by this plugin's bundled MCP server as `mcp__openspec__openspec_validate` — call it with `cwd` set to your session's project directory (the `change` filter optional); the VALID/INVALID/UNAVAILABLE/ERROR one-look report format is identical to OpenCode.
-> - This skill is invoked as a `$omos-apply` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
-> - Roles run from `~/.codex/agents/omos-*.toml`. If `spawn_agent` reports an unknown agent, stop and tell the user to run `$omos-setup` once.
+> - This skill is invoked as a `$oh-my-openspec:omos-apply` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
+> - Roles run from `~/.codex/agents/omos-*.toml`. If `spawn_agent` reports an unknown agent, stop and tell the user to run `$oh-my-openspec:omos-setup` once.
 
 # omos-apply
 
@@ -22,7 +22,7 @@ contract. You never run git write commands — the user reviews and commits.
 - `Change: <id>` given → use it.
 - Otherwise run `openspec list --json` (or read `openspec/changes/`).
   Exactly one active change → confirm it. Several → ask, one per run.
-  None → tell the user to run `$omos-plan` and stop.
+  None → tell the user to run `$oh-my-openspec:omos-plan` and stop.
 
 ### 2. Mechanical gate
 
@@ -33,7 +33,7 @@ Run `openspec_validate` with the change id.
   required). **Declined** → stop — unlike plan, apply cannot verify without
   the gate.
 - Not VALID → stop, report the numbered violations, suggest a
-  `$omos-plan` fix round. Do not proceed.
+  `$oh-my-openspec:omos-plan` fix round. Do not proceed.
 
 ### 3. Wave plan
 
@@ -136,8 +136,8 @@ Final report:
   one line each.
 - `git diff --stat` of the working tree.
 - Next steps for the user, in their hands: review the diff, commit, then
-  archive with the bundled `$openspec-archive-change` skill, passing `<change-id>`. Offered invocations are the
-  plugin's `$omos-*` skill mentions whenever one exists for the action;
+  archive with `$oh-my-openspec:omos-archive <change-id>`. Offered invocations are the
+  plugin's `$oh-my-openspec:omos-*` skill mentions whenever one exists for the action;
   the upstream `openspec` CLI is offered only where the plugin has no
   equivalent.
 - Branching questions are answered by citing the repo's `CONTRIBUTING.md`

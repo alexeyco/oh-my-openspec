@@ -1,4 +1,4 @@
-# skill-registration
+# Skill registration
 
 ## Purpose
 

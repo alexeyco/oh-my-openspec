@@ -18,11 +18,17 @@ Turn the confirmed brief into a complete OpenSpec change under
    readable page, no restated code.
 3. `specs/<capability>/spec.md` — delta requirements: `## ADDED|MODIFIED|REMOVED|RENAMED
 Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
-   with a SHALL statement and at
-   least one `#### Scenario:` in `**WHEN** ... / **THEN** ...` form. A
-   `### Requirement:` under `## MODIFIED` must match the baseline header
-   verbatim — the delta merges by header name — and a rename goes instead to
-   `## RENAMED Requirements` with `FROM:`/`TO:` pairs. Cover
+   with a SHALL statement and at least one `#### Scenario:` in `**WHEN** ...
+/ **THEN** ...` form. Give every `### Requirement:` heading a readable
+   name that describes the behavior, not a machine identifier such as
+   `archive-validation`. Give each capability spec a readable top-level `#`
+   title describing the capability; do not use its machine-named directory
+   as the title. Preserve technical change IDs, capability directory names,
+   and paths. A `### Requirement:` under `## MODIFIED` must match the
+   baseline header verbatim — the delta merges by header name — even when
+   that name is not readable. If the requirement name must change, use
+   `## RENAMED Requirements` with exact `FROM:`/`TO:` pairs; never silently
+   alter a `MODIFIED` merge key. Cover
    every behavior the brief promises; invent none beyond it.
 4. `design.md` — approach, files to touch, data shapes, trade-offs that were
    decided. Omit when the change is trivial. `design.md` and every task name
@@ -76,7 +82,9 @@ Each spec file:
 
 - `## Purpose` — a real paragraph (≥50 characters) of what the capability
   is for, in today's terms.
-- `## Requirements` — `### Requirement: <name>` with a SHALL statement,
+- `# <readable capability name>` — a human-readable title that describes
+  the capability rather than repeating its directory identifier.
+- `## Requirements` — `### Requirement: <readable name>` with a SHALL statement,
   each followed by at least one `#### Scenario: <name>` in
   `**WHEN** ... / **THEN** ...` form.
 - Describe **observed current behavior only** — every requirement must

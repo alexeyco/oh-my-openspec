@@ -28,12 +28,12 @@ export const FLOW_SKILL_IDS: readonly string[] = [
 export const CODEX_SKILL_HEADER = `> Codex host adaptation (generated from skills/<id>/SKILL.md — source of truth stays there):
 > - Dispatch roles with \`spawn_agent\` / \`send_input\` / \`wait_agent\` / \`close_agent\`. Subagents are asynchronous (default up to 6 concurrent threads), so a wave is one batch of \`spawn_agent\` calls followed by \`wait_agent\` collection — never poll.
 > - \`openspec_validate\` is provided by this plugin's bundled MCP server as \`mcp__openspec__openspec_validate\` — call it with \`cwd\` set to your session's project directory (the \`change\` filter optional); the VALID/INVALID/UNAVAILABLE/ERROR one-look report format is identical to OpenCode.
-> - This skill is invoked as a \`$<id>\` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
-> - Roles run from \`~/.codex/agents/omos-*.toml\`. If \`spawn_agent\` reports an unknown agent, stop and tell the user to run \`$omos-setup\` once.`;
+> - This skill is invoked as a \`$oh-my-openspec:<id>\` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
+> - Roles run from \`~/.codex/agents/omos-*.toml\`. If \`spawn_agent\` reports an unknown agent, stop and tell the user to run \`$oh-my-openspec:omos-setup\` once.`;
 
 /**
  * Slash-alias text the Codex bundle must not advertise (design.md §5 —
- * the invocation surface is `$omos-*` mentions and the /skills picker
+ * the invocation surface is `$oh-my-openspec:omos-*` mentions and the /skills picker
  * only). This constant is the detection pattern for that ban, not an
  * advertisement: descriptions are checked against it after their
  * `/omos.<flow>` self-reference is swapped to the mention form, and
@@ -74,8 +74,7 @@ export const SUBSTITUTIONS: readonly SkillSubstitution[] = [
     // renderArchiveSkill below).
     skillId: "omos-apply",
     key: "archive with `/omos.archive <change-id>`.",
-    replacement:
-      "archive with the bundled `$openspec-archive-change` skill, passing `<change-id>`.",
+    replacement: "archive with `$oh-my-openspec:omos-archive <change-id>`.",
   },
   {
     // skills/omos-apply/SKILL.md:133-137 — the offered-commands
@@ -85,7 +84,7 @@ export const SUBSTITUTIONS: readonly SkillSubstitution[] = [
     skillId: "omos-apply",
     key: "Offered commands are this\n  plugin's slash commands (`/omos.<name>`) whenever one exists for the\n  action; a skill id is never offered as a command; the upstream `openspec`\n  CLI or a vendored `/openspec-<name>` command is offered only where the\n  plugin has no equivalent.",
     replacement:
-      "Offered invocations are the\n  plugin's `$omos-*` skill mentions whenever one exists for the action;\n  the upstream `openspec` CLI is offered only where the plugin has no\n  equivalent.",
+      "Offered invocations are the\n  plugin's `$oh-my-openspec:omos-*` skill mentions whenever one exists for the action;\n  the upstream `openspec` CLI is offered only where the plugin has no\n  equivalent.",
   },
   {
     // skills/omos-plan/SKILL.md:134-137 — the offered-commands
@@ -93,35 +92,34 @@ export const SUBSTITUTIONS: readonly SkillSubstitution[] = [
     skillId: "omos-plan",
     key: "Offered commands are this plugin's slash commands (`/omos.<name>`)\n  whenever one exists for the action; a skill id is never offered as a\n  command; the upstream `openspec` CLI or a vendored `/openspec-<name>`\n  command is offered only where the plugin has no equivalent.",
     replacement:
-      "Offered invocations are the plugin's `$omos-*` skill mentions\n  whenever one exists for the action; the upstream `openspec` CLI is\n  offered only where the plugin has no equivalent.",
+      "Offered invocations are the plugin's `$oh-my-openspec:omos-*` skill mentions\n  whenever one exists for the action; the upstream `openspec` CLI is\n  offered only where the plugin has no equivalent.",
   },
 ];
 
 /**
  * Whole-body token pass (design.md §3): mechanical `/omos.<flow>` →
- * mention-form swaps applied to every occurrence of the rendered body
+ * namespaced Codex mention swaps applied to every occurrence of the rendered body
  * AFTER the phrase table (the pinned order — the table consumes its
- * byte-exact keys first, so the pass cannot mutate them). The first
- * four map to this plugin's own skills; `/omos.archive` routes to the
- * bundled upstream archive skill — flow next-step hints go straight
- * there, while the `$omos-archive` wrapper (renderArchiveSkill below)
- * is the user-facing surface-parity entry point.
+ * byte-exact keys first, so the pass cannot mutate them). Plugin-owned
+ * skills map to namespaced mentions; `/omos.archive` routes to the
+ * namespaced Codex archive wrapper. The archive wrapper delegates to
+ * the bundled upstream archive skill (renderArchiveSkill below).
  */
 export const TOKEN_SUBSTITUTIONS: readonly (readonly [string, string])[] = [
-  ["/omos.init", "$omos-init"],
-  ["/omos.plan", "$omos-plan"],
-  ["/omos.apply", "$omos-apply"],
-  ["/omos.retro", "$omos-retro"],
-  ["/omos.archive", "$openspec-archive-change"],
+  ["/omos.init", "$oh-my-openspec:omos-init"],
+  ["/omos.plan", "$oh-my-openspec:omos-plan"],
+  ["/omos.apply", "$oh-my-openspec:omos-apply"],
+  ["/omos.retro", "$oh-my-openspec:omos-retro"],
+  ["/omos.archive", "$oh-my-openspec:omos-archive"],
 ];
 
 /**
  * Description suffix advertising the mention form — the only invocation
  * surface the Codex bundle ships (design.md §3, §5):
- * ` Invoke via $<id-with-dashes>.`
+ * ` Invoke via $oh-my-openspec:<id-with-dashes>.`
  */
 function mentionSuffix(id: string): string {
-  return ` Invoke via $${id}.`;
+  return ` Invoke via $oh-my-openspec:${id}.`;
 }
 
 /**
@@ -134,7 +132,7 @@ function mentionSuffix(id: string): string {
 function adaptDescription(description: string, id: string): string {
   // The alias is the id's dotted slash form: `omos-init` ↔ `/omos.init`.
   const selfAlias = "/" + id.replaceAll("-", ".");
-  const adapted = description.replaceAll(selfAlias, `$${id}`);
+  const adapted = description.replaceAll(selfAlias, `$oh-my-openspec:${id}`);
   if (adapted.includes(SLASH_ALIAS)) {
     throw new Error(
       `codex/skills: description of skills/${id}/SKILL.md names a ${SLASH_ALIAS}* slash command that is not the skill's own — only the self-reference is swapped to the mention form. Extend adaptDescription in codex/skills.ts to cover the new wording.\ndescription: ${adapted}`,
@@ -165,7 +163,7 @@ function assertNoSlashAliasInBody(renderedBody: string, id: string): void {
  * Render one flow skill's SKILL.md for the Codex bundle.
  *
  * Frontmatter: `name` unchanged, `description` = source description
- * with its `/omos.<flow>` self-reference swapped to the `$<id>` mention
+ * with its `/omos.<flow>` self-reference swapped to the namespaced mention
  * form, plus the mention suffix. Body: the interpolated
  * `CODEX_SKILL_HEADER` prepended, then the substitution machinery in
  * the pinned order (design.md §3) — phrase table first (so its
@@ -249,7 +247,7 @@ const ARCHIVE_SKILL_DESCRIPTION =
  * plain text in the user's message after the mention, not runtime
  * interpolation. The only transform: skill names in the load lines
  * become `$`-mentions of the bundled vendored skills. The validation
- * gate line — the invariant last line of every render — is carried
+ * initial validation gate and ordered archive behavior are carried
  * verbatim.
  */
 export function renderArchiveSkill(): string {
@@ -258,8 +256,8 @@ export function renderArchiveSkill(): string {
   const manyIdsLines = archiveInstruction(ARCHIVE_MANY_IDS_ARGS).split("\n");
 
   // Drift guards on the single source: every render keeps the pinned
-  // three-line shape (load line, branch line, gate line) with the
-  // validation gate as the invariant last line, and archiveSkillId
+  // nine-line shape (load, branch, initial gate, precedence, sync,
+  // title, blocker, repair, unsafe-repair stop), and archiveSkillId
   // maps zero/one ids to the single-archive skill and two or more to
   // the bulk one. A core/prompts.ts edit that breaks any of these
   // fails the render loudly instead of silently forking the twin.
@@ -268,16 +266,16 @@ export function renderArchiveSkill(): string {
     [ARCHIVE_ONE_ID_ARGS, oneIdLines],
     [ARCHIVE_MANY_IDS_ARGS, manyIdsLines],
   ] as const) {
-    if (lines.length !== 3) {
+    if (lines.length !== 9) {
       throw new Error(
-        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned three-line shape (load line, branch line, gate line) — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
+        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned nine-line shape — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
       );
     }
   }
   const gateLine = noIdsLines[2]!;
   if (oneIdLines[2] !== gateLine || manyIdsLines[2] !== gateLine) {
     throw new Error(
-      "codex/skills: the archiveInstruction validation gate is no longer the invariant last line of every id-count render — update renderArchiveSkill in codex/skills.ts.",
+      "codex/skills: the archiveInstruction initial validation gate differs between id-count renders — update renderArchiveSkill in codex/skills.ts.",
     );
   }
   const singleSkillId = archiveSkillId(ARCHIVE_ONE_ID_ARGS);
@@ -318,7 +316,7 @@ export function renderArchiveSkill(): string {
     "and the skill names in the load lines rendered as `$`-mentions.",
     "",
     "Arguments arrive as plain text in the user's message after the",
-    "`$omos-archive` mention — there is no argument substitution. Split the",
+    "`$oh-my-openspec:omos-archive` mention — there is no argument substitution. Split the",
     "message on whitespace into change ids and follow the branch the id",
     "count selects (the `archiveSkillId` mapping: zero or one id binds the",
     "single-archive skill, two or more bind the bulk one):",
@@ -333,9 +331,9 @@ export function renderArchiveSkill(): string {
     `  ${bulkLoad}`,
     `  ${manyIdsLines[1]}`,
     "",
-    "Whatever the branch, the validation gate always applies:",
+    "Follow each branch's steps in order:",
     "",
-    gateLine,
+    ...noIdsLines.slice(2),
   ].join("\n");
 
   assertNoSlashAliasInBody(body, ARCHIVE_SKILL_ID);
@@ -352,7 +350,7 @@ export function renderArchiveSkill(): string {
 
 const SETUP_SKILL_ID = "omos-setup";
 const SETUP_SKILL_DESCRIPTION =
-  "Install the oh-my-openspec Codex host pieces: the seven ~/.codex/agents/omos-*.toml role agents via the bundled installer, then the openspec MCP-server approval. Invoke via $omos-setup.";
+  "Install the oh-my-openspec Codex host pieces: the seven ~/.codex/agents/omos-*.toml role agents via the bundled installer, then the openspec MCP-server approval. Invoke via $oh-my-openspec:omos-setup.";
 
 /**
  * Render the Codex-only omos-setup skill from codex/setup-skill.md.

@@ -1,4 +1,4 @@
-# slash-commands
+# Slash commands
 
 ## Purpose
 

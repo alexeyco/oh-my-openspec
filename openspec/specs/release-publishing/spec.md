@@ -1,4 +1,4 @@
-# release-publishing
+# Release publishing
 
 ## Purpose
 

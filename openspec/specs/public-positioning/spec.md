@@ -1,4 +1,4 @@
-# public-positioning Specification
+# Public positioning
 
 ## Purpose
 

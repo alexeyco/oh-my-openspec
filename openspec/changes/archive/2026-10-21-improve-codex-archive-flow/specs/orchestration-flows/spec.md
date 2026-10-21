@@ -1,0 +1,241 @@
+## MODIFIED Requirements
+
+### Requirement: The apply flow gates on VALID, executes one implementer per task group, and handles blockage without lowering the bar
+
+The apply flow SHALL refuse implementation unless `openspec_validate`
+reports the change VALID — otherwise it stops, reports the numbered
+violations, and suggests a `/omos.plan` fix round
+(skills/omos-apply/SKILL.md:21-30). Execution order comes from
+`omos-planner` with `MODE: waves`, recorded as a wave table that is
+the single source of execution order; the §3 restatement points at the
+planner's `MODE: waves` rules as the source of truth, and each wave-table
+row lists its groups' exact file paths
+(skills/omos-apply/SKILL.md:34-39). Each wave dispatches one
+`omos-implementer` per group in a single parallel background batch,
+with results collected from completion notifications, never by polling;
+each implementer prompt carries verbatim the group's tasks, its spec
+requirement/scenario sections, the design.md decisions touching the group,
+and the full wave table including each group's assigned files
+(skills/omos-apply/SKILL.md:46-52). A user request arriving mid-wave
+SHALL first be checked against the wave table and the remaining `tasks.md`
+items — a task that already covers it is cited, never re-implemented by a
+duplicate group dispatch (skills/omos-apply/SKILL.md:54-57). A
+`BLOCKED:` answer triggers the protocol: a file conflict re-dispatches the
+blocked group alone in a follow-up mini-wave; a guardrail or plan defect
+halts and asks the user — the bar is never lowered to get green
+(skills/omos-apply/SKILL.md:61-68). A `BLOCKED:` reporting prompt
+truncation is the exception and the orchestrator's own defect, not the
+plan's: the group is re-dispatched with a numbered edit list of at most
+150 lines referencing `file:line` locations instead of inlined spec or
+transcript text (skills/omos-apply/SKILL.md:68-71). Before §7 Review,
+the flow SHALL execute every manual/eyeball acceptance group in `tasks.md`
+with the user and record their confirmation — no change enters Review
+while any manual/eyeball group is unticked — and relay every implementer
+`DEFERRED:` line to the user verbatim; the verifier's `tasks.md`
+consistency check remains a separate mechanical audit
+(skills/omos-apply/SKILL.md:75-80,92-95). `DEFERRED:` is inadmissible for
+tasks in manual/eyeball acceptance groups — the §6 gate runs those groups
+with the user, so they must end ticked,
+and a run halts rather than carrying such a task into Review or the §8 Done
+report (skills/omos-apply/SKILL.md:78-79,94-95). After the final wave,
+verifiers run in parallel per capability spec file; any FAIL yields one fix
+round, and a re-verification that repeats the claim with a weakened bar is
+treated as FAIL (skills/omos-apply/SKILL.md:82-91). After the final
+wave and before §7 Review the flow SHALL perform its post-final-wave full
+check suite run once — by the orchestrator or a designated dispatch — and
+cite its output in the reviewer payload; implementer-scoped runs do not
+replace it (skills/omos-apply/SKILL.md:96-99). The run ends with
+`omos-reviewer` over the cumulative diff carrying a `REVIEW FOCUS:`
+block that holds the riskiest hunks from the wave table, verifier notes,
+and the verbatim `Choices:` report lines of every wave implementer; on
+`CHANGES-REQUESTED` the flow SHALL, before dispatching the re-review, run
+the repo's own markdown/lint check over every `openspec/` artifact the fix
+round touched, when the repo has one, and paste its output into the
+re-review dispatch; scoped re-review answers open findings as
+ADDRESSED / NOT-ADDRESSED, and user-approved BLOCKING leftovers are
+recorded as `ruling:` lines (skills/omos-apply/SKILL.md:103-115). The
+Done report lists `DEFERRED:` entries verbatim, one line each, alongside
+`choice:` and `ruling:` entries (skills/omos-apply/SKILL.md:122-126),
+counts `PASS (composited)` scenario lines as passes in the verification
+summary, and relays every verifier `NO-REGRESSION-TEST:` line verbatim
+(skills/omos-apply/SKILL.md:127-130); when the user asks about branching
+the flow cites the repo's branch-naming convention from `CONTRIBUTING.md`
+or its equivalent, e.g. `feat/<topic>` — creating and renaming branches
+stays the user's job, as do commits, and this flow performs no git writes
+(skills/omos-apply/SKILL.md:138-140). The Done report's next-step
+offers SHALL name this plugin's slash commands (`/omos.<name>`)
+whenever one exists for the action — archiving is offered as
+`/omos.archive <change-id>`; a skill id is never offered as a
+command, and the upstream `openspec` CLI or a vendored
+`/openspec-<name>` command appears only where the plugin has no
+equivalent (skills/omos-apply/SKILL.md:132-137). The flow never
+commits and never runs `openspec archive`
+(skills/omos-apply/SKILL.md:146-147).
+
+The apply flow SHALL offer the plugin archive command as its next step using `/omos.archive <change-id>` in the shared source skill. Host adapters may render that recommendation in their native invocation form; the shared skill SHALL not name Codex-only skill mentions.
+
+#### Scenario: Apply offers the shared archive command
+
+- **WHEN** the apply flow completes verification and review
+- **THEN** its next-step recommendation in `skills/omos-apply/SKILL.md` is `/omos.archive <change-id>`
+
+#### Scenario: Invalid change blocks implementation
+
+- **WHEN** `openspec_validate` does not return VALID for the selected
+  change
+- **THEN** the flow stops and reports the violations instead of
+  dispatching implementers (skills/omos-apply/SKILL.md:29-30)
+
+#### Scenario: Implementer payload carries the full wave table
+
+- **WHEN** a wave dispatch is built for one task group
+- **THEN** the prompt quotes the full wave table, including each group's
+  assigned files, not only the dispatched group's row
+  (skills/omos-apply/SKILL.md:50-52)
+
+#### Scenario: File conflict becomes a mini-wave
+
+- **WHEN** an implementer reports `BLOCKED: file conflict`
+- **THEN** the blocked group is re-dispatched alone in a follow-up
+  mini-wave after its conflicting sibling completes
+  (skills/omos-apply/SKILL.md:64-65)
+
+#### Scenario: Truncation is re-dispatched, not halted on
+
+- **WHEN** an implementer reports `BLOCKED:` caused by prompt truncation
+- **THEN** the orchestrator re-dispatches that group with a numbered edit
+  list of at most 150 lines referencing `file:line` locations, without
+  treating it as a guardrail or plan defect
+  (skills/omos-apply/SKILL.md:68-71)
+
+#### Scenario: Manual acceptance groups gate Review
+
+- **WHEN** a manual or eyeball acceptance group in `tasks.md` is unticked
+- **THEN** the flow runs it with the user and records the confirmation
+  before §7 Review; no change enters Review with such a group unticked
+  (skills/omos-apply/SKILL.md:75-78)
+
+#### Scenario: Deferrals reach the user before Review
+
+- **WHEN** one or more implementers report `DEFERRED:` lines
+- **THEN** the orchestrator relays every such line verbatim to the user
+  before dispatching §7 Review — except a deferral naming a task in a
+  manual/eyeball acceptance group, which halts the run at the §6 gate
+  instead (skills/omos-apply/SKILL.md:92-95)
+
+#### Scenario: Mid-wave request cites an existing task
+
+- **WHEN** the user adds a request mid-wave that a remaining `tasks.md`
+  item already covers
+- **THEN** the flow cites that item and dispatches no duplicate group
+  (skills/omos-apply/SKILL.md:54-57)
+
+#### Scenario: Post-final-wave full check suite run precedes Review
+
+- **WHEN** the final wave's verifiers finish and no FAIL remains open
+- **THEN** the flow performs its post-final-wave full check suite run once
+  before dispatching §7 Review and cites its output in the reviewer payload
+  (skills/omos-apply/SKILL.md:96-99)
+
+#### Scenario: Reviewer sees every implementer choice
+
+- **WHEN** §7 Review is dispatched
+- **THEN** its `REVIEW FOCUS:` block quotes verbatim the `Choices:` report
+  lines of every wave implementer, including `Choices: none` entries
+  (skills/omos-apply/SKILL.md:103-106)
+
+#### Scenario: Fix round runs the repo's markdown check before re-review
+
+- **WHEN** Review returns `CHANGES-REQUESTED`, the fix round touches
+  `openspec/` artifacts, and the repo has a markdown/lint check
+- **THEN** the flow runs that check over the touched artifacts and pastes
+  its output into the scoped re-review dispatch
+  (skills/omos-apply/SKILL.md:110-113)
+
+#### Scenario: Composited passes counted and relayed
+
+- **WHEN** verifier reports contain `PASS (composited)` lines or
+  `NO-REGRESSION-TEST:` lines
+- **THEN** the Done summary counts composited passes as passes and relays
+  every `NO-REGRESSION-TEST:` line verbatim
+  (skills/omos-apply/SKILL.md:127-130)
+
+#### Scenario: Done report next steps name plugin slash commands
+
+- **WHEN** the Done report lists next steps for the user
+- **THEN** each action the plugin has a command for is offered as its
+  `/omos.<name>` command, no skill id is offered as a command, and
+  upstream or vendored analogs appear only for actions with no plugin
+  command (skills/omos-apply/SKILL.md:132-137)
+
+#### Scenario: Branching question is answered with the convention
+
+- **WHEN** the user asks about branching in the Done step
+- **THEN** the flow cites the repo's branch-naming convention and
+  performs no git write itself — branch creation and renaming stay with
+  the user (skills/omos-apply/SKILL.md:138-140)
+
+#### Scenario: Archiving stays with the user
+
+- **WHEN** the apply flow finishes and reports next steps
+- **THEN** archiving is presented as a deliberate user act and the flow
+  has not run `openspec archive`
+  (skills/omos-apply/SKILL.md:132-137,146-147)
+
+## ADDED Requirements
+
+### Requirement: Archive syncs specifications before archiving
+
+The archive flow's shared instructions in `core/prompts.ts::archiveInstruction` and Codex wrapper guidance from `codex/skills.ts::renderArchiveSkill` SHALL sync the change's specification deltas before archiving. If required sync is blocked, the flow SHALL stop before archiving.
+
+#### Scenario: Archive guidance requires sync without a confirmation prompt
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both direct the archive flow to sync specification deltas before
+  archiving and contain no question asking whether to sync
+
+#### Scenario: Archive guidance stops on a required sync blocker
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both direct the flow to stop before archiving when required sync
+  is blocked
+
+### Requirement: Archive sync gives new main specifications readable titles
+
+When the archive guidance from `core/prompts.ts::archiveInstruction` and `codex/skills.ts::renderArchiveSkill` creates a new main capability specification under `openspec/specs/`, it SHALL set a human-readable top-level title derived safely from the capability's purpose or meaning and keep the machine-named path unchanged. When sync updates an existing main capability specification, it SHALL preserve that file's existing authored title.
+
+#### Scenario: Archive guidance requires readable titles for new specs
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both require a human-readable title derived from the capability
+  meaning for a new `openspec/specs/<capability>/spec.md` and retain the
+  machine-named path
+
+#### Scenario: Archive guidance preserves existing authored titles
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both require preserving an existing main specification's
+  authored top-level title during sync
+
+### Requirement: Archive validates after archiving and repairs fixable specification issues
+
+After archive, the shared archive instruction in `core/prompts.ts::archiveInstruction`, rendered for Codex by `codex/skills.ts::renderArchiveSkill`, SHALL validate the resulting specifications. If validation identifies a safely fixable issue in OpenSpec artifacts, the flow SHALL repair it and run validation again. If an issue cannot be safely fixed within OpenSpec artifacts, it SHALL stop and report the issue.
+
+#### Scenario: Archive guidance repairs fixable post-archive issues
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both require safely repairing fixable OpenSpec artifact issues
+  found after archive and rerunning validation
+
+#### Scenario: Archive guidance reports unfixable post-archive issues
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are
+  inspected
+- **THEN** both require stopping and reporting issues that require code
+  changes or cannot be safely repaired in OpenSpec artifacts, without
+  claiming validation passed

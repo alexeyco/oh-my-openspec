@@ -1,13 +1,13 @@
 ---
 name: omos-plan
-description: "Plan an OpenSpec change via $omos-plan — coverage interview, parallel research, adversarial grill, agent-drafted artifacts, critique loop, mechanical CLI validation. Invoke via $omos-plan."
+description: "Plan an OpenSpec change via $oh-my-openspec:omos-plan — coverage interview, parallel research, adversarial grill, agent-drafted artifacts, critique loop, mechanical CLI validation. Invoke via $oh-my-openspec:omos-plan."
 ---
 
 > Codex host adaptation (generated from skills/omos-plan/SKILL.md — source of truth stays there):
 > - Dispatch roles with `spawn_agent` / `send_input` / `wait_agent` / `close_agent`. Subagents are asynchronous (default up to 6 concurrent threads), so a wave is one batch of `spawn_agent` calls followed by `wait_agent` collection — never poll.
 > - `openspec_validate` is provided by this plugin's bundled MCP server as `mcp__openspec__openspec_validate` — call it with `cwd` set to your session's project directory (the `change` filter optional); the VALID/INVALID/UNAVAILABLE/ERROR one-look report format is identical to OpenCode.
-> - This skill is invoked as a `$omos-plan` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
-> - Roles run from `~/.codex/agents/omos-*.toml`. If `spawn_agent` reports an unknown agent, stop and tell the user to run `$omos-setup` once.
+> - This skill is invoked as a `$oh-my-openspec:omos-plan` mention (or picked from /skills). There is no argument substitution: arguments arrive as plain text in the user's message after the mention — read them from there; when absent, follow this skill's elicitation steps.
+> - Roles run from `~/.codex/agents/omos-*.toml`. If `spawn_agent` reports an unknown agent, stop and tell the user to run `$oh-my-openspec:omos-setup` once.
 
 # omos-plan
 
@@ -136,8 +136,8 @@ confirm.
 - Confirmed → final report: files, gate output, the current branch read from
   a read-only `git branch --show-current`-style check or "no branch yet"
   (reporting only — not a §1 precondition, no branch creation), next step
-  `$omos-apply <change-id>`. Stop — do not implement in the same breath.
-  Offered invocations are the plugin's `$omos-*` skill mentions
+  `$oh-my-openspec:omos-apply <change-id>`. Stop — do not implement in the same breath.
+  Offered invocations are the plugin's `$oh-my-openspec:omos-*` skill mentions
   whenever one exists for the action; the upstream `openspec` CLI is
   offered only where the plugin has no equivalent.
 - Rejected → collect the fix list as one interview round, go to §7.

@@ -18,6 +18,7 @@ import {
   listVendoredSkillIds,
   loadVendorManifest,
 } from "../core/vendor.ts";
+import { archiveInstruction } from "../core/prompts.ts";
 
 const repoRoot = path.join(import.meta.dirname, "..");
 const agentsDir = path.join(repoRoot, "agents");
@@ -91,6 +92,22 @@ describe("flow skills", () => {
       "openspec_validate",
     ]) {
       assert.ok(apply.includes(ref), `omos-apply must reference ${ref}`);
+    }
+    assert.ok(
+      apply.includes("archive with `/omos.archive <change-id>`"),
+      "shared apply skill offers its host-neutral archive command",
+    );
+    const archiveContract = archiveInstruction("change-id");
+    for (const behavior of [
+      "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
+      "If required specification sync is blocked, stop without archiving and report the blocker.",
+      "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
+      "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
+    ]) {
+      assert.ok(
+        archiveContract.includes(behavior),
+        `archive contract: ${behavior}`,
+      );
     }
     const retro = readFileSync(
       path.join(skillsRoot, "omos-retro", "SKILL.md"),

@@ -1,4 +1,4 @@
-# orchestration-flows
+# Orchestration flows
 
 ## Purpose
 
@@ -375,6 +375,105 @@ commits and never runs `openspec archive`
 - **THEN** archiving is presented as a deliberate user act and the flow
   has not run `openspec archive`
   (skills/omos-apply/SKILL.md:132-137,146-147)
+
+The apply flow SHALL offer the plugin archive command as its next step using
+`/omos.archive <change-id>` in the shared source skill. Host adapters may
+render that recommendation in their native invocation form; the shared skill
+SHALL not name Codex-only skill mentions.
+
+#### Scenario: Apply offers the shared archive command
+
+- **WHEN** the apply flow completes verification and review
+- **THEN** its next-step recommendation in `skills/omos-apply/SKILL.md` is `/omos.archive <change-id>`
+
+### Requirement: The archive flow syncs before archiving and repairs safely fixable post-archive spec issues
+
+The shared archive instruction SHALL validate the selected change before
+delegation, then require specification sync before archiving without asking
+whether to sync. A required sync blocker SHALL stop the flow before archive.
+After archive, the flow SHALL validate the resulting specifications, repair
+issues safely fixable within OpenSpec artifacts, and validate again. An issue
+that requires code changes or cannot be safely repaired SHALL stop with a
+report and no claim of successful validation (core/prompts.ts::archiveInstruction;
+codex/skills.ts::renderArchiveSkill).
+
+#### Scenario: Sync completes before archive without asking
+
+- **WHEN** the archive flow runs for a completed change
+- **THEN** it requires sync before archive without asking whether to sync
+
+#### Scenario: Sync blocker prevents archive
+
+- **WHEN** required specification sync is blocked
+- **THEN** the flow stops before archiving and reports the blocker
+
+#### Scenario: Fixable post-archive issue is repaired and revalidated
+
+- **WHEN** post-archive validation reports an issue safely fixable within
+  OpenSpec artifacts
+- **THEN** the flow repairs it and runs validation again
+
+#### Scenario: Unsafe post-archive issue stops with a report
+
+- **WHEN** an issue requires code changes or cannot be safely repaired
+- **THEN** the flow stops and reports it without claiming validation passed
+
+### Requirement: Archive syncs specifications before archiving
+
+The archive flow's shared instructions in `core/prompts.ts::archiveInstruction`
+and Codex wrapper guidance from `codex/skills.ts::renderArchiveSkill` SHALL
+sync the change's specification deltas before archiving. If required sync is
+blocked, the flow SHALL stop before archiving.
+
+#### Scenario: Archive guidance requires sync without a confirmation prompt
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both direct the archive flow to sync specification deltas before archiving and contain no question asking whether to sync
+
+#### Scenario: Archive guidance stops on a required sync blocker
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both direct the flow to stop before archiving when required sync is blocked
+
+### Requirement: Archive sync gives new main specifications readable titles
+
+When the archive guidance from `core/prompts.ts::archiveInstruction` and
+`codex/skills.ts::renderArchiveSkill` creates a new main capability
+specification under `openspec/specs/`, it SHALL set a human-readable
+top-level title derived safely from the capability's purpose or meaning and
+keep the machine-named path unchanged. When sync updates an existing main
+capability specification, it SHALL preserve that file's existing authored
+title.
+
+#### Scenario: Archive guidance requires readable titles for new specs
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both require a human-readable title derived from the capability meaning for a new `openspec/specs/<capability>/spec.md` and retain the machine-named path
+
+#### Scenario: Archive guidance preserves existing authored titles
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both require preserving an existing main specification's authored top-level title during sync
+
+### Requirement: Archive validates after archiving and repairs fixable specification issues
+
+After archive, the shared archive instruction in
+`core/prompts.ts::archiveInstruction`, rendered for Codex by
+`codex/skills.ts::renderArchiveSkill`, SHALL validate the resulting
+specifications. If validation identifies a safely fixable issue in OpenSpec
+artifacts, the flow SHALL repair it and run validation again. If an issue
+cannot be safely fixed within OpenSpec artifacts, it SHALL stop and report
+the issue.
+
+#### Scenario: Archive guidance repairs fixable post-archive issues
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both require safely repairing fixable OpenSpec artifact issues found after archive and rerunning validation
+
+#### Scenario: Archive guidance reports unfixable post-archive issues
+
+- **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
+- **THEN** both require stopping and reporting issues that require code changes or cannot be safely repaired in OpenSpec artifacts, without claiming validation passed
 
 ### Requirement: The retro flow is read-only, single-dispatch, and relays the report verbatim
 
