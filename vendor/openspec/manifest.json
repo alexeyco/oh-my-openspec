@@ -1,7 +1,7 @@
 {
   "package": "@fission-ai/openspec",
-  "version": "1.14.3",
-  "generatedBy": "1.14.3",
+  "version": "1.15.0",
+  "generatedBy": "1.15.0",
   "skills": [
     "openspec-apply-change",
     "openspec-archive-change",
