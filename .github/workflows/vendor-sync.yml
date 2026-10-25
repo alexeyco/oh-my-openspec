@@ -25,6 +25,8 @@ jobs:
         run: npm install --save-dev --no-audit --no-fund @fission-ai/openspec@latest
       - name: Re-vendor OpenSpec skills
         run: node scripts/sync-vendor.mjs
+      - name: Regenerate the Codex plugin bundle
+        run: make codex
       - name: Detect vendor drift or mirror mismatch
         id: changed
         run: |

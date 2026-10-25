@@ -1,4 +1,4 @@
-# managed-by: oh-my-openspec@1.14.3
+# managed-by: oh-my-openspec@1.15.0
 name = "omos-reviewer"
 description = """
 Critique the cumulative diff against the OpenSpec change artifacts."""
