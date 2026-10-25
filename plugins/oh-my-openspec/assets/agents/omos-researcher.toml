@@ -1,4 +1,4 @@
-# managed-by: oh-my-openspec@1.14.3
+# managed-by: oh-my-openspec@1.15.0
 name = "omos-researcher"
 description = """
 Explore the repo and OpenSpec specs for verifiable facts; read-only."""
