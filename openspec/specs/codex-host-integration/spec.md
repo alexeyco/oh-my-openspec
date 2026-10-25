@@ -83,6 +83,38 @@ thirty-one files, no
   SVG exists in the bundle, has dimensions of at least 48 by 48, and
   is smaller than 50 KiB
 
+### Requirement: Catalog security policy and scanner workflow
+
+Root `SECURITY.md` SHALL direct vulnerability reports to GitHub Security
+Advisories and discourage public disclosure before a fix. Each remote
+`uses:` reference under `.github/workflows/` SHALL pin a full commit SHA
+and retain a release comment. `.github/workflows/hol-plugin-scanner.yml`
+SHALL run on pull requests and pushes to `master`, use the catalog's
+reviewed scanner action, set `min_score: 80`, and upload SARIF with the
+permissions required by the scanner.
+
+#### Scenario: Security policy gives a private reporting route
+
+- **WHEN** a user finds a security vulnerability in the repository
+- **THEN** `SECURITY.md` directs them to GitHub Security Advisories for
+  private reporting and tells them not to disclose the issue in a public
+  issue before a fix is available
+
+#### Scenario: Scanner checks pull requests and default-branch pushes
+
+- **WHEN** a pull request targets `master` or a commit is pushed to
+  `master`
+- **THEN** the HOL Plugin Scanner workflow runs with `min_score: 80`,
+  produces a SARIF report, and uploads it using the scanner action
+
+#### Scenario: All workflow actions use immutable references
+
+- **WHEN** a maintainer reads every `uses:` entry in
+  `.github/workflows/*.yml`
+- **THEN** each action reference is a full commit SHA with its release
+  version retained in a comment, including checkout, setup-node,
+  create-pull-request, and the HOL Plugin Scanner action
+
 ### Requirement: Role agents rendered to TOML with the contract baked in
 
 The renderer SHALL map each of the seven `agents/*.md` roles to
