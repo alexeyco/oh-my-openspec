@@ -6,9 +6,10 @@ upstream workflow skills, the seven role prompts, and the shared
 subagent contract are the same single sources the OpenCode plugin
 registers — [`codex/render.ts`](../codex/render.ts)
 renders them into Codex-native pieces and commits the result as the
-generated bundle under `plugins/oh-my-openspec/` (30 files: 18 skills —
+generated bundle under `plugins/oh-my-openspec/` (31 files: 18 skills —
 six `omos-*` flow-family plus twelve vendored `openspec-*` — seven role
-TOMLs, two manifests, and three asset files). `make codex` regenerates
+TOMLs, two manifests, and four asset files, including the catalog icon).
+`make codex` regenerates
 it; the bundle is never hand-edited — drift against a fresh render
 fails `tests/codex-bundle.test.ts`.
 
@@ -167,7 +168,7 @@ hints inside `$omos-apply` name the same bundled
 
 ## Acceptance checklist
 
-The install is verified end-to-end on Codex CLI 0.163.0 with these
+The install is verified end-to-end on Codex CLI 0.164.0 with these
 steps, in a scratch repo unless noted:
 
 1. `codex plugin marketplace add alexeyco/oh-my-openspec` → the
@@ -175,7 +176,8 @@ steps, in a scratch repo unless noted:
 2. `codex plugin add oh-my-openspec@oh-my-openspec` → the plugin is
    listed, eighteen skills are visible (six `oh-my-openspec:omos-*`
    and twelve `oh-my-openspec:openspec-*` vendored), and the
-   plugin cache tree holds exactly the 30 bundle files.
+   plugin cache tree holds exactly the 31 bundle files and the manifest's
+   `interface.composerIcon` path resolves to the bundled icon.
 3. Approve the `openspec` MCP server when prompted; restart the
    session → `/mcp` shows `openspec` live, and a trivial
    `mcp__openspec__openspec_validate` call with `cwd` set to the

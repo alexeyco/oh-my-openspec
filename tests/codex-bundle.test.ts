@@ -39,11 +39,11 @@ const repoRoot = join(import.meta.dirname, "..");
 const committedBundle = join(repoRoot, "plugins", "oh-my-openspec");
 const vendorSkillsRoot = join(repoRoot, "vendor", "openspec", "skills");
 
-// The design.md §1 tree, pinned: exactly 30 files — eighteen skills
+// The design.md §1 tree, pinned: exactly 31 files — eighteen skills
 // (six flow-family including the omos-archive wrapper, twelve vendored
-// upstream), seven role TOMLs, two manifests, three asset files
+// upstream), seven role TOMLs, two manifests, four asset files
 // (mcp-server.mjs with its sibling openspec-core.ts copy,
-// install-agents.mjs).
+// install-agents.mjs, and the catalog icon).
 const EXPECTED_FILES: readonly string[] = [
   ".codex-plugin/plugin.json",
   ".mcp.json",
@@ -54,6 +54,7 @@ const EXPECTED_FILES: readonly string[] = [
   "assets/agents/omos-retrospector.toml",
   "assets/agents/omos-reviewer.toml",
   "assets/agents/omos-verifier.toml",
+  "assets/icon.svg",
   "assets/install-agents.mjs",
   "assets/mcp-server.mjs",
   "assets/openspec-core.ts",
@@ -79,7 +80,7 @@ const EXPECTED_FILES: readonly string[] = [
 
 // The spec-permitted plugin.json fields, and nothing else: no commands,
 // no agents (the Codex manifest has none — roles install as TOMLs), no
-// apps, no interface, no hooks (none ship).
+// apps, interface (catalog presentation metadata), or hooks (none ship).
 const PERMITTED_PLUGIN_FIELDS: readonly string[] = [
   "name",
   "version",
@@ -91,6 +92,7 @@ const PERMITTED_PLUGIN_FIELDS: readonly string[] = [
   "keywords",
   "skills",
   "mcpServers",
+  "interface",
 ];
 
 // The package.json files allow-list, pinned: npm stays OpenCode-only —
@@ -179,9 +181,40 @@ after(() => {
 });
 
 describe("renderBundle", () => {
-  it("writes exactly the design.md §1 tree — 30 files", () => {
+  it("writes exactly the design.md §1 tree — 31 files", () => {
     assert.deepEqual(freshFiles, [...EXPECTED_FILES]);
     assert.deepEqual(listFiles(freshDir), [...EXPECTED_FILES]);
+  });
+
+  it("catalog interface references the bundled square icon", () => {
+    const plugin = JSON.parse(
+      readFileSync(join(freshDir, ".codex-plugin", "plugin.json"), "utf-8"),
+    ) as {
+      interface: {
+        displayName: string;
+        shortDescription: string;
+        composerIcon: string;
+      };
+    };
+    assert.equal(plugin.interface.displayName, "oh-my-openspec");
+    assert.ok(plugin.interface.shortDescription.length > 0);
+    assert.equal(plugin.interface.composerIcon, "./assets/icon.svg");
+
+    const icon = readFileSync(join(freshDir, plugin.interface.composerIcon));
+    assert.ok(icon.byteLength < 50 * 1024, "icon must be smaller than 50 KiB");
+    const svg = icon.toString("utf-8");
+    const root = svg.match(/<svg\b[^>]*>/)?.[0];
+    assert.ok(root, "icon must contain an SVG root element");
+    const width = root.match(/\bwidth="(\d+)"/)?.[1];
+    const height = root.match(/\bheight="(\d+)"/)?.[1];
+    const viewBox = root.match(/\bviewBox="0 0 (\d+) (\d+)"/);
+    assert.ok(
+      width && height && viewBox,
+      "icon must declare square dimensions",
+    );
+    assert.equal(Number(width), Number(height));
+    assert.equal(Number(viewBox[1]), Number(viewBox[2]));
+    assert.ok(Number(width) >= 48, "icon dimensions must be at least 48 by 48");
   });
 
   it("ships exactly the six flow-family skills, omos-archive wrapper included", () => {
@@ -545,7 +578,7 @@ describe("bundle versions mirror package.json", () => {
     assert.deepEqual(
       Object.keys(plugin).sort(),
       [...PERMITTED_PLUGIN_FIELDS].sort(),
-      "plugin.json carries exactly the spec-permitted fields — no commands/agents/apps/interface/hooks",
+      "plugin.json carries exactly the spec-permitted fields — no commands/agents/apps/hooks",
     );
 
     const agentsDir = join(committedBundle, "assets", "agents");

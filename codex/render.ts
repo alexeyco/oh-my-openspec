@@ -1,12 +1,12 @@
 // Codex plugin bundle renderer — the `make codex` entry point.
 //
 // `renderBundle({ out })` writes the full design.md §1 tree of the
-// add-codex-cli-support change (30 files: eighteen skills — the six
+// add-codex-cli-support change (31 files: eighteen skills — the six
 // flow-family renders plus the twelve vendored upstream copies — seven
-// role TOMLs, two manifests, three asset files) from the single-source
+// role TOMLs, two manifests, and four asset files) from the single-source
 // assets: agents/*.md via core/roles.ts, skills/*/SKILL.md,
-// vendor/openspec/skills/, codex/setup-skill.md, core/prompts.ts, and
-// the codex/ scripts. Determinism rules (design.md
+// vendor/openspec/skills/, codex/setup-skill.md, core/prompts.ts,
+// codex/assets/icon.svg, and the codex/ scripts. Determinism rules (design.md
 // §6): the file list is sorted, every file is LF-only with a trailing
 // newline, JSON is `JSON.stringify(x, null, 2) + "\n"`, and the
 // package.json version is read once and shared by plugin.json and the
@@ -204,6 +204,10 @@ function collectBundleFiles(pkgVersion: string): BundleFile[] {
       content: renderPluginJson(pkgVersion),
     },
     { path: ".mcp.json", content: renderMcpJson() },
+    {
+      path: "assets/icon.svg",
+      content: readFileSync(join(ROOT, "codex", "assets", "icon.svg"), "utf-8"),
+    },
   ];
 
   for (const role of loadRoles(join(ROOT, "agents"))) {
@@ -280,7 +284,7 @@ function prepareOutDir(out: string): void {
 
 /**
  * Render the bundle into `out` and return the sorted list of
- * bundle-relative file paths written (design.md §1 — 30 files). Throws
+ * bundle-relative file paths written (design.md §1 — 31 files). Throws
  * before writing anything when a source fails to render.
  */
 export function renderBundle(options: RenderBundleOptions): string[] {

@@ -29,8 +29,12 @@ oh-my-openspec@oh-my-openspec` installs it. The bundle manifest
 `.codex-plugin/plugin.json` SHALL use only spec-permitted fields
 (`name`, `version` mirroring `package.json`, `description`, `author`,
 `homepage`, `repository`, `license`, `keywords`, `skills`,
-`mcpServers`) and SHALL NOT declare `commands` or `agents` fields — the
-Codex manifest has none — nor a `hooks` field, since no hooks ship. The
+`mcpServers`, and `interface`) and SHALL NOT declare `commands` or
+`agents` fields — the Codex manifest has none — nor a `hooks` field,
+since no hooks ship. Its `interface` SHALL contain `displayName`,
+`shortDescription`, and `composerIcon` pointing to `./assets/icon.svg`.
+The square SVG at `assets/icon.svg` SHALL have dimensions of at least
+48 by 48 pixels and be smaller than 50 KiB. The
 bundle SHALL contain exactly six flow-family skills (`omos-init`,
 `omos-plan`, `omos-apply`, `omos-retro`, `omos-archive`, `omos-setup`),
 the twelve
@@ -39,7 +43,8 @@ vendored upstream workflow skills under `skills/` copied verbatim from
 normalization only if the Codex loader requires it), seven role TOMLs
 under `assets/agents/`, `assets/mcp-server.mjs`,
 `assets/openspec-core.ts` (a verbatim copy of `core/openspec.ts`),
-`assets/install-agents.mjs`, and `.mcp.json` — thirty files, no
+`assets/install-agents.mjs`, `assets/icon.svg`, and `.mcp.json` —
+thirty-one files, no
 `hooks.json`, no alias-mapping script.
 
 #### Scenario: Bundle matches fresh render byte-for-byte
@@ -50,16 +55,17 @@ under `assets/agents/`, `assets/mcp-server.mjs`,
 - **THEN** the file lists are equal both ways and every file is
   byte-identical, or the test fails naming the drifted files
 
-#### Scenario: Marketplace install succeeds on Codex 0.163.0
+#### Scenario: Marketplace install succeeds on Codex 0.164.0
 
 - **WHEN** a user runs `codex plugin marketplace add
-alexeyco/oh-my-openspec` and `codex plugin add
-oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
+<local-checkout-path>` for the current checkout and then runs
+  `codex plugin add oh-my-openspec@oh-my-openspec` on Codex CLI
+  0.164.0
 - **THEN** the plugin is listed as installed, its six flow-family
   skills are visible namespaced `oh-my-openspec:omos-*` alongside the
   twelve vendored `openspec-*` skills, and the plugin cache tree holds
-  exactly the 30 bundle files (manual acceptance steps
-  1–2)
+  exactly the 31 bundle files, and the manifest's icon path resolves
+  inside the plugin cache (manual acceptance steps 1–2)
 
 #### Scenario: Vendored bundle copies track the vendor tree
 
@@ -68,6 +74,14 @@ oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
 - **THEN** the bodies (post-frontmatter bytes) match byte-for-byte —
   any frontmatter transform is asserted separately — so one vendor
   sync refreshes both hosts
+
+#### Scenario: Catalog interface references the bundled icon
+
+- **WHEN** the plugin manifest is read from a fresh bundle render
+- **THEN** its `interface` contains `displayName`, `shortDescription`,
+  and `composerIcon: "./assets/icon.svg"`, and the referenced square
+  SVG exists in the bundle, has dimensions of at least 48 by 48, and
+  is smaller than 50 KiB
 
 ### Requirement: Role agents rendered to TOML with the contract baked in
 

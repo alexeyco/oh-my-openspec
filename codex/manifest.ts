@@ -2,9 +2,9 @@
 // .codex-plugin/plugin.json and .mcp.json, pinned field-for-field in
 // design.md §1 and §4 of the add-codex-cli-support change. Both return
 // `JSON.stringify(value, null, 2) + "\n"` so a render is byte-stable.
-// The plugin manifest carries no `commands`, `agents`, `apps`,
-// `interface`, or `hooks` fields — the Codex manifest has none (roles
-// install as TOMLs), and no hooks ship (§5). `.mcp.json` declares the
+// The plugin manifest carries no `commands`, `agents`, `apps`, or
+// `hooks` fields — roles install as TOMLs, and no hooks ship (§5). Its
+// `interface` contains the Codex listing metadata. `.mcp.json` declares the
 // proven launch form (design.md §4 matrix, form #3): `"cwd": "./"` —
 // plugin-root-relative, so node resolves the relative `args` entry
 // against the plugin root, not the session project directory (the
@@ -23,6 +23,14 @@ export interface PluginManifest {
   readonly keywords: readonly string[];
   readonly skills: string;
   readonly mcpServers: string;
+  readonly interface: PluginInterface;
+}
+
+/** Codex plugin listing metadata, including its composer icon path. */
+export interface PluginInterface {
+  readonly displayName: string;
+  readonly shortDescription: string;
+  readonly composerIcon: string;
 }
 
 /**
@@ -51,6 +59,12 @@ export function renderPluginJson(pkgVersion: string): string {
     ],
     skills: "./skills/",
     mcpServers: "./.mcp.json",
+    interface: {
+      displayName: "oh-my-openspec",
+      shortDescription:
+        "Plan, implement, and verify OpenSpec changes with role-based agents",
+      composerIcon: "./assets/icon.svg",
+    },
   };
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
