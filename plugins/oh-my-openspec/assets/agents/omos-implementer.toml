@@ -1,4 +1,4 @@
-# managed-by: oh-my-openspec@1.15.0
+# managed-by: oh-my-openspec@1.16.0
 name = "omos-implementer"
 description = """
 Execute exactly one task group from tasks.md and report evidence."""
