@@ -166,6 +166,17 @@ hints inside `$omos-apply` name the same bundled
 `$openspec-archive-change` skill. The OpenCode-side vendored set stays
 `--tools opencode` — see [vendor-sync.md](vendor-sync.md).
 
+## Catalog listing metadata
+
+The generated Codex manifest includes the required listing fields:
+`longDescription`, `developerName`, `category`, and `capabilities`. The
+existing square `assets/icon.svg` is referenced by both `logo` and
+`composerIcon`. The bundled MCP server uses local `stdio`, so the listing
+does not include `websiteURL`, `supportURL`, `privacyPolicyURL`, or
+`termsOfServiceURL`. Those four accessible HTTPS URLs are required when
+an attached remote MCP app is submitted for public MCP review; they are
+not required for the current local `stdio` package.
+
 ## Acceptance checklist
 
 The install is verified end-to-end on Codex CLI 0.164.0 with these
@@ -177,7 +188,8 @@ steps, in a scratch repo unless noted:
    listed, eighteen skills are visible (six `oh-my-openspec:omos-*`
    and twelve `oh-my-openspec:openspec-*` vendored), and the
    plugin cache tree holds exactly the 31 bundle files and the manifest's
-   `interface.composerIcon` path resolves to the bundled icon.
+   `interface.logo` and `interface.composerIcon` paths resolve to the
+   bundled icon.
 3. Approve the `openspec` MCP server when prompted; restart the
    session → `/mcp` shows `openspec` live, and a trivial
    `mcp__openspec__openspec_validate` call with `cwd` set to the

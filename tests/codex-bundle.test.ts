@@ -186,21 +186,40 @@ describe("renderBundle", () => {
     assert.deepEqual(listFiles(freshDir), [...EXPECTED_FILES]);
   });
 
-  it("catalog interface references the bundled square icon", () => {
+  it("catalog interface has required metadata and references the bundled square icon", () => {
     const plugin = JSON.parse(
       readFileSync(join(freshDir, ".codex-plugin", "plugin.json"), "utf-8"),
     ) as {
       interface: {
         displayName: string;
         shortDescription: string;
+        longDescription: string;
+        developerName: string;
+        category: string;
+        capabilities: string[];
+        logo: string;
         composerIcon: string;
+        websiteURL?: string;
+        supportURL?: string;
+        privacyPolicyURL?: string;
+        termsOfServiceURL?: string;
       };
     };
     assert.equal(plugin.interface.displayName, "oh-my-openspec");
     assert.ok(plugin.interface.shortDescription.length > 0);
+    assert.ok(plugin.interface.longDescription.length > 0);
+    assert.ok(plugin.interface.developerName.length > 0);
+    assert.ok(plugin.interface.category.length > 0);
+    assert.ok(plugin.interface.capabilities.length > 0);
+    assert.ok(plugin.interface.capabilities.every((item) => item.length > 0));
+    assert.equal(plugin.interface.logo, "./assets/icon.svg");
     assert.equal(plugin.interface.composerIcon, "./assets/icon.svg");
+    assert.equal(plugin.interface.websiteURL, undefined);
+    assert.equal(plugin.interface.supportURL, undefined);
+    assert.equal(plugin.interface.privacyPolicyURL, undefined);
+    assert.equal(plugin.interface.termsOfServiceURL, undefined);
 
-    const icon = readFileSync(join(freshDir, plugin.interface.composerIcon));
+    const icon = readFileSync(join(freshDir, plugin.interface.logo));
     assert.ok(icon.byteLength < 50 * 1024, "icon must be smaller than 50 KiB");
     const svg = icon.toString("utf-8");
     const root = svg.match(/<svg\b[^>]*>/)?.[0];
@@ -215,6 +234,23 @@ describe("renderBundle", () => {
     assert.equal(Number(width), Number(height));
     assert.equal(Number(viewBox[1]), Number(viewBox[2]));
     assert.ok(Number(width) >= 48, "icon dimensions must be at least 48 by 48");
+  });
+
+  it("documents the conditional URLs for remote MCP public review", () => {
+    const docs = readFileSync(join(repoRoot, "docs", "codex.md"), "utf-8");
+    for (const field of [
+      "websiteURL",
+      "supportURL",
+      "privacyPolicyURL",
+      "termsOfServiceURL",
+    ]) {
+      assert.ok(docs.includes(`\`${field}\``), `docs must name ${field}`);
+    }
+    assert.match(
+      docs,
+      /attached remote MCP app is submitted for public MCP review/,
+    );
+    assert.match(docs, /not required for the current local `stdio` package/);
   });
 
   it("ships exactly the six flow-family skills, omos-archive wrapper included", () => {
