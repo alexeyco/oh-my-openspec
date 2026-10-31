@@ -30,6 +30,11 @@ export interface PluginManifest {
 export interface PluginInterface {
   readonly displayName: string;
   readonly shortDescription: string;
+  readonly longDescription: string;
+  readonly developerName: string;
+  readonly category: string;
+  readonly capabilities: readonly string[];
+  readonly logo: string;
   readonly composerIcon: string;
 }
 
@@ -63,6 +68,16 @@ export function renderPluginJson(pkgVersion: string): string {
       displayName: "oh-my-openspec",
       shortDescription:
         "Plan, implement, and verify OpenSpec changes with role-based agents",
+      longDescription:
+        "Plan, implement, verify, and archive OpenSpec changes with seven role-based agents, parallel implementation waves, and mechanical OpenSpec validation.",
+      developerName: "Alexeyco",
+      category: "Developer Tools",
+      capabilities: [
+        "Plan OpenSpec changes",
+        "Implement OpenSpec tasks",
+        "Validate OpenSpec artifacts",
+      ],
+      logo: "./assets/icon.svg",
       composerIcon: "./assets/icon.svg",
     },
   };
