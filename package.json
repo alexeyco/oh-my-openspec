@@ -1,6 +1,6 @@
 {
   "name": "oh-my-openspec",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "OpenSpec multi-agent flow for OpenCode: /omos.plan drafts a change through research and critique, /omos.apply implements tasks.md through dependency-ordered parallel subagent waves with mechanical openspec CLI validation",
   "keywords": [
     "agents",
@@ -36,7 +36,7 @@
     "yaml": "^2"
   },
   "devDependencies": {
-    "@fission-ai/openspec": "^1.15.0",
+    "@fission-ai/openspec": "^1.16.0",
     "@types/node": "^26",
     "typescript": "^7.0.2"
   },
