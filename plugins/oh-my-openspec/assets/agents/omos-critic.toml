@@ -1,4 +1,4 @@
-# managed-by: oh-my-openspec@1.15.0
+# managed-by: oh-my-openspec@1.16.0
 name = "omos-critic"
 description = """
 Validate drafted change artifacts or baseline specs against upstream rules and editorial quality."""
