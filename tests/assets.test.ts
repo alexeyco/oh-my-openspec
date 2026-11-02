@@ -80,6 +80,20 @@ describe("flow skills", () => {
     ]) {
       assert.ok(plan.includes(ref), `omos-plan must reference ${ref}`);
     }
+    for (const behavior of [
+      "### 9. Mechanical validation and recovery",
+      "After the critique path is complete and before approval, call",
+      "`INVALID` → dispatch `omos-planner` with the exact numbered findings",
+      "After each planner revision, run `openspec_validate`",
+      "show the exact remaining findings and offer the user another",
+      "This mechanical correction step does not consume the critique loop's",
+      "report that mechanical validation could not run",
+    ]) {
+      assert.ok(
+        plan.includes(behavior),
+        `omos-plan must specify post-critique validation and recovery: ${behavior}`,
+      );
+    }
     const apply = readFileSync(
       path.join(skillsRoot, "omos-apply", "SKILL.md"),
       "utf8",
@@ -102,7 +116,7 @@ describe("flow skills", () => {
       "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
       "If required specification sync is blocked, stop without archiving and report the blocker.",
       "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
-      "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
+      "If validation remains INVALID or an issue cannot be safely repaired within OpenSpec artifacts, show the exact findings and proactively offer the user help resolving them. Stop without claiming validation passed.",
     ]) {
       assert.ok(
         archiveContract.includes(behavior),
