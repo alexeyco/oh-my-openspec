@@ -2,58 +2,13 @@
 
 ## Purpose
 
-TBD — update Purpose after archive (the delta carried no Purpose section).
+The comparison-freshness capability checks selected package and repository claims against live public sources and keeps the README comparison current, while distinguishing genuine drift from unavailable sources.
 
 ## Requirements
 
 ### Requirement: Expectations live in the workflow environment
 
-The expected values `scripts/check-comparison.mjs` verifies SHALL come
-from three environment variables — pinned by the job-level `env` block
-of `.github/workflows/comparison-freshness.yml` — and never from the
-comparison table's text:
-
-1. `EXPECT_PACKAGES`: a comma-separated list of `name@version` entries.
-   Scoped package names contain `@` themselves, so each entry SHALL be
-   split on the LAST `@`: everything before it is the package name,
-   everything after is the expected `dist-tags.latest` version. This
-   package's own version is machine-owned by the vendor-sync mirror, so
-   the list carries no `oh-my-openspec` self entry.
-2. `ABSENT_PACKAGES`: a comma-separated list of package names expected
-   to answer 404 on the registry.
-3. `SINGLE_COMMIT_REPO`: a single `owner/repo@YYYY-MM-DD` entry — the
-   repo expected to hold exactly one commit with that committer date
-   (the same last-`@` split rule).
-
-Whitespace around segments SHALL be trimmed. A malformed env string
-SHALL never be skipped silently: a package entry without `@`, an empty
-name or version segment, an `owner/repo` side that is not two non-empty
-segments, a date that is not `YYYY-MM-DD`-shaped
-(`\d{4}-\d{2}-\d{2}`, format-checked only), or — in check mode — any
-of the three variables
-unset or empty SHALL each yield an UNAVAILABLE finding (exit 2) naming
-the variable and, where one exists, the offending entry.
-
-The README (default: the working-tree file at the repo root,
-overridable with `--readme <path>`) SHALL be read only for the liveness
-URL set and the claim-presence substrings — never parsed for structure:
-every `http:`/`https:` URL anywhere in the whole file — not only the
-Comparison section — joins the deduplicated link-liveness set, and the
-same single read supplies the text the presence checks search
-(requirement "Four fact classes are verified against live sources and
-the README"). The comparison table's layout, cell shapes, and footnote
-grammar SHALL NOT be consulted; every expected value comes from the
-env contract above.
-
-The workflow's job-level `env` block SHALL set the three variables to
-the pinned expectation values alongside the existing `GITHUB_TOKEN`
-mapping. The exact values are drift-maintenance data, updated together
-with the README table when a drift issue is resolved (dual-update
-rule), so the values themselves are not spec. The rename leaves the
-pinned values untouched: `ABSENT_PACKAGES: opencode-openspec` and
-`SINGLE_COMMIT_REPO: AngDrew/opencode-openspec@2026-02-01`
-(.github/workflows/comparison-freshness.yml:45-46) name the third-party
-AngDrew package, not this one.
+The comparison checker SHALL read expected packages, absent packages, and repository commit date from workflow environment variables, splitting scoped package names at the last @ and excluding the plugin's machine-owned version.
 
 #### Scenario: Env version entry yields registry expectation
 
@@ -120,57 +75,7 @@ AngDrew package, not this one.
 
 ### Requirement: Four fact classes are verified against live sources and the README
 
-The script SHALL verify exactly four fact classes and nothing else:
-
-1. **npm registry.** For each `EXPECT_PACKAGES` and `ABSENT_PACKAGES`
-   entry, one GET `<registry-base>/<package>` (default
-   `https://registry.npmjs.org`, overridable via env
-   `COMPARISON_NPM_REGISTRY`) with header
-   `Accept: application/vnd.npm.install-v1+json`. Registry GETs SHALL
-   be deduplicated per package per run, so a class-1 expectation and a
-   liveness URL mapped to the same package share one request. A 200
-   response SHALL be compared at `.["dist-tags"].latest` against the
-   entry's version; for an `ABSENT_PACKAGES` entry the response status
-   SHALL equal 404. A mismatch is DRIFT naming the env entry (variable
-   and package), expected value, found value, and source URL.
-2. **Single commit.** One GET
-   `<github-api-base>/repos/<owner>/<repo>/commits?per_page=2`
-   (default `https://api.github.com`, overridable via env
-   `COMPARISON_GITHUB_API`; an `Authorization: Bearer <token>` header
-   SHALL be added whenever `GITHUB_TOKEN` is set) for the
-   `SINGLE_COMMIT_REPO` entry — exactly one commits call per run. An
-   array whose length is not 1, or whose first element's
-   `commit.committer.date` does not start with the entry's date, is
-   DRIFT.
-3. **Link liveness.** Every URL of the deduplicated liveness set. URLs
-   of the forms `www.npmjs.com/package/<x>` and `registry.npmjs.org/<x>`
-   SHALL NOT be fetched directly: each maps to GET
-   `<registry-base>/<x>`, where both 200 and 404 mean the registry
-   answered — alive, no finding, because version truth belongs to
-   class 1. Every other URL SHALL receive one HEAD request with
-   redirects followed and no GET fallback: a final 2xx is alive; a
-   final 404 is DRIFT (dead link); every other final status — including
-   a 403 bot challenge — and every transport failure is UNAVAILABLE.
-4. **README claim presence.** A pure substring search over the README
-   text already read for the liveness URL set — the same single read,
-   no network, no structural parsing; matches are case-sensitive. For
-   each `EXPECT_PACKAGES` entry, ONE line of the README SHALL contain
-   both `www.npmjs.com/package/<name>` and the token `v<version>`.
-   For each `ABSENT_PACKAGES` entry, the README SHALL contain the
-   substring `Not published` somewhere AND the substring
-   `registry.npmjs.org/<name>` somewhere — two independent checks;
-   requiring one shared line would re-introduce layout coupling. For
-   the `SINGLE_COMMIT_REPO` entry, the README SHALL contain
-   `single commit (<date>` AND `github.com/<owner>/<repo>`. A missing
-   substring is DRIFT — the file was readable, the claim is absent —
-   never UNAVAILABLE; UNAVAILABLE stays reserved for an unreadable
-   README and env-format problems. The finding reads
-   `README claim not found for <entry>`, prints the searched
-   substring(s), and names the README path as its source.
-
-Each fetch attempt SHALL time out after 10 s (`AbortSignal.timeout`),
-and a transport error, 429, or 5xx SHALL be retried exactly once after
-2 s before classifying UNAVAILABLE.
+The checker SHALL verify each configured fact class against its live registry or repository source and the README, report unavailable sources separately from drift, and use explicit expectations rather than inferring them from README claims.
 
 #### Scenario: Version drift is flagged with its env entry
 
@@ -273,26 +178,7 @@ and a transport error, 429, or 5xx SHALL be retried exactly once after
 
 ### Requirement: Exit codes separate clean, drift, and unavailable
 
-The script SHALL print every line with the prefix `comparison-check:`
-in the failure-list style of `scripts/check.mjs` — one summary line,
-then `  ✗ <class> <env entry, README claim, or link>: expected <e>,
-found <f> (<source url or README path>)` lines — and SHALL exit:
-
-- `0` when every check ran and no DRIFT finding exists; the final line
-  is `comparison-check: ok`.
-- `1` when at least one DRIFT finding and no UNAVAILABLE finding
-  exists.
-- `2` when at least one UNAVAILABLE finding exists, whether or not
-  DRIFT findings also exist — UNAVAILABLE dominates the exit code
-  because a run that could not reach its sources cannot vouch for the
-  table; both classes still print. Malformed env entries and unset or
-  empty expectation variables count as UNAVAILABLE findings.
-
-When `--report <path>` is passed and DRIFT findings exist, the script
-SHALL write the issue-body markdown — the DRIFT finding list with env
-entry, README claim, or link, expected, found, and source — to
-`<path>`. Exit-2 output SHALL follow the environment-failure style of
-`scripts/sync-vendor.mjs` (prefixed lines, no stack dumps).
+The checker SHALL return distinct exit codes for clean results, detected drift, and unavailable sources so CI and issue mode can distinguish actionable changes from network failures.
 
 #### Scenario: Clean run exits zero
 
@@ -329,43 +215,7 @@ entry, README claim, or link, expected, found, and source — to
 
 ### Requirement: A monthly workflow alarms drift as exactly one issue
 
-`.github/workflows/comparison-freshness.yml` SHALL run on `schedule`
-with cron `"0 6 1 * *"` and on `workflow_dispatch`, declare top-level
-`permissions: contents: read` and `issues: write`, check out the repo,
-set up Node 22, and run the script directly — with no `npm ci` step,
-because the script imports Node builtins only. The workflow SHALL
-capture the script's exit code without failing the step on it, and
-then:
-
-- On exit `1` (DRIFT): open or update exactly one issue through the
-  GitHub REST API with `GITHUB_TOKEN` — dedup via
-  `GET /repos/{owner}/{repo}/issues?labels=comparison-drift&state=open`;
-  if an open issue exists, `PATCH` its body to the fresh findings;
-  otherwise `POST /repos/{owner}/{repo}/issues` with the fixed title
-  `README comparison drift`, label `comparison-drift`, and the finding
-  list (env entry, README claim, or link, expected, found, source) as
-  body. The job SHALL then finish green — drift is alarmed, not a
-  build failure.
-- On exit `2` (UNAVAILABLE): fail the job (red run) and create or
-  update no issue.
-- On exit `0`: finish green with no issue action.
-
-The check step SHALL treat a captured exit code outside {0, 1, 2} —
-127 when `node` is missing, 137 when the process is killed — as an
-environment failure: it prints a `comparison-check:`-prefixed line and
-exits with that code, reddening the run, and because both conditional
-steps key on the exact codes `'1'`/`'2'`, no issue is created or
-updated. The workflow SHALL declare a `concurrency` group
-`comparison-freshness` with `cancel-in-progress: false`, serializing
-scheduled and dispatched runs — the exactly-one-issue guarantee is
-race-free only under serialization, since two concurrent runs could
-both observe zero open issues in the dedup GET and both POST.
-
-The `gh` CLI SHALL NOT be used anywhere in the workflow. The script
-SHALL NOT be added to `make check` or to the `ci.yml` push/PR gates —
-the four-gate composition
-(`openspec/specs/release-publishing/spec.md`, requirement "make check
-composes the four repo gates") stays byte-identical.
+The monthly workflow SHALL create or update a single GitHub issue when the comparison checker finds drift, deduplicating against an existing open issue and avoiding issue creation for clean or unavailable results.
 
 #### Scenario: Drift files one issue and the run stays green
 
@@ -406,39 +256,7 @@ typecheck`, `npm test`) and `scripts/check-comparison.mjs` is not
 
 ### Requirement: Every run leaves a job-summary audit trail
 
-Check mode SHALL accept a `--summary <path>` flag. When the flag is
-passed, the script SHALL append a markdown audit report to `<path>`
-after the checks run, on every classification — clean, drift, and
-unavailable runs alike write it, because the trail exists exactly for
-the clean runs that file no issue and whose run logs expire with
-retention. A successful summary write SHALL print no stdout line and
-SHALL change no exit code; a failed write SHALL be recorded as an
-UNAVAILABLE finding naming the path, forcing exit 2 through the
-dominance rule. Issue mode SHALL ignore the flag. Without the flag, no
-file is written anywhere and stdout and the exit code stay the whole
-contract, byte-identical to the flagless behavior.
-
-The summary SHALL contain the checked-at date in UTC, the three
-expectation variables' values as given (`(unset)` when unset), one
-table per fact class with a row per item — registry checks (package,
-expected version or absent-404, actual `dist-tags.latest`, status
-code, or fetch error, verdict), the GitHub commits check (repo,
-expected count and date, actual, verdict), README presence (entry,
-substring(s) searched, found yes/no), and link liveness (URL, final
-status, verdict) — and the run's classification line: `clean`,
-`drift`, or `unavailable` under the same dominance rule as the exit
-code, with the per-severity finding counts. A class whose entries all
-failed env validation keeps its table heading and shows a
-no-checks-ran line instead of rows.
-
-The summary SHALL carry no credentials and no environment variable
-beyond the three expectation variables: `GITHUB_TOKEN` and
-`GITHUB_REPOSITORY` are excluded explicitly, and the summary renderer
-never reads the environment as a whole. The workflow's check step
-SHALL pass `--summary "$GITHUB_STEP_SUMMARY"` — Actions injects the
-path and renders the appended markdown as the job summary in the run
-UI; the script itself never reads `GITHUB_STEP_SUMMARY` from the
-environment.
+Every workflow run SHALL write a job summary listing each comparison check and its verdict, including drift or unavailable outcomes, without exposing credentials.
 
 #### Scenario: A clean run's summary lists every check with verdicts
 

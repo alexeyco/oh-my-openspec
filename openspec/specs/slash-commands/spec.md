@@ -35,21 +35,7 @@ The five description strings are unchanged by the rename.
 
 ### Requirement: Execute prompts the session bound to exactly one flow skill
 
-Each command's `execute` SHALL call `ctx.session.prompt` on the invoking
-`sessionID` with text produced by the corresponding builder (which,
-without an explicit `skillPath`, always begins
-`Load the <skill-id> skill and follow it exactly.`; with `skillPath` the
-load line becomes `Read the skill file <path> and follow it exactly.`,
-per the core/prompts.ts:36-39 convention) and SHALL bind exactly one
-skill: `omos-init`, `omos-plan`, `omos-apply`, or
-`omos-retro` for the respective command. The archive command SHALL
-bind a vendored skill selected by argument count — vendored ids keep
-their upstream names:
-`openspec-archive-change` when the argument text holds 0 or 1 change ids,
-`openspec-bulk-archive-change` when it holds 2 or more
-(opencode/index.ts:153-193, core/prompts.ts:33-104). Scenario headings
-in this spec keep the pre-rename `/openspec.*` command names as CLI merge
-identity keys — the behavior they describe uses the `omos.*` names.
+Each command SHALL prompt the invoking session with its flow-specific builder and bind exactly one matching skill. Archive SHALL select the single or bulk vendored skill by the number of supplied change ids.
 
 #### Scenario: /openspec.plan with an idea
 
@@ -72,14 +58,7 @@ openspec-bulk-archive-change skill and follow it exactly.` with `skills`
 
 ### Requirement: Empty-argument fallbacks for init, plan, apply
 
-When the argument text is empty or whitespace-only, the builders SHALL
-append a fallback line instead of an argument echo: init — "No focus
-given — discover candidate capabilities from the code itself."; plan —
-"The user gave no request text — your first job is to elicit it."; apply —
-"No change id given — list active changes, pick or confirm one before
-dispatch."; archive — "No change ids given — list active changes, confirm
-with the user which to archive." (core/prompts.ts:33-51,64-82,86-104).
-The fallback strings are unchanged by the rename.
+For empty or whitespace-only arguments, each builder SHALL append its defined fallback for init, plan, apply, or archive instead of echoing an empty argument.
 
 #### Scenario: /openspec.apply with no change id
 

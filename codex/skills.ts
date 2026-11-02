@@ -256,8 +256,8 @@ export function renderArchiveSkill(): string {
   const manyIdsLines = archiveInstruction(ARCHIVE_MANY_IDS_ARGS).split("\n");
 
   // Drift guards on the single source: every render keeps the pinned
-  // nine-line shape (load, branch, initial gate, precedence, sync,
-  // title, blocker, repair, unsafe-repair stop), and archiveSkillId
+  // ten-line shape (load, branch, initial gate, precedence, sync,
+  // title, blocker, repair, unresolved-finding recovery, valid result), and archiveSkillId
   // maps zero/one ids to the single-archive skill and two or more to
   // the bulk one. A core/prompts.ts edit that breaks any of these
   // fails the render loudly instead of silently forking the twin.
@@ -266,9 +266,9 @@ export function renderArchiveSkill(): string {
     [ARCHIVE_ONE_ID_ARGS, oneIdLines],
     [ARCHIVE_MANY_IDS_ARGS, manyIdsLines],
   ] as const) {
-    if (lines.length !== 9) {
+    if (lines.length !== 10) {
       throw new Error(
-        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned nine-line shape — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
+        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned ten-line shape — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
       );
     }
   }

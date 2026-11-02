@@ -67,7 +67,8 @@ const ARCHIVE_STEPS = [
   "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing authored titles and machine-named capability paths.",
   "If required specification sync is blocked, stop without archiving and report the blocker.",
   "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
-  "If a post-archive issue requires code changes or cannot be safely repaired within OpenSpec artifacts, stop and report it without claiming validation passed.",
+  "If validation remains INVALID or an issue cannot be safely repaired within OpenSpec artifacts, show the exact findings and proactively offer the user help resolving them. Stop without claiming validation passed.",
+  "If safe repairs make validation return VALID, report successful validation and do not offer unresolved-finding recovery.",
 ];
 
 describe("archiveInstruction", () => {
@@ -118,7 +119,7 @@ describe("archiveInstruction", () => {
     assert.doesNotMatch(text, /^Change(s)?:/m);
   });
 
-  it("keeps the initial gate, mandatory sync, blocker, repair and stop steps in every form", () => {
+  it("keeps the initial gate, mandatory sync, repair and recovery steps in every form", () => {
     for (const argText of ["add-dark-mode", "add-a add-b add-c", ""]) {
       const lines = archiveInstruction(argText).split("\n");
       assert.equal(lines[2], GATE_LINE, `initial gate for: ${argText}`);

@@ -15,41 +15,7 @@ its dispatch prompt (docs/agents.md:119-125,127-134).
 
 ### Requirement: The planner role operates in exactly three non-mixing modes with per-mode write bounds
 
-The `omos-planner` prompt SHALL name three modes — `MODE: plan`,
-`MODE: baseline`, `MODE: waves` — declared at the top of the task prompt
-and never mixed (agents/omos-planner.md:6-8). Each mode carries its
-own write bounds: `plan` writes files only inside
-`openspec/changes/<change-id>/` (agents/omos-planner.md:12-13);
-`baseline` writes only `openspec/specs/<capability>/spec.md` for
-capabilities in the confirmed map — no `changes/`, no project code, and
-never an existing spec file unless the prompt names it explicitly
-(agents/omos-planner.md:57-60); `waves` is read-only and never
-changes artifact content (agents/omos-planner.md:82,106). No mode
-touches project code (agents/omos-planner.md:106).
-
-In `MODE: plan` the drafting steps SHALL additionally enforce: a
-`### Requirement:` under `## MODIFIED` matches the baseline header
-verbatim, since the delta merges by header name, and a rename goes to
-`## RENAMED Requirements` with `FROM:`/`TO:` pairs
-(agents/omos-planner.md:23-25); no conditional-fallback task is ever
-carried in place of fixing such a header (agents/omos-planner.md:34-36);
-before DONE and before finishing a revise round, `tasks.md` is re-read
-against the delta specs so every cited scenario name appears verbatim as
-a `#### Scenario:` heading and no two scenarios assert contradictory
-output (agents/omos-planner.md:31-34); a group that removes a lint
-suppression or renames a symbol greps its call and test sites in the same
-task and states the build result expected after that group alone, and
-groups inseparable without leaving the tree uncompilable merge into one
-group — merge addresses compile coupling, while the `MODE: waves` rule to
-serialize overlapping-file groups addresses parallel-dispatch conflicts,
-and the prompt keeps them distinct (agents/omos-planner.md:36-43,90-92);
-the report states that a passing `openspec validate` certifies format,
-not archive-ability (agents/omos-planner.md:50-52).
-
-Planner and critic accept the same delta headers: the planner's header
-list is `## ADDED|MODIFIED|REMOVED|RENAMED Requirements` with RENAMED
-holding `FROM:`/`TO:` pairs (agents/omos-planner.md:19-20), matching
-the critic's editorial rule (agents/omos-critic.md:19-21).
+The planner SHALL keep plan, baseline, and waves modes separate and enforce each mode's write scope. Plan drafts and waves SHALL follow the shared delta, task, grouping, and report contracts.
 
 #### Scenario: Write bounds stated per mode
 
@@ -137,25 +103,7 @@ than silently changing the merge key.
 
 ### Requirement: Research, validation, and review roles are read-only with evidence-bound claims
 
-The researcher, critic, verifier, reviewer, and retrospector prompts SHALL
-bind their roles to read-only work: the researcher never writes files and
-never runs git write commands (agents/omos-researcher.md:6-8); the critic
-never writes files and never fixes artifacts itself (agents/omos-critic.md:6-7,67);
-the verifier never edits code or artifacts to make verification pass
-(agents/omos-verifier.md:6-8); the reviewer is read-only with `git diff`
-and `git log` allowed but git write commands not (agents/omos-reviewer.md:7-8);
-the retrospector never applies or proposes applying its own findings
-(agents/omos-retrospector.md:44-46). Every researcher claim carries
-`path:line` or command-output evidence (agents/omos-researcher.md:30), and
-the role never speculates about intent (agents/omos-researcher.md:38).
-Before listing an Unknown, the researcher SHALL attempt a read-only local
-probe — `<binary> --help`, a no-arg subcommand that performs no action — and
-report probe-answered questions as `PROBE: <question> → <output line>` lines;
-probe-resolved items are excluded from the must-ask-user Unknowns set
-(agents/omos-researcher.md:21-24,33-34). When two sources disagree about an
-interface (local `--help` versus docs or CHANGELOG), the researcher SHALL
-quote both verbatim and name the conflict, never collapsing one source into
-the definitive set (agents/omos-researcher.md:24-26).
+Researcher, critic, verifier, reviewer, and retrospector roles SHALL remain read-only. Research claims SHALL cite evidence, probe-resolvable Unknowns SHALL be probed, and conflicting sources SHALL be reported.
 
 #### Scenario: Researcher fact carries evidence
 
@@ -185,14 +133,7 @@ the definitive set (agents/omos-researcher.md:24-26).
 
 ### Requirement: Mechanical validation gates are decisive for critic and verifier
 
-The critic SHALL run the `openspec_validate` tool before any editorial review —
-with the change id for change review, with no id for baseline-specs review —
-and treat any INVALID violation as automatically BLOCKING, quoted verbatim
-(agents/omos-critic.md:10-15). The critic must never pass a target with a
-failing mechanical validation as `CLEAN` (agents/omos-critic.md:64). The
-verifier SHALL run `openspec validate <change-id>` as its gate and let a
-non-VALID result force the whole verification to `FAIL`
-(agents/omos-verifier.md:18-21).
+The critic SHALL treat every mechanical INVALID as BLOCKING and never return CLEAN for a failing target. The verifier SHALL fail the run when change validation is not VALID.
 
 #### Scenario: INVALID verdict cannot be CLEAN
 
@@ -206,31 +147,7 @@ non-VALID result force the whole verification to `FAIL`
 
 ### Requirement: The implementer is confined to one task group with conflict escalation
 
-The `omos-implementer` prompt SHALL execute exactly one numbered task
-group from `tasks.md` (agents/omos-implementer.md:6-8), tick `- [ ]`
-→ `- [x]` only for tasks it actually completed inside its own group, and
-never reorder, renumber, or edit other groups' lines
-(agents/omos-implementer.md:16-17). When completing the group requires
-touching a file assigned to another implementer in the same wave, it
-SHALL stop and report `BLOCKED: file conflict: <path>`
-(agents/omos-implementer.md:26-27). It never commits, pushes, or runs
-any git write command (agents/omos-implementer.md:53), and never
-lowers the bar to reach green (agents/omos-implementer.md:23-25). Its
-checks rule SHALL require the project's full check suite when the
-implementer is the sole implementer of its wave, and otherwise a suite
-scoped to the group's files with the scope stated in Evidence and the full
-run deferred to the apply flow's post-final-wave full check suite run
-(agents/omos-implementer.md:18-22). Its report format SHALL define
-`DEFERRED: <task-id> — <reason> — <user action>` as the only legal way to
-leave a spec-mapped task unticked, admissible only when completing that
-task requires actions or authority outside the implementer's remit (a user
-request, an external resource); a task in a manual/eyeball acceptance group
-is never deferrable — the role prompt names the gate descriptively as "the
-apply flow's manual/eyeball acceptance gate", with neither the flow's
-section number nor a filesystem path, since role files ship from the plugin
-package and target projects do not carry that path — so such tasks end
-ticked or the run halts; in every other case an unfinished group reports
-`BLOCKED`, never a deferral (agents/omos-implementer.md:35-43).
+An implementer SHALL work on one task group, tick only its completed tasks, and stop on file conflicts. It SHALL run the required checks and use DEFERRED only for work outside its authority; manual acceptance tasks cannot be deferred.
 
 #### Scenario: Group boundary on ticking
 
@@ -264,27 +181,7 @@ action>` and the reason shows completion needs actions or authority
 
 ### Requirement: The verifier executes scenarios instead of reading code
 
-For every `#### Scenario:` in the assigned spec files, the verifier SHALL
-actually trigger the **WHEN** — run the command, call the function,
-execute the test — and check the observable outcome against the
-scenario's **THEN** wording, recording `PASS` or `FAIL` with the decisive
-command and its key output line from a fresh run; a single decisive run is
-preferred, and composition of several runs is legal only when labeled —
-the Scenarios line then reads `PASS (composited): <run A> + <run B>` —
-with a `NO-REGRESSION-TEST:` bullet carrying one line per scenario proven
-only by composition or manual check; the Status line counts composited
-passes as passes (agents/omos-verifier.md:10-18,36-39,43-44). Marking
-`PASS` on "the code looks right" is forbidden, as is accepting a lowered
-bar such as a skipped test or widened assertion
-(agents/omos-verifier.md:48-49). When cross-checking `tasks.md`, the
-verifier SHALL treat an unticked task covered by a well-formed `DEFERRED:`
-line — task id, reason, and user action all present — as legitimate rather
-than a done-but-unticked mismatch, except for tasks in manual/eyeball
-acceptance groups, which the role prompt names descriptively as "the apply
-flow's manual/eyeball acceptance gate" rather than by the flow's section
-number, where even a well-formed `DEFERRED:` line is itself a defect; and a
-`DEFERRED:` line missing any part — task id, reason, or user action — SHALL
-itself be reported as a defect (agents/omos-verifier.md:24-31).
+The verifier SHALL execute every assigned scenario and report PASS or FAIL with fresh command evidence. It SHALL reject weakened checks and audit task completion and DEFERRED lines against the manual-acceptance gate.
 
 #### Scenario: Reading code is not verification
 
@@ -330,35 +227,7 @@ itself be reported as a defect (agents/omos-verifier.md:24-31).
 
 ### Requirement: Reviewer and retrospector deliver bounded, cited findings
 
-The reviewer SHALL critique the cumulative diff of one completed change against
-its OpenSpec artifacts and report `APPROVE` or `CHANGES-REQUESTED`, never
-approving while a BLOCKING line stands (agents/omos-reviewer.md:6-8,25,34-37);
-a choice that contradicts a spec scenario escalates to BLOCKING in its Choices
-audit (agents/omos-reviewer.md:28-29). The retrospector SHALL limit itself
-to the plugin's own prompt entities — `agents/*.md`,
-`skills/omos-*/SKILL.md`, `core/prompts.ts` — dropping findings about
-vendored skills, user project code, or the CLI silently
-(agents/omos-retrospector.md:6-14). Every finding must quote one decisive
-bundle line verbatim, rendered as its own blockquote line under `Was:`
-(agents/omos-retrospector.md:18-21), and the quote must show the defect on
-its own — a quoted line that needs interpretation to look like a problem drops
-the finding (agents/omos-retrospector.md:22-23). `Why:` names the cost this
-run actually paid — a wasted round, rework, a user correction — and a cost of
-the form "might cause" or "in principle" disqualifies the finding
-(agents/omos-retrospector.md:24-26). Findings are capped at 8, ranked
-`HIGH` to `LOW` with no padding (agents/omos-retrospector.md:27-30), and
-each `Fix:` line names the file and section with an executable edit
-(agents/omos-retrospector.md:35-36). The report SHALL open with exactly one
-mechanical tally line — `N findings: X HIGH · Y MED · Z LOW` — with no other
-preamble, and one blank line SHALL separate findings
-(agents/omos-retrospector.md:37-40,44); findings are numbered, each heading
-carries the severity and the file path alongside a title of at most 6 words
-derived from `Was:` (agents/omos-retrospector.md:31-32), and the field caps
-are `Was:` at most 20 words, `Why:` at most 15, `Fix:` at most 25
-(agents/omos-retrospector.md:33-34). The report is emitted as Markdown and
-never wrapped in a code fence (agents/omos-retrospector.md:42-53). A run
-that exposed nothing actionable prints only `No findings — run clean.` — no
-tally line (agents/omos-retrospector.md:55-56).
+The reviewer SHALL assess the cumulative diff against the change artifacts and block approval on unresolved blocking findings. The retrospector SHALL report at most eight evidence-backed findings about plugin prompts, with concrete costs and fixes.
 
 #### Scenario: Reviewer withholds approval on blocking findings
 

@@ -101,16 +101,7 @@ that directory before exiting 2 (`scripts/sync-vendor.mjs:87-100`).
 
 ### Requirement: The mirror invariant keeps pin, vendor, and plugin version together
 
-`package.json` `version` SHALL equal `vendor/openspec/manifest.json`
-`generatedBy`; `scripts/check.mjs` fails the repo when they differ
-(`scripts/check.mjs:181-194`). The daily `vendor-sync` workflow SHALL install
-`@fission-ai/openspec@latest`, re-vendor, and open a PR on branch
-`chore/vendor-openspec-skills` whenever the tree drifts OR the mirror is off,
-setting the plugin version with `npm version --no-git-tag-version
---allow-same-version` (`.github/workflows/vendor-sync.yml:3-8,24-64`).
-Dependabot SHALL exclude `@fission-ai/openspec` so the pin moves only through
-that PR (`.github/dependabot.yml:7-10`), and `vendor/` SHALL stay out of
-prettier (`.prettierignore:3-4`).
+The package version SHALL match the vendored manifest. vendor-sync SHALL install the latest CLI and open a PR when the vendor tree or mirror version drifts; Dependabot SHALL leave this dependency to that workflow and vendor files remain excluded from formatting.
 
 #### Scenario: Daily sync PR
 

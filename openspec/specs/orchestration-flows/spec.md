@@ -15,20 +15,7 @@ critique loops, and confines every write to the `openspec/` tree.
 
 ### Requirement: The orchestrator dispatches, never drafts, and never writes outside the flow
 
-Every flow skill SHALL state that the orchestrator dispatches role subagents
-and never drafts artifacts itself, and SHALL forbid writes beyond the flow's
-ownership. plan, init, and apply state "You never run git write commands" —
-plan adds "the user reviews files and decides what happens to them"
-(skills/omos-plan/SKILL.md:9-11; skills/omos-init/SKILL.md:9-10;
-skills/omos-apply/SKILL.md:8-10). retro instead states the stronger
-"Read-only: this command never edits anything — findings are for a future PR"
-and names its single dispatch target `omos-retrospector`
-(skills/omos-retro/SKILL.md:8-9,29).
-This wiring is machine-checked: each flow skill's body must reference the role
-agents and, where it dispatches it, the `openspec_validate` tool — the test
-asserts `openspec_validate` for init, plan, and apply
-(tests/assets.test.ts:67-72,79-84,91-97) and only `omos-retrospector` for
-retro (tests/assets.test.ts:100-107).
+Flow orchestrators SHALL dispatch role agents to write artifacts, never draft them directly, and keep writes within each flow's permitted OpenSpec paths. Git writes remain the user's responsibility.
 
 #### Scenario: All artifact writing goes to subagents
 
@@ -42,17 +29,7 @@ retro (tests/assets.test.ts:100-107).
 
 ### Requirement: The CLI precondition gates each flow with per-flow degradation
 
-Each drafting/implementing flow SHALL call `openspec_validate` up front and act
-on the result: on `UNAVAILABLE` it may offer a global install, performed only
-on an explicit yes (skills/omos-plan/SKILL.md:17-20;
-skills/omos-init/SKILL.md:16-19; skills/omos-apply/SKILL.md:25-27).
-When the user declines the install, behaviors differ by flow — plan may
-continue critic-only on an explicit yes (skills/omos-plan/SKILL.md:21-22),
-while init (skills/omos-init/SKILL.md:20-22) and apply
-(skills/omos-apply/SKILL.md:27-28) stop. When `openspec/` is missing, plan
-and init ask for consent and then run `openspec init --tools none`, never
-re-initializing tool files; a declined consent stops the flow
-(skills/omos-plan/SKILL.md:23-26; skills/omos-init/SKILL.md:23-25).
+Drafting and implementation flows SHALL gate on openspec_validate. When unavailable, plan may continue critic-only only with user consent; init and apply stop. Plan and init also require consent before initializing a missing OpenSpec root.
 
 #### Scenario: Plan degrades to critic-only on declined install
 
@@ -66,45 +43,7 @@ re-initializing tool files; a declined consent stops the flow
 
 ### Requirement: The plan flow interviews, grills, and confirms a playback before any file write
 
-The plan flow SHALL keep the coverage interview to at most 5 questions per
-round, ordered by impact × uncertainty (skills/omos-plan/SKILL.md:36-40),
-and every question SHALL define its terms with a concrete example or an
-either/or gloss; when the user signals they did not understand a question,
-in any language, the flow SHALL restate it with the gloss before recording
-anything from it as `ASSUMPTION:` (skills/omos-plan/SKILL.md:48-51).
-It dispatches researchers in parallel one per unknown area
-(skills/omos-plan/SKILL.md:56-57), and for every Unknown a read-only
-local command can answer — `<binary> --help`, a no-arg subcommand that
-performs no action — it SHALL re-dispatch a researcher with a `PROBE:` line;
-no probe-resolvable Unknown survives into the §6 playback
-(skills/omos-plan/SKILL.md:57-61). The flow runs the adversarial grill
-normally 1–3 rounds, up to 5 only for large-scale changes, with every
-attack citing a research fact or the user's own words
-(skills/omos-plan/SKILL.md:66-78). Each risk the user dismisses is
-recorded as a `REJECTED-RISK:` line (skills/omos-plan/SKILL.md:86-88).
-A seven-line playback — `Outcome / Why now / Success / Constraints /
-Out of scope / Rejected risks / Established`, where `Established:` recites
-up to five decision-relevant research findings, one per line, absences
-included — must be explicitly confirmed before any file is written
-(skills/omos-plan/SKILL.md:92-96). The critique loop runs at most 3
-rounds — with mechanical INVALID lines always fixed first — and on
-`NEEDS-FIX` the flow waits for the planner revision to report DONE before
-dispatching the next critic, never batching a critic with the revision
-whose files it reads (skills/omos-plan/SKILL.md:111-113). After 3
-unresolved rounds the open findings go to the user as a three-option ask —
-accept them, run one final planner revise plus mechanical
-`openspec_validate` with no further critic, or stop — and a final revise
-ending with INVALID output is fixed mechanically and re-validated until
-VALID, never waived (skills/omos-plan/SKILL.md:115-120). The §9
-confirmed report SHALL name the current branch as read from a read-only
-`git branch --show-current`-style check, or "no branch yet" — reporting
-only; the flow itself creates no branch and performs no git write
-(skills/omos-plan/SKILL.md:130-132). Its next-step offers SHALL name
-this plugin's slash commands (`/omos.<name>`) whenever one exists for
-the action; a skill id is never offered as a command; the upstream
-`openspec` CLI or a vendored `/openspec-<name>` command is offered only
-where the plugin has no equivalent
-(skills/omos-plan/SKILL.md:132-137).
+The plan flow SHALL interview for coverage, research unknowns, run an evidence-grounded grill, and obtain explicit confirmation of the seven-line playback before drafting. Critique and mechanical recovery SHALL follow their bounded rules before approval.
 
 #### Scenario: No writing before playback confirmation
 
@@ -175,21 +114,28 @@ where the plugin has no equivalent
   CLI or vendored command appears only where the plugin has no equivalent
   command for the action (skills/omos-plan/SKILL.md:132-137)
 
+### Requirement: The plan flow validates drafted changes and offers recovery for unresolved findings
+
+After the normal critique path and before approval, the plan flow SHALL call
+`openspec_validate` for the drafted change. On `INVALID`, it SHALL dispatch
+`omos-planner` with the exact findings and validate again after each revision.
+If findings remain or the planner cannot safely resolve them, the flow SHALL
+show the findings and offer the user another planner revision or the chance to
+fix them, without claiming validation passed.
+
+#### Scenario: Plan repairs and revalidates mechanical findings
+
+- **WHEN** validation of the drafted change returns `INVALID` after critique
+- **THEN** the flow sends the exact findings to the planner and revalidates the revised change
+
+#### Scenario: Plan offers a next step for unresolved findings
+
+- **WHEN** a planner revision leaves findings unresolved or the planner reports it cannot safely resolve them
+- **THEN** the flow shows the exact findings and offers another planner revision or the user's own fix, without claiming validation passed
+
 ### Requirement: The init flow writes baseline specs describing observed behavior only
 
-The init flow SHALL read `openspec/specs/` and branch on its state — empty
-proceeds to discovery; non-empty reports existing capabilities and offers
-extend-only mode that never touches existing spec files
-(skills/omos-init/SKILL.md:27-34). It merges parallel researcher findings
-into a capability map and interviews until the user confirms add/remove/rename,
-dropping any capability no researcher evidenced
-(skills/omos-init/SKILL.md:36-51). Drafting goes to `omos-planner` with
-`MODE: baseline`, writing `## Purpose` and SHALL requirements with WHEN/THEN
-scenarios that describe current, observed behavior only — aspirations belong
-to `/omos.plan` (skills/omos-init/SKILL.md:53-60). Writes land only in
-`openspec/specs/`, existing files are never overwritten without per-file
-consent, and `UNVERIFIED` beats an invented SHALL
-(skills/omos-init/SKILL.md:81-86).
+Init SHALL research the existing specs, confirm the capability map, and write only evidence-backed baseline behavior. Extend mode SHALL preserve existing specs, and unverified behavior SHALL not become a SHALL requirement.
 
 #### Scenario: Un-evidenced capability is dropped
 
@@ -203,75 +149,7 @@ consent, and `UNVERIFIED` beats an invented SHALL
 
 ### Requirement: The apply flow gates on VALID, executes one implementer per task group, and handles blockage without lowering the bar
 
-The apply flow SHALL refuse implementation unless `openspec_validate`
-reports the change VALID — otherwise it stops, reports the numbered
-violations, and suggests a `/omos.plan` fix round
-(skills/omos-apply/SKILL.md:21-30). Execution order comes from
-`omos-planner` with `MODE: waves`, recorded as a wave table that is
-the single source of execution order; the §3 restatement points at the
-planner's `MODE: waves` rules as the source of truth, and each wave-table
-row lists its groups' exact file paths
-(skills/omos-apply/SKILL.md:34-39). Each wave dispatches one
-`omos-implementer` per group in a single parallel background batch,
-with results collected from completion notifications, never by polling;
-each implementer prompt carries verbatim the group's tasks, its spec
-requirement/scenario sections, the design.md decisions touching the group,
-and the full wave table including each group's assigned files
-(skills/omos-apply/SKILL.md:46-52). A user request arriving mid-wave
-SHALL first be checked against the wave table and the remaining `tasks.md`
-items — a task that already covers it is cited, never re-implemented by a
-duplicate group dispatch (skills/omos-apply/SKILL.md:54-57). A
-`BLOCKED:` answer triggers the protocol: a file conflict re-dispatches the
-blocked group alone in a follow-up mini-wave; a guardrail or plan defect
-halts and asks the user — the bar is never lowered to get green
-(skills/omos-apply/SKILL.md:61-68). A `BLOCKED:` reporting prompt
-truncation is the exception and the orchestrator's own defect, not the
-plan's: the group is re-dispatched with a numbered edit list of at most
-150 lines referencing `file:line` locations instead of inlined spec or
-transcript text (skills/omos-apply/SKILL.md:68-71). Before §7 Review,
-the flow SHALL execute every manual/eyeball acceptance group in `tasks.md`
-with the user and record their confirmation — no change enters Review
-while any manual/eyeball group is unticked — and relay every implementer
-`DEFERRED:` line to the user verbatim; the verifier's `tasks.md`
-consistency check remains a separate mechanical audit
-(skills/omos-apply/SKILL.md:75-80,92-95). `DEFERRED:` is inadmissible for
-tasks in manual/eyeball acceptance groups — the §6 gate runs those groups
-with the user, so they must end ticked,
-and a run halts rather than carrying such a task into Review or the §8 Done
-report (skills/omos-apply/SKILL.md:78-79,94-95). After the final wave,
-verifiers run in parallel per capability spec file; any FAIL yields one fix
-round, and a re-verification that repeats the claim with a weakened bar is
-treated as FAIL (skills/omos-apply/SKILL.md:82-91). After the final
-wave and before §7 Review the flow SHALL perform its post-final-wave full
-check suite run once — by the orchestrator or a designated dispatch — and
-cite its output in the reviewer payload; implementer-scoped runs do not
-replace it (skills/omos-apply/SKILL.md:96-99). The run ends with
-`omos-reviewer` over the cumulative diff carrying a `REVIEW FOCUS:`
-block that holds the riskiest hunks from the wave table, verifier notes,
-and the verbatim `Choices:` report lines of every wave implementer; on
-`CHANGES-REQUESTED` the flow SHALL, before dispatching the re-review, run
-the repo's own markdown/lint check over every `openspec/` artifact the fix
-round touched, when the repo has one, and paste its output into the
-re-review dispatch; scoped re-review answers open findings as
-ADDRESSED / NOT-ADDRESSED, and user-approved BLOCKING leftovers are
-recorded as `ruling:` lines (skills/omos-apply/SKILL.md:103-115). The
-Done report lists `DEFERRED:` entries verbatim, one line each, alongside
-`choice:` and `ruling:` entries (skills/omos-apply/SKILL.md:122-126),
-counts `PASS (composited)` scenario lines as passes in the verification
-summary, and relays every verifier `NO-REGRESSION-TEST:` line verbatim
-(skills/omos-apply/SKILL.md:127-130); when the user asks about branching
-the flow cites the repo's branch-naming convention from `CONTRIBUTING.md`
-or its equivalent, e.g. `feat/<topic>` — creating and renaming branches
-stays the user's job, as do commits, and this flow performs no git writes
-(skills/omos-apply/SKILL.md:138-140). The Done report's next-step
-offers SHALL name this plugin's slash commands (`/omos.<name>`)
-whenever one exists for the action — archiving is offered as
-`/omos.archive <change-id>`; a skill id is never offered as a
-command, and the upstream `openspec` CLI or a vendored
-`/openspec-<name>` command appears only where the plugin has no
-equivalent (skills/omos-apply/SKILL.md:132-137). The flow never
-commits and never runs `openspec archive`
-(skills/omos-apply/SKILL.md:146-147).
+Apply SHALL require VALID before implementation, execute one implementer per task group in dependency-ordered waves, resolve conflicts and blockers without lowering requirements, run manual acceptance and verification, perform the full check suite, and review the cumulative diff.
 
 #### Scenario: Invalid change blocks implementation
 
@@ -388,14 +266,7 @@ SHALL not name Codex-only skill mentions.
 
 ### Requirement: The archive flow syncs before archiving and repairs safely fixable post-archive spec issues
 
-The shared archive instruction SHALL validate the selected change before
-delegation, then require specification sync before archiving without asking
-whether to sync. A required sync blocker SHALL stop the flow before archive.
-After archive, the flow SHALL validate the resulting specifications, repair
-issues safely fixable within OpenSpec artifacts, and validate again. An issue
-that requires code changes or cannot be safely repaired SHALL stop with a
-report and no claim of successful validation (core/prompts.ts::archiveInstruction;
-codex/skills.ts::renderArchiveSkill).
+Archive SHALL validate the selected change, sync and verify required spec deltas before moving it, then validate the resulting specs. It SHALL repair safely fixable issues and stop without claiming success when findings remain.
 
 #### Scenario: Sync completes before archive without asking
 
@@ -475,20 +346,26 @@ the issue.
 - **WHEN** the shared archive instruction and Codex wrapper guidance are inspected
 - **THEN** both require stopping and reporting issues that require code changes or cannot be safely repaired in OpenSpec artifacts, without claiming validation passed
 
+### Requirement: The archive flow offers help with unresolved post-archive validation findings
+
+After attempting safe repairs to post-archive OpenSpec artifact issues and
+revalidating, the archive flow SHALL show any remaining findings and
+proactively offer the user help to resolve them. It SHALL stop without
+claiming validation passed while findings remain.
+
+#### Scenario: Archive offers help when findings remain
+
+- **WHEN** post-archive validation remains `INVALID` after safe repair attempts, or an issue cannot safely be repaired within OpenSpec artifacts
+- **THEN** the flow shows the findings and offers the user help to resolve them, without claiming validation passed
+
+#### Scenario: Archive completes after successful repair
+
+- **WHEN** safe repairs make post-archive validation return `VALID`
+- **THEN** the flow reports the successful validation and does not offer an unresolved-findings recovery step
+
 ### Requirement: The retro flow is read-only, single-dispatch, and relays the report verbatim
 
-The retro flow SHALL compile an evidence bundle from the current session —
-commands, role dispatches with verbatim final reports, friction lines, and the
-end-of-run `git diff --stat` — keeping the bundle raw quoted lines rather than
-paraphrase (skills/omos-retro/SKILL.md:13-25). It dispatches the bundle to
-`omos-retrospector` exactly once, with no rounds
-(skills/omos-retro/SKILL.md:27-30), and presents the report as-is, as
-rendered Markdown rather than inside a code block — no commentary, no severity
-re-shuffling, no additions (skills/omos-retro/SKILL.md:32-39).
-The command never edits `agents/`, `skills/`, `core/`, or any project file, and
-does not feed interpretations or fill gaps from memory
-(skills/omos-retro/SKILL.md:40-46). An empty run with no role dispatches
-causes the flow to say so and stop (skills/omos-retro/SKILL.md:47-48).
+Retro SHALL compile the session evidence, dispatch one retrospector, and relay its Markdown report verbatim. It SHALL remain read-only and stop without inventing findings when the session has no role dispatches.
 
 #### Scenario: Single dispatch with verbatim relay
 

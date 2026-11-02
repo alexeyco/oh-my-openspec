@@ -70,17 +70,7 @@ depending on an `npm ci`-populated `node_modules` (`Makefile:12-17,23-25`,
 
 ### Requirement: check.mjs enforces six invariant groups
 
-`scripts/check.mjs` SHALL verify, collecting all failures before exiting 1 with
-`✗`-prefixed lines: (1) `package.json` shape — required keys, `"type":
-"module"`, exports, files array with existing paths, test/typecheck scripts,
-`@fission-ai/openspec` as devDependency (`scripts/check.mjs:28-67`);
-(2) `ROLE_IDS` equals the set of `agents/*.md` with valid subagent frontmatter
-and no model pins (`:69-102`); (3) `FLOW_SKILL_IDS` matches `skills/` on disk
-both ways (`:104-138`); (4) the vendor tree matches its manifest, each skill is
-self-stamped with `generatedBy`, and `package.json` version mirrors the
-manifest (`:140-197`); (5) relative links in README/CONTRIBUTING/AGENTS resolve
-(`:199-218`); (6) plugin id is `"oh-my-openspec"` and no stray `pi` section
-exists in `package.json` (`:220-229`).
+scripts/check.mjs SHALL aggregate failures across six invariant groups covering package shape, roles, flow skills, vendor metadata, documentation links, and plugin identity before exiting non-zero.
 
 #### Scenario: All invariants hold
 
@@ -109,14 +99,7 @@ instruct running it before committing; no CI workflow executes prettier or
 
 ### Requirement: The release record is tags and npm, not a CHANGELOG
 
-Releases SHALL be cut by manually checking out `master`, tagging, and pushing
-the tag (`CONTRIBUTING.md:119-126`); the plugin `version` is machine-owned,
-moved only by the vendor-sync workflow, with no CHANGELOG file
-(`CONTRIBUTING.md:111-117`). Merged plugin code between skill releases ships
-only inside the next mirror bump; a hotfix that cannot wait relies on manual
-workflow dispatch, and if upstream has not released, the tag is held because
-npm forbids re-publishing a version (`CONTRIBUTING.md:131-136`). The package
-declares `engines.node >= 22.18` (`package.json:47-49`).
+Releases SHALL use version tags and npm; the vendor-sync workflow owns plugin version updates, so feature branches add no CHANGELOG or manual version bump.
 
 #### Scenario: Hotfix window with no upstream release
 
@@ -159,16 +142,7 @@ with no email key. It SHALL NOT declare a `funding` field, and the
 
 ### Requirement: README Node requirement matches engines
 
-The README Install section SHALL open with a requirements lead-in
-stating Node.js ≥ 22.18, pinned as
-`Requires [OpenCode v2](https://opencode.ai) (plugin API), [Node.js ≥ 22.18](https://nodejs.org) and the [OpenSpec CLI](https://openspec.dev/docs/installation) — the plugin delegates every mechanical gate to it:`
-— matching the `engines.node` value `">=22.18"` in `package.json`, the
-development requirement at CONTRIBUTING.md:12, and CI's
-`node-version: 22` (`.github/workflows/ci.yml:15`). The OpenCode v2
-clause rescues the first bullet of the removed `## Requirements`
-section; the `[Node.js ≥ 22.18](https://nodejs.org)` link and the
-delegation clause survive verbatim from the pre-change Install line, and
-the rest of the Install section stays unchanged.
+The README installation lead-in SHALL state Node.js >=22.18 and remain consistent with package engines, CONTRIBUTING requirements, and the Node major used by CI.
 
 #### Scenario: Install section matches engines
 

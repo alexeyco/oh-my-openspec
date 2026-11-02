@@ -28,14 +28,7 @@ back to `process.cwd()` (opencode/index.ts:202-231,54).
 
 ### Requirement: CLI invocation is never a rejection path
 
-`runOpenspec` SHALL spawn `openspec` with the given args in the given cwd and
-resolve for every outcome: on spawn failure with `ENOENT` it resolves
-`{ missing: true }` with an install-hint stderr ("npm install -g
-@fission-ai/openspec, or brew install openspec"); other spawn errors resolve
-`missing: false` with the error string; process close resolves with `ok`
-equal to exit code zero and captured stdout/stderr (core/openspec.ts:16-46).
-When `missing` is true, `validateProject` SHALL return the string
-`UNAVAILABLE: <install hint>` without parsing (core/openspec.ts:160-162).
+runOpenspec SHALL resolve all process outcomes: ENOENT yields the missing-CLI state, other spawn errors preserve their message, and process completion returns exit status and captured output. validateProject SHALL surface the install hint as UNAVAILABLE.
 
 #### Scenario: Missing CLI yields UNAVAILABLE, not a crash
 
@@ -58,14 +51,7 @@ recomputed as the count of invalid items (core/openspec.ts:64-114).
 
 ### Requirement: Report format is a fixed one-look shape
 
-`formatValidation` SHALL emit exactly one header line — `INVALID: could not
-parse openspec validate output` when `failed === -1`; `VALID: nothing to
-validate (no changes or specs found)` when there are no items; `VALID: N
-item(s) passed` when all items are valid; `INVALID: N of M item(s) failed`
-otherwise — followed by globally numbered issue lines of the form
-`<n>. [<type> <id>] <level> <path>: <message>`, with invalid items that
-report no issues rendered as `<n>. [<type> <id>] invalid without details`
-(core/openspec.ts:118-148).
+formatValidation SHALL emit the defined VALID or INVALID header, then globally numbered issue lines with item type, id, level, path, and message; invalid items without details receive the fixed fallback line.
 
 #### Scenario: Numbered issues across items
 
