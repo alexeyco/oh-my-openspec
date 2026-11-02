@@ -13,39 +13,7 @@ untouched.
 
 ### Requirement: Generated Codex plugin bundle and git-marketplace delivery
 
-The repository SHALL ship a Codex plugin bundle at
-`plugins/oh-my-openspec/` generated entirely by `node codex/render.ts`
-from the single-source assets (`agents/*.md` via `core/roles.ts`,
-`skills/*/SKILL.md`, `vendor/openspec/skills/`, `core/prompts.ts`,
-`core/openspec.ts`, and the `codex/` sources), and
-the committed tree SHALL match a fresh render byte-for-byte, gated by
-`tests/codex-bundle.test.ts`. The repo root SHALL carry
-`.agents/plugins/marketplace.json` declaring the plugin
-`oh-my-openspec` with `source.path` `./plugins/oh-my-openspec`, a
-`policy` block (`installation: AVAILABLE`, `authentication:
-ON_INSTALL`), and a `category`, so that `codex plugin marketplace add
-alexeyco/oh-my-openspec` followed by `codex plugin add
-oh-my-openspec@oh-my-openspec` installs it. The bundle manifest
-`.codex-plugin/plugin.json` SHALL use only spec-permitted fields
-(`name`, `version` mirroring `package.json`, `description`, `author`,
-`homepage`, `repository`, `license`, `keywords`, `skills`,
-`mcpServers`, and `interface`) and SHALL NOT declare `commands` or
-`agents` fields — the Codex manifest has none — nor a `hooks` field,
-since no hooks ship. Its `interface` SHALL contain `displayName`,
-`shortDescription`, and `composerIcon` pointing to `./assets/icon.svg`.
-The square SVG at `assets/icon.svg` SHALL have dimensions of at least
-48 by 48 pixels and be smaller than 50 KiB. The
-bundle SHALL contain exactly six flow-family skills (`omos-init`,
-`omos-plan`, `omos-apply`, `omos-retro`, `omos-archive`, `omos-setup`),
-the twelve
-vendored upstream workflow skills under `skills/` copied verbatim from
-`vendor/openspec/skills/` (subject to the documented frontmatter
-normalization only if the Codex loader requires it), seven role TOMLs
-under `assets/agents/`, `assets/mcp-server.mjs`,
-`assets/openspec-core.ts` (a verbatim copy of `core/openspec.ts`),
-`assets/install-agents.mjs`, `assets/icon.svg`, and `.mcp.json` —
-thirty-one files, no
-`hooks.json`, no alias-mapping script.
+The repository SHALL generate the Codex bundle from its single-source assets, keep the committed bundle byte-identical to a fresh render, and publish it through the declared marketplace manifest with the required plugin metadata and exact file set.
 
 #### Scenario: Bundle matches fresh render byte-for-byte
 
@@ -144,28 +112,7 @@ permissions required by the scanner.
 
 ### Requirement: Role agents rendered to TOML with the contract baked in
 
-The renderer SHALL map each of the seven `agents/*.md` roles to
-`plugins/oh-my-openspec/assets/agents/<role-id>.toml`. Each rendered
-TOML SHALL start with the provenance comment line
-`# managed-by: oh-my-openspec@<package.json version>` — whose version
-equals the bundle manifest `.codex-plugin/plugin.json` version —
-followed by a document with exactly the keys `name` (role id),
-`description` (frontmatter description), and `developer_instructions`
-(trimmed body, a blank line, then `SUBAGENT_CONTRACT` from
-`core/prompts.ts` verbatim, baked at render time). Rendered TOML SHALL
-pin no model, sandbox, or approval keys — Codex sessions inherit them.
-Multi-line values SHALL use TOML multi-line basic strings with
-backslashes, runs of three or more quotes, and control characters
-escaped. `assets/install-agents.mjs` — driven in-session by the
-`omos-setup` skill or run from a checkout — SHALL install the seven
-TOMLs into `~/.codex/agents/` idempotently and re-runnably:
-`planAgentInstalls` SHALL yield per file `copy` (absent target), `skip`
-(byte-identical target), `update` (differing target whose first line
-carries our `# managed-by:` marker — replaced silently and reported as
-an update), or `conflict` (differing target without the marker —
-refused with a per-file report and a non-zero exit unless `--force` is
-given), so user files the installer did not create are never clobbered
-while managed files are refreshed after a plugin upgrade.
+The renderer SHALL produce seven managed role TOMLs with the role metadata and shared contract, no model or sandbox pins, and correctly escaped values. The installer SHALL safely copy, skip, update managed files, and refuse unmanaged conflicts unless forced.
 
 #### Scenario: Developer instructions end with the shared contract
 
@@ -203,26 +150,7 @@ while managed files are refreshed after a plugin upgrade.
 
 ### Requirement: Flow skills rendered with Codex-native primitives, never forked
 
-The renderer SHALL produce the Codex `SKILL.md` for the four flow skills
-from the same `skills/<id>/SKILL.md` sources OpenCode registers, by
-prepending the generated host-adaptation header from `codex/skills.ts`
-(spawn_agent/send_input/wait_agent/close_agent semantics with the async
-default of up to six concurrent threads; `openspec_validate` exposed as
-`mcp__openspec__openspec_validate` and called with `cwd` set to the
-session's project directory; the `$oh-my-openspec:omos-*` mention as the only
-invocation shape; arguments as plain text after the mention with no
-substitution) and by applying the pinned substitution machinery: a
-phrase table carrying an entry for every host-bound sentence — the
-OpenCode dispatch sentence at `skills/omos-apply/SKILL.md:47-49`
-replaced with its `spawn_agent`/`wait_agent` equivalent, and the
-next-step hint sentences rewritten to the Codex reality — followed by a
-whole-body token pass swapping `/omos.init`, `/omos.plan`,
-`/omos.apply`, `/omos.retro`, and `/omos.archive` to their
-`$oh-my-openspec:omos-*` mention forms.
-After both passes the renderer SHALL fail naming the phrase when any
-`/omos.` text remains in the body. Rendering SHALL fail when a
-substitution key is absent from its source file. The OpenCode `skills/`
-files SHALL NOT be modified by this path.
+Codex flow skills SHALL be generated from the OpenCode sources with host-specific dispatch and mention substitutions. Rendering SHALL fail when a required substitution is absent or an OpenCode slash alias remains.
 
 #### Scenario: Rendered flow skill carries the Codex host header
 
@@ -260,29 +188,7 @@ files SHALL NOT be modified by this path.
 
 ### Requirement: openspec_validate parity via bundled MCP stdio server
 
-The bundle SHALL declare in `.mcp.json` a stdio MCP server named
-`openspec` with `type: "stdio"`, `command: "node"`, `args:
-["./assets/mcp-server.mjs"]`, and `cwd: "./"` — the plugin-root-relative
-launch form proven live on Codex 0.163.0; the no-`cwd` form proved
-unlaunchable there (node resolves the `args` strings against the session
-project cwd, where the bundle-relative path does not exist). The
-server SHALL be a hand-rolled newline-delimited JSON-RPC 2.0 stdio loop
-with zero new npm dependencies. The source `codex/mcp-server.mjs` SHALL
-import `core/openspec.ts::validateProject` for unit tests, and the
-rendered `assets/mcp-server.mjs` SHALL import `./openspec-core.ts` — the
-bundle's verbatim copy of `core/openspec.ts` — with the renderer failing
-unless it rewrites that specifier exactly once. The server SHALL expose
-exactly one tool `openspec_validate` whose input schema is
-`{ change?: string, cwd?: string }` — `cwd` is an absolute project
-directory and defaults to the server's working directory when absent,
-and the `change` property's description string is copied verbatim from
-`opencode/index.ts:229-237`. The OpenCode tool's schema stays
-`{ change?: string }`: the added OPTIONAL `cwd` property exists only in
-the Codex MCP surface. The tool's result SHALL be the identical
-VALID/INVALID/UNAVAILABLE/ERROR one-look report as text content —
-outcome is content, never a throw; JSON-RPC errors are reserved for
-protocol-level failures. In Codex sessions the tool SHALL surface as
-`mcp__openspec__openspec_validate`.
+The bundle SHALL expose one stdio MCP tool, openspec_validate, with optional change and cwd inputs and the shared VALID/INVALID/UNAVAILABLE/ERROR text report. The server SHALL use the bundled core implementation and add no npm dependency.
 
 #### Scenario: Tool list exposes the openspec_validate tool
 
@@ -319,20 +225,7 @@ protocol-level failures. In Codex sessions the tool SHALL surface as
 
 ### Requirement: Invocation surface — guaranteed mentions only
 
-The invocation surface SHALL be the six `$oh-my-openspec:omos-*` skill mentions
-(`$oh-my-openspec:omos-init`, `$oh-my-openspec:omos-plan`,
-`$oh-my-openspec:omos-apply`, `$oh-my-openspec:omos-retro`,
-`$oh-my-openspec:omos-archive`, `$oh-my-openspec:omos-setup`), the /skills picker, and the twelve
-bundled `$openspec-*` vendored-skill mentions for the upstream
-workflows, and nothing else: the bundle SHALL NOT ship `hooks.json`, any
-alias-mapping hook script, or any `/omos.*` slash-alias advertisement —
-the alias hint previously advertised in rendered descriptions
-(`/omos.<flow>`) is no longer emitted (descoped by user re-decision
-mid-implementation). Each rendered flow skill's description SHALL append
-a mention hint ending `Invoke via $<id>.`. The archive flow and the
-per-step upstream workflows are served by the bundled vendored skills
-copied from `vendor/openspec/skills/`; no project-level `openspec init
---tools codex` is required for any part of the Codex experience.
+The Codex invocation surface SHALL include the six plugin skill mentions, the skills picker, and twelve vendored skill mentions only; it SHALL advertise no hooks or slash aliases, and rendered descriptions SHALL end with the supported mention hint.
 
 #### Scenario: Descriptions advertise the mention form
 
@@ -383,17 +276,7 @@ form. The renderer's substitutions SHALL be pinned by
 
 ### Requirement: Host isolation keeps the OpenCode path intact
 
-`core/` SHALL NOT import from `codex/`, `opencode/`, or `plugins/`,
-enforced by an import-direction assertion in
-`tests/codex-bundle.test.ts`; `codex/` SHALL import only `core/` and
-Node builtins. `package.json` SHALL keep `exports["."]` as
-`./opencode/index.ts` and its `files` allow-list unchanged, with no
-`bin` entry — the npm package remains OpenCode-only.
-`scripts/check.mjs` SHALL remain six invariant groups, with the Codex
-drift gate living in `tests/` under the existing `npm test` glob, and
-the vendor pipeline SHALL stay `openspec init --tools opencode` only.
-After bundle regeneration, `make check` SHALL print `check: ok` with all
-pre-existing tests passing.
+Core SHALL import no host adapters, Codex SHALL depend only on core and Node builtins, and the npm package SHALL remain OpenCode-only. Codex bundle checks SHALL stay in the existing test gate.
 
 #### Scenario: core never imports codex
 

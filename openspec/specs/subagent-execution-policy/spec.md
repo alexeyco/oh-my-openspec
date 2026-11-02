@@ -33,23 +33,7 @@ receive no contract text (opencode/index.ts:123-131).
 
 ### Requirement: Contract content is a fixed block
 
-`SUBAGENT_CONTRACT` SHALL be the constant text asserting, in order: the
-final message is a report for the orchestrator (findings first, then
-evidence with exact paths, commands, key output lines); the artifacts
-under `openspec/` are the contract — quote them, change them only where
-the role prompt says so, never silently rewrite; never run git write
-commands, enumerated as add, commit, push, stash, checkout, switch,
-reset, restore, clean — version control belongs to the user, and the
-contract adds the principle "Never mutate the working tree or refs;
-compare against committed state with `git show`/`git diff`."; quoted
-Guardrails are hard constraints — stop and report `BLOCKED: <reason>` if
-the task cannot proceed without violating one; label anything
-unverifiable `UNVERIFIED`, never guess; no drive-by refactors; and every
-report is written in English regardless of the session's reply language,
-appended as the constant's final sentence
-(core/prompts.ts:21-37) — with
-"never run git write commands" kept verbatim so the contract test
-(tests/prompts.test.ts:168-173) passes unmodified.
+SUBAGENT_CONTRACT SHALL require evidence-first reports, artifact fidelity, no git writes, hard guardrails, honest uncertainty, no drive-by refactors, and English reports; its required git-safety phrase remains exact for the contract test.
 
 #### Scenario: Single source of truth
 
@@ -75,13 +59,7 @@ appended as the constant's final sentence
 
 ### Requirement: Role dispatch forced into the background
 
-Setup SHALL register a `ctx.tool.hook("execute.before")` listener that
-replaces `event.input` with the result of `forceBackgroundEvent(event.tool,
-event.input, roleIds)` (opencode/index.ts:135-137). For tool names
-`subagent` and `task` (current and legacy host spellings), when the input
-record's `agent` or `subagent_type` field (first string found) names a role
-id, the hook SHALL return a shallow copy with `background: true`, overriding
-even an explicit `background: false` (opencode/background.ts:6-14,39-64).
+The execute.before hook SHALL force background dispatch for role agents on both subagent and legacy task tools by returning a shallow copy, while passing through unrelated tools and inputs unchanged.
 
 #### Scenario: Explicit foreground request overridden
 

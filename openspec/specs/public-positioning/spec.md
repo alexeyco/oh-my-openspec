@@ -10,50 +10,7 @@ sales-order section layout of the README.
 
 ### Requirement: README comparison table is sourced and dated
 
-The README SHALL carry a `## Comparison` section between `## QuickStart`
-and `## Why` in the hybrid form, in this order: intro sentence, legend
-line, at-a-glance matrix, numbered
-footnote block (`[^1]`–`[^13]`), the checked-date line, a `<details>`
-block summarized "Detailed comparison" holding the detailed text table
-with its own definition `[^14]` directly under it, and the positioning
-paragraph. Both tables compare `oh-my-openspec` with
-AngDrew/opencode-openspec, Octane0411/opencode-plugin-openspec,
-moyaspace/openspec-superpowers-opencode ("oso"), and lininn/openflow. The
-matrix SHALL cover seven binary axes (OpenCode-native plugin, AI-drafted
-artifacts pipeline, adversarial review in planning, parallel subagent
-implementation waves, mechanical `openspec validate` gate, retro,
-published on npm) with ✅/⚠️/❌ cells, and the detailed table SHALL cover
-structural axes (delivery form, plan drafting, apply model, validation,
-commands & roles, retro, npm package). Every matrix row SHALL correspond
-to a row of the detailed table inside the `<details>` block, or be fully
-footnoted. Every factual cell SHALL carry a source that supports it: an
-external public link (the competitor's GitHub repo/page or its npmjs.com
-package page), or — in the self-package column only — a repo-relative
-link (`docs/agents.md`) or an in-page anchor (`#install`), or a reference
-to a uniquely numbered footnote whose definition carries the public
-links; each table's numbered definitions sit directly under that table
-(`[^1]`–`[^13]` under the matrix, `[^14]` under the detailed table inside
-the `<details>` block). Every ⚠️ cell and every footnoted ❌/✅ cell of
-the matrix SHALL carry a uniquely numbered footnote whose definition
-carries a public link; footnote markers SHALL be unique and numbered in
-reading order, and no marker SHALL be reused — identical evidence used at
-two positions yields two numbered definitions with identical text
-(required by marker uniqueness, accepted cost). An unfootnoted ❌ matrix
-cell — the six bare ❌ cells in the rows "Parallel subagent
-implementation waves" and "Retro" — means the feature is not documented
-in the project's public sources — negative searches performed
-2026-10-17 — so bare ❌ cells remain sourced claims under the legend's
-"not found in the public sources checked" state and the dated line.
-Each competitor column header SHALL
-link its GitHub repo in both tables; header display text SHALL be short
-(author or short project name: `omos`, `AngDrew`, `Octane0411`,
-`oso`, `openflow`), with the full names remaining discoverable through
-the linked repos, the AngDrew footnote, and the detailed-table cells.
-The self-column links SHALL target the renamed package page
-`https://www.npmjs.com/package/oh-my-openspec`; the self-column display
-label is the short project name `omos`. The
-line `All cells checked 2026-10-17 against the linked public sources.`
-SHALL sit directly under the footnote block and cover both tables.
+The README comparison section SHALL present the defined matrix and detailed table in the required order, with every factual claim linked or footnoted to its source and a checked-date line covering both tables.
 
 #### Scenario: Five sourced columns
 
@@ -105,18 +62,7 @@ implemented differently · ❌ not found in the public sources checked` —
 
 ### Requirement: Comparison stays neutral and claims only the defensible combination
 
-The section SHALL use neutral, factual language — no evaluative verdicts
-("better", "worse", "inferior"); absences are stated as sourced facts.
-Its uniqueness claim SHALL be limited to the combination of (1)
-dependency-ordered parallel subagent waves in apply, (2) a mechanical
-upstream `openspec validate` gate, and (3) a role-based plan flow
-(interview/research/grill/critique). It SHALL NOT claim uniqueness of a
-retrospective artifact — oso ships an evidence-first `retrospective` —
-nor of a grill step — lininn/openflow has a grill phase. The
-`## See also` section SHALL close with a bullet naming the four
-competitor repositories as alternatives in the same niche — each linked
-to its GitHub repo — with a pointer to the `#comparison` anchor, in
-neutral framing and with no evaluative words.
+Comparison language SHALL remain factual and neutral. Any uniqueness claim SHALL be limited to the documented combination of parallel apply waves, mechanical validation, and role-based planning, with the named alternatives linked.
 
 #### Scenario: Absence stated neutrally
 
@@ -164,14 +110,7 @@ registry URL as sources.
 
 ### Requirement: README leads with the sales ordering
 
-The README's `##` sections SHALL appear in exactly this order:
-QuickStart, Comparison, Why, What you get, Install, Keeping skills
-current, Using both?, See also — closing with the MIT license line. No
-`## Requirements` heading SHALL remain. `## Keeping skills current` and
-`## Using both?` SHALL be the pinned short pointers, with the full
-mechanics prose living in `docs/vendor-sync.md` (pre-existing) and
-`docs/using-both.md` (created by this change, word-for-word from the old
-README `## Using both?` section).
+README sections SHALL follow the required sales order, end with the MIT license, remove the old Requirements section, and keep detailed vendor and combined-use guidance in their dedicated docs.
 
 #### Scenario: Eight-section sales order
 
