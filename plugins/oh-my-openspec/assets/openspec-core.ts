@@ -164,7 +164,7 @@ export async function validateProject(
   // still authoritative. Other failures (bad id, no project) have no parseable
   // report and must surface verbatim.
   const { items, failed } = parseValidation(result.stdout);
-  if (items.length === 0 && failed === -1) {
+  if (items.length === 0 && (!result.ok || failed === -1)) {
     const detail = (result.stderr || result.stdout).trim();
     return `ERROR: openspec ${args.join(" ")} failed: ${detail || `exit ${result.code}`}`;
   }

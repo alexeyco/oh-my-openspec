@@ -146,6 +146,26 @@ describe("validateProject with a stub CLI", () => {
     assert.match(report, /^INVALID/);
   });
 
+  it("surfaces a CLI error when the JSON has no validation items", async () => {
+    const cliError = JSON.stringify({
+      status: [
+        {
+          severity: "error",
+          code: "unknown_item",
+          message: "Unknown item 'does-not-exist'.",
+        },
+      ],
+    });
+    stubOpenspec(cliError, 1);
+    const report = await validateProject(proj, "does-not-exist");
+    assert.match(
+      report,
+      /^ERROR: openspec validate does-not-exist --json failed:/,
+    );
+    assert.match(report, /unknown_item/);
+    assert.match(report, /Unknown item 'does-not-exist'/);
+  });
+
   it("surfaces CLI errors verbatim when no report is parseable", async () => {
     stubOpenspec("", 3);
     const report = await validateProject(proj, "no-such-change");
