@@ -112,7 +112,16 @@ describe("flow skills", () => {
       "shared apply skill offers its host-neutral archive command",
     );
     const archiveContract = archiveInstruction("change-id");
+    const generatedArchiveSkill = readFileSync(
+      path.join(
+        repoRoot,
+        "plugins/oh-my-openspec/skills/omos-archive/SKILL.md",
+      ),
+      "utf8",
+    );
     for (const behavior of [
+      "Before syncing or archiving, review document-level title headings in every selected change artifact and each main specification affected by its deltas, plus Requirement headings in those specifications. Correct TBD placeholders and technical machine-name titles only when a readable title is clearly supported by the artifact content; preserve readable authored main-spec titles. If a title is ambiguous, ask the user to choose and wait before continuing.",
+      "Keep MODIFIED requirement headings verbatim to the baseline merge key; express any requirement rename with exact FROM:/TO: entries under RENAMED Requirements. Do not inspect or edit historical archived changes or their specifications.",
       "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
       "If required specification sync is blocked, stop without archiving and report the blocker.",
       "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
@@ -121,6 +130,10 @@ describe("flow skills", () => {
       assert.ok(
         archiveContract.includes(behavior),
         `archive contract: ${behavior}`,
+      );
+      assert.ok(
+        generatedArchiveSkill.includes(behavior),
+        `generated Codex archive skill carries shared guidance: ${behavior}`,
       );
     }
     const retro = readFileSync(

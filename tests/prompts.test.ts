@@ -61,10 +61,15 @@ describe("applyInstruction", () => {
 
 const GATE_LINE =
   "Validate first with the openspec_validate tool; stop on INVALID unless the user explicitly overrides.";
+const TITLE_REVIEW_STEPS = [
+  "Before syncing or archiving, review document-level title headings in every selected change artifact and each main specification affected by its deltas, plus Requirement headings in those specifications. Correct TBD placeholders and technical machine-name titles only when a readable title is clearly supported by the artifact content; preserve readable authored main-spec titles. If a title is ambiguous, ask the user to choose and wait before continuing.",
+  "Keep MODIFIED requirement headings verbatim to the baseline merge key; express any requirement rename with exact FROM:/TO: entries under RENAMED Requirements. Do not inspect or edit historical archived changes or their specifications.",
+];
 const ARCHIVE_STEPS = [
   "Use the delegated archive skill for its other checks. These plugin-mandated steps override any conflicting upstream sync or archive choices: do not ask whether to sync, and stop before archiving if required sync is blocked.",
+  ...TITLE_REVIEW_STEPS,
   "Sync the selected change's specification deltas into the main specs before archiving; do not ask whether to sync.",
-  "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing authored titles and machine-named capability paths.",
+  "When sync creates a new openspec/specs/<capability>/spec.md, give it a readable top-level title derived from the capability's purpose or meaning. Preserve existing readable authored titles and machine-named capability paths.",
   "If required specification sync is blocked, stop without archiving and report the blocker.",
   "After archiving, validate the resulting specifications. Repair issues that are safely fixable within OpenSpec artifacts, then validate again.",
   "If validation remains INVALID or an issue cannot be safely repaired within OpenSpec artifacts, show the exact findings and proactively offer the user help resolving them. Stop without claiming validation passed.",
@@ -127,6 +132,52 @@ describe("archiveInstruction", () => {
         lines.slice(3),
         ARCHIVE_STEPS,
         `archive steps: ${argText}`,
+      );
+    }
+  });
+
+  it("reviews titles before sync, repairs only clear titles, and pauses on ambiguity", () => {
+    for (const argText of ["add-dark-mode", "add-a add-b", ""]) {
+      const lines = archiveInstruction(argText).split("\n");
+      const reviewIndex = lines.indexOf(TITLE_REVIEW_STEPS[0]!);
+      const mergeKeyIndex = lines.indexOf(TITLE_REVIEW_STEPS[1]!);
+      const syncIndex = lines.findIndex((line) =>
+        line.startsWith("Sync the selected change"),
+      );
+
+      assert.ok(
+        reviewIndex > 2,
+        `title review follows validation for: ${argText}`,
+      );
+      assert.ok(
+        mergeKeyIndex > reviewIndex,
+        `merge-key rule follows title review for: ${argText}`,
+      );
+      assert.ok(
+        syncIndex > mergeKeyIndex,
+        `sync follows title review for: ${argText}`,
+      );
+      assert.match(
+        lines[reviewIndex]!,
+        /document-level title headings.*Requirement headings/,
+      );
+      assert.match(
+        lines[reviewIndex]!,
+        /TBD placeholders and technical machine-name titles/,
+      );
+      assert.match(
+        lines[reviewIndex]!,
+        /only when a readable title is clearly supported/,
+      );
+      assert.match(lines[reviewIndex]!, /ask the user to choose and wait/);
+      assert.match(
+        lines[mergeKeyIndex]!,
+        /MODIFIED requirement headings verbatim/,
+      );
+      assert.match(lines[mergeKeyIndex]!, /RENAMED Requirements/);
+      assert.match(
+        lines[mergeKeyIndex]!,
+        /Do not inspect or edit historical archived changes/,
       );
     }
   });
