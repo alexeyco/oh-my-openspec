@@ -256,8 +256,9 @@ export function renderArchiveSkill(): string {
   const manyIdsLines = archiveInstruction(ARCHIVE_MANY_IDS_ARGS).split("\n");
 
   // Drift guards on the single source: every render keeps the pinned
-  // ten-line shape (load, branch, initial gate, precedence, sync,
-  // title, blocker, repair, unresolved-finding recovery, valid result), and archiveSkillId
+  // twelve-line shape (load, branch, initial gate, precedence, title
+  // review, merge key, sync, title, blocker, repair, unresolved-finding
+  // recovery, valid result), and archiveSkillId
   // maps zero/one ids to the single-archive skill and two or more to
   // the bulk one. A core/prompts.ts edit that breaks any of these
   // fails the render loudly instead of silently forking the twin.
@@ -266,9 +267,9 @@ export function renderArchiveSkill(): string {
     [ARCHIVE_ONE_ID_ARGS, oneIdLines],
     [ARCHIVE_MANY_IDS_ARGS, manyIdsLines],
   ] as const) {
-    if (lines.length !== 10) {
+    if (lines.length !== 12) {
       throw new Error(
-        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned ten-line shape — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
+        `codex/skills: archiveInstruction(${JSON.stringify(argText)}) no longer renders the pinned twelve-line shape — update renderArchiveSkill in codex/skills.ts.\nrendered:\n${lines.join("\n")}`,
       );
     }
   }
@@ -277,6 +278,16 @@ export function renderArchiveSkill(): string {
     throw new Error(
       "codex/skills: the archiveInstruction initial validation gate differs between id-count renders — update renderArchiveSkill in codex/skills.ts.",
     );
+  }
+  for (const index of [4, 5]) {
+    if (
+      oneIdLines[index] !== noIdsLines[index] ||
+      manyIdsLines[index] !== noIdsLines[index]
+    ) {
+      throw new Error(
+        `codex/skills: archiveInstruction title-review guidance differs between id-count renders at line ${index + 1} — update renderArchiveSkill in codex/skills.ts.`,
+      );
+    }
   }
   const singleSkillId = archiveSkillId(ARCHIVE_ONE_ID_ARGS);
   const bulkSkillId = archiveSkillId(ARCHIVE_MANY_IDS_ARGS);
