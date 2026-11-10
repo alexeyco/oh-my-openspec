@@ -118,7 +118,14 @@ marketplace-repo + installer-copying-TOMLs pattern.
   "homepage": "https://github.com/alexeyco/oh-my-openspec",
   "repository": "https://github.com/alexeyco/oh-my-openspec",
   "license": "MIT",
-  "keywords": ["codex", "codex-plugin", "openspec", "spec-driven-development", "workflow", "subagents"],
+  "keywords": [
+    "codex",
+    "codex-plugin",
+    "openspec",
+    "spec-driven-development",
+    "workflow",
+    "subagents"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }
@@ -256,22 +263,21 @@ renderer throws when a key is absent — the existing drift rule):
 
 1. Dispatch semantics (skills/omos-apply/SKILL.md:47-49 — the original
    single entry):
-   - key: `On OpenCode the batch is one set of background dispatches,\n  each returning \`sessionID\` and status \`running\` — collect results from\n  completion notifications, never by polling.`
-   - replacement: `On Codex the batch is one set of \`spawn_agent\` calls that return\n  immediately — collect each report with \`wait_agent\`, relay follow-ups\n  with \`send_input\`, and release threads with \`close_agent\`; never poll.`
+   - key: `On OpenCode the batch is one set of background dispatches,\n  each returning \`sessionID\` and status \`running\` — collect results from\n completion notifications, never by polling.`
+   - replacement: `On Codex the batch is one set of \`spawn_agent\` calls that return\n immediately — collect each report with \`wait_agent\`, relay follow-ups\n with \`send_input\`, and release threads with \`close_agent\`; never poll.`
 2. Archive next-step (skills/omos-apply/SKILL.md:133):
    - key: `archive with \`/omos.archive <change-id>\`.`
-   - replacement: `archive with the bundled \`$openspec-archive-change\` skill, passing \`<change-id>\`.`
-     (Round-6 re-pin: the landed renderer still emits the pre-bundling
-     "(after `openspec init --tools codex`)" clause — task 2.5 aligns
+   - replacement: `archive with the bundled \`$openspec-archive-change\` skill, passing \`<change-id>\`.`(Round-6 re-pin: the landed renderer still emits the pre-bundling
+"(after`openspec init --tools codex`)" clause — task 2.5 aligns
      it.)
 3. Offered-commands sentence, apply wrapping
    (skills/omos-apply/SKILL.md:133-137):
-   - key: `Offered commands are this\n  plugin's slash commands (\`/omos.<name>\`) whenever one exists for the\n  action; a skill id is never offered as a command; the upstream \`openspec\`\n  CLI or a vendored \`/openspec-<name>\` command is offered only where the\n  plugin has no equivalent.`
-   - replacement: `Offered invocations are the\n  plugin's \`$omos-*\` skill mentions whenever one exists for the action;\n  the upstream \`openspec\` CLI is offered only where the plugin has no\n  equivalent.`
+   - key: `Offered commands are this\n  plugin's slash commands (\`/omos.<name>\`) whenever one exists for the\n action; a skill id is never offered as a command; the upstream \`openspec\`\n CLI or a vendored \`/openspec-<name>\` command is offered only where the\n plugin has no equivalent.`
+   - replacement: `Offered invocations are the\n  plugin's \`$omos-*\` skill mentions whenever one exists for the action;\n the upstream \`openspec\` CLI is offered only where the plugin has no\n equivalent.`
 4. Offered-commands sentence, plan wrapping
    (skills/omos-plan/SKILL.md:134-137):
-   - key: `Offered commands are this plugin's slash commands (\`/omos.<name>\`)\n  whenever one exists for the action; a skill id is never offered as a\n  command; the upstream \`openspec\` CLI or a vendored \`/openspec-<name>\`\n  command is offered only where the plugin has no equivalent.`
-   - replacement: `Offered invocations are the plugin's \`$omos-*\` skill mentions\n  whenever one exists for the action; the upstream \`openspec\` CLI is\n  offered only where the plugin has no equivalent.`
+   - key: `Offered commands are this plugin's slash commands (\`/omos.<name>\`)\n whenever one exists for the action; a skill id is never offered as a\n command; the upstream \`openspec\` CLI or a vendored \`/openspec-<name>\`\n command is offered only where the plugin has no equivalent.`
+   - replacement: `Offered invocations are the plugin's \`$omos-*\` skill mentions\n whenever one exists for the action; the upstream \`openspec\` CLI is\n offered only where the plugin has no equivalent.`
 
 The vendored `/openspec-<name>` slash-command branch inside entries 3/4
 is still false-in-Codex (no slash surface) and dies with them; the
@@ -391,11 +397,11 @@ dependency-free like `core/`):
   a dev-only tool here (v7, API surface in flux) and type stripping is
   stable at the declared floor.
 - Exports `handleMessage(msg, deps)` (pure, `deps.validate(changeId?,
-  cwd?) → Promise<string>` injectable for tests) and `main()` wiring
+cwd?) → Promise<string>` injectable for tests) and `main()` wiring
   `deps.validate = (change, cwd) => validateProject(cwd ??
-  process.cwd(), change)`.
+process.cwd(), change)`.
 - Methods: `initialize` → `{protocolVersion: "2024-11-05", capabilities:
-  {tools: {}}, serverInfo: {name: "openspec", version: <pkg version>}}`;
+{tools: {}}, serverInfo: {name: "openspec", version: <pkg version>}}`;
   `notifications/initialized` → no response; `tools/list` → the single
   tool; `tools/call` name `openspec_validate` reads `arguments.change`
   and `arguments.cwd` →
@@ -405,15 +411,15 @@ dependency-free like `core/`):
   for protocol-level problems (unknown method/tool → -32601/-32602).
 - Tool input schema: the `change` property identical to
   opencode/index.ts:229-237 (`{type: "string", description: "Change id
-  to validate (default: validate all changes and specs)"}` —
+to validate (default: validate all changes and specs)"}` —
   description string copied verbatim), plus the Codex-only optional
   `cwd` property (`{type: "string", description: "Absolute project
-  directory to validate (default: the server working directory)."}`).
+directory to validate (default: the server working directory)."}`).
   The OpenCode tool's schema stays `{change?}` — the host split is the
   launch-matrix consequence recorded below.
 - Exposed in-session as `mcp__openspec__openspec_validate` (naming
   pattern confirmed in the 0.163.0 binary: `strings /usr/local/bin/codex
-  | grep -o 'mcp__[a-zA-Z_]*' → mcp__server__tool`). Role prompts that
+| grep -o 'mcp__[a-zA-Z_]*' → mcp__server__tool`). Role prompts that
   say "call `openspec_validate`" therefore read identically on both
   hosts; the skill header states the fully qualified name once.
 
@@ -611,11 +617,12 @@ the Codex-only optional `cwd`, tools/call `cwd` routing with stubbed
 validate, UNAVAILABLE passthrough); installer planning (copy/skip/
 update/conflict/force, marker detection); bundle drift (including
 per-vendored-skill body byte-equality against `vendor/openspec/skills/`)
-+ import
-direction + the launch-form smoke (spawn the server exactly as
-`.mcp.json` declares — `node ./assets/mcp-server.mjs` with cwd = a copy
-of the committed tree, from an unrelated working directory — the
-`initialize` handshake completes, no module-resolution escape error).
+
+- import
+  direction + the launch-form smoke (spawn the server exactly as
+  `.mcp.json` declares — `node ./assets/mcp-server.mjs` with cwd = a copy
+  of the committed tree, from an unrelated working directory — the
+  `initialize` handshake completes, no module-resolution escape error).
 
 Manual acceptance checklist (Codex 0.163.0, dev machine, scratch repo —
 recorded in `docs/codex.md`, executed as task 6.3):

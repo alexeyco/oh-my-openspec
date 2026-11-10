@@ -44,8 +44,8 @@ under `assets/agents/`, `assets/mcp-server.mjs`,
 #### Scenario: Marketplace install succeeds on Codex 0.163.0
 
 - **WHEN** a user runs `codex plugin marketplace add
-  alexeyco/oh-my-openspec` and `codex plugin add
-  oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
+alexeyco/oh-my-openspec` and `codex plugin add
+oh-my-openspec@oh-my-openspec` on Codex CLI 0.163.0
 - **THEN** the plugin is listed as installed, its six flow-family
   skills are visible namespaced `oh-my-openspec:omos-*` alongside the
   twelve vendored `openspec-*` skills, and the plugin cache tree holds
