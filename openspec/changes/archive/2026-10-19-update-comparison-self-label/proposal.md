@@ -23,7 +23,7 @@ governed by a proper delta.
 - `openspec/specs/public-positioning/spec.md`, requirement
   "README comparison table is sourced and dated": the short-label example
   list becomes `(author or short project name: `omos`, `AngDrew`,
-  `Octane0411`, `oso`, `openflow`)` and the self-label sentence becomes
+`Octane0411`, `oso`, `openflow`)` and the self-label sentence becomes
   "the self-column display label is the short project name `omos`". The
   matching in-place edit already exists in the working tree; the archive
   merge of this change's delta is the formal application and must be a

@@ -95,7 +95,11 @@ function parseEmittedDoc(doc: string): Array<[string, string]> {
     i += multiline ? 3 : 1;
     const { value, end } = readBasicString(doc, i, multiline);
     i = end;
-    assert.equal(doc[i], "\n", `parser: expected LF after the value for ${key}`);
+    assert.equal(
+      doc[i],
+      "\n",
+      `parser: expected LF after the value for ${key}`,
+    );
     i += 1;
     fields.push([key, value]);
   }
