@@ -5,15 +5,19 @@
 //   node scripts/sync-vendor.mjs           # write vendor files
 //   node scripts/sync-vendor.mjs --check   # CI: fail on any drift, no writes
 //
-// How it generates: a throwaway HOME gets an explicit custom profile with
-// every workflow the installed CLI knows, `openspec init --tools opencode`
-// renders skills into a throwaway project, and the output is copied in
-// byte-identically. The committed manifest records the CLI version so
-// --check can prove freshness without regenerating.
+// How it generates: a throwaway HOME gets `config set profile custom` and
+// `config set workflows` with the explicit 12-workflow list, then
+// `openspec init --tools opencode` renders skills into a throwaway project
+// under `.agents/skills/` — the CLI 2.0 shared render location this script
+// reads — and the output is copied in byte-identically. The committed
+// manifest records the CLI version so --check can prove freshness without
+// regenerating.
 //
-// Why not `openspec update`: that command refreshes files for tools already
-// recorded in the project's openspec config; `init` is the command that
-// creates the tool files for a freshly configured tool set.
+// Why not `openspec update`: `update` (still present in CLI 2.0:
+// `openspec update --help → Update OpenSpec instruction files`) refreshes
+// files only for tools already recorded in the project's openspec config;
+// `init` is the command that creates the tool files for a freshly configured
+// tool set.
 
 import { execFileSync } from "node:child_process";
 import {
@@ -82,7 +86,6 @@ const env = { HOME: home, OPENSPEC_TELEMETRY: "0" };
 try {
   runCli(["config", "set", "profile", "custom"], env);
   runCli(["config", "set", "workflows", JSON.stringify(ALL_WORKFLOWS)], env);
-  runCli(["config", "set", "delivery", "skills"], env);
   runCli(["init", "--tools", "opencode", "--no-animation", proj], env);
 } catch (err) {
   console.error(
@@ -92,7 +95,7 @@ try {
   process.exit(2);
 }
 
-const generatedRoot = join(proj, ".opencode", "skills");
+const generatedRoot = join(proj, ".agents", "skills");
 if (!existsSync(generatedRoot)) {
   console.error("sync-vendor: CLI produced no skills directory");
   rmSync(work, { recursive: true, force: true });
