@@ -109,12 +109,16 @@ oh-my-openspec/
 ## Publishing
 
 The plugin `version` in `package.json` mirrors the vendored OpenSpec version
-and is **machine-owned**: only the daily `vendor-sync` workflow moves it, in
-the same PR that re-vendors `vendor/openspec/` — and it also self-heals a
-mismatch without vendor drift. `scripts/check.mjs` fails any PR where
-`version != manifest.generatedBy`. Never edit `version` in a
-feature branch — no CHANGELOG file either; merged PRs and npm history are the
-record.
+and is **machine-owned**: it moves only in the daily `vendor-sync` workflow
+PR — the same PR that re-vendors `vendor/openspec/` and self-heals a mirror
+mismatch without vendor drift — or in a migration change that moves the
+vendored CLI's major layout, the one documented exception (first applied by
+the OpenSpec 2.0 migration). Such a migration re-vendors `vendor/openspec/`
+and bumps `version` to the regenerated `manifest.generatedBy` in its own
+branch, keeping the mirror invariant true through the migration.
+`scripts/check.mjs` fails any PR where `version != manifest.generatedBy`.
+Never edit `version` in a feature branch outside the migration exception —
+no CHANGELOG file either; merged PRs and npm history are the record.
 
 1. The daily workflow opens `Release vX.Y.Z — vendored OpenSpec skills`
    whenever upstream changes. Review the `vendor/**` diff, merge to `master`.
