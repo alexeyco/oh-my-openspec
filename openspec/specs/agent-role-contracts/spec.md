@@ -255,12 +255,22 @@ The verifier SHALL execute every assigned scenario and report PASS or FAIL with 
 
 ### Requirement: Reviewer and retrospector deliver bounded, cited findings
 
-The reviewer SHALL assess the cumulative diff against the change artifacts and block approval on unresolved blocking findings. The retrospector SHALL evaluate evidence from the finished run for both plugin prompt defects and process friction or quality gaps. Process evidence SHALL include repeated `BLOCKED:` or `FAIL` outcomes, re-dispatches or extra rounds, plan divergences, and verification gaps when present in the run artifacts. Each finding SHALL be actionable and supported by a decisive verbatim quote from the evidence bundle; unsupported or hypothetical findings SHALL be omitted. Prompt and process findings SHALL share a maximum of eight findings and the existing severity-ranked report format.
+The reviewer SHALL assess the cumulative diff against the change artifacts.
+The retrospector SHALL assess prompt defects and process quality using
+actionable, evidence-backed findings. The combined report SHALL contain at
+most eight severity-ranked findings.
 
 #### Scenario: Reviewer withholds approval on blocking findings
 
 - **WHEN** the reviewer's report contains any BLOCKING line
 - **THEN** the verdict cannot be `APPROVE` (agents/omos-reviewer.md:34-37)
+
+#### Scenario: Retrospector assesses run process
+
+- **WHEN** run artifacts contain repeated `BLOCKED:` or `FAIL` outcomes,
+  extra dispatches or rounds, plan divergences, or verification gaps
+- **THEN** the retrospector considers these as process friction or quality
+  gaps alongside plugin prompt defects
 
 #### Scenario: Unquoted retrospector observation is dropped
 
