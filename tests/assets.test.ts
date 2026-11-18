@@ -11,7 +11,6 @@ import {
   parseMarkdown,
   validateRoleDoc,
   validateSkillDoc,
-  vendoredGeneratedBy,
 } from "../core/markdown.ts";
 import {
   VENDOR_ROOT,
@@ -156,7 +155,7 @@ describe("vendored OpenSpec skills", () => {
     assert.ok(ids.length >= 12, "all upstream workflows vendored");
   });
 
-  it("every vendored skill parses, name equals directory, version matches manifest", () => {
+  it("every vendored skill parses and name equals directory", () => {
     for (const id of manifest.skills) {
       const file = path.join(vendorDir, "skills", id, "SKILL.md");
       assert.ok(existsSync(file), `missing ${file}`);
@@ -165,11 +164,6 @@ describe("vendored OpenSpec skills", () => {
       );
       const doc = validateSkillDoc(frontmatter);
       assert.equal(doc.name, id, `vendored ${id}: name must equal directory`);
-      assert.equal(
-        vendoredGeneratedBy(frontmatter),
-        manifest.generatedBy,
-        `vendored ${id}: generatedBy must match manifest version`,
-      );
     }
   });
 

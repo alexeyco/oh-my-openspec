@@ -9,7 +9,7 @@
 
 ## Development
 
-Install dependencies and run the checks — same as CI. Tests require Node ≥ 22.18
+Install dependencies and run the checks — same as CI. Tests require Node ≥ 22.20
 (default type stripping). `make check` runs `scripts/check.mjs`, verifies the
 vendored OpenSpec skills against the pinned CLI, typechecks the plugin, and runs
 the test suite:
@@ -46,6 +46,9 @@ or `/reload` — no copying, no reinstall.
   the `opencode` tool into a throwaway project, and copies them byte-identically.
 - `scripts/sync-vendor.mjs --check` (part of `make check`) fails when the tree
   drifts from the pinned CLI version.
+- Sandbox generation requires git and network access to GitHub: CLI ≥ 2.1
+  clones the skill sources (`git clone --depth 1 --branch v<version>`) in the
+  fresh sandbox on every `make sync` and `--check` run.
 - A daily CI workflow installs the latest CLI, runs `make sync`, mirrors the
   new CLI version into the plugin `version`, and opens a PR when anything
   changes. Dependabot deliberately **excludes** `@fission-ai/openspec` —
@@ -112,10 +115,12 @@ The plugin `version` in `package.json` mirrors the vendored OpenSpec version
 and is **machine-owned**: it moves only in the daily `vendor-sync` workflow
 PR — the same PR that re-vendors `vendor/openspec/` and self-heals a mirror
 mismatch without vendor drift — or in a migration change that moves the
-vendored CLI's major layout, the one documented exception (first applied by
-the OpenSpec 2.0 migration). Such a migration re-vendors `vendor/openspec/`
-and bumps `version` to the regenerated `manifest.generatedBy` in its own
-branch, keeping the mirror invariant true through the migration.
+vendored CLI's layout in a way that breaks vendoring, major or minor alike
+(the one documented exception, first applied by the OpenSpec 2.0 migration,
+applied again by this 2.1 migration). Such a migration re-vendors
+`vendor/openspec/` and bumps `version` to the regenerated
+`manifest.generatedBy` in its own branch, keeping the mirror invariant true
+through the migration.
 `scripts/check.mjs` fails any PR where `version != manifest.generatedBy`.
 Never edit `version` in a feature branch outside the migration exception —
 no CHANGELOG file either; merged PRs and npm history are the record.

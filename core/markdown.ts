@@ -1,6 +1,6 @@
 // Frontmatter parse/validate for role and skill markdown assets.
 // Uses the `yaml` package because nested keys (vendored skills carry
-// `metadata: { generatedBy: ... }`) need a real parser.
+// `metadata: { author: ... }`) need a real parser.
 
 import YAML from "yaml";
 
@@ -94,18 +94,4 @@ export function validateSkillDoc(value: unknown): SkillDoc {
     throw new Error("skill doc: frontmatter missing string 'description'");
   }
   return { name: v.name, description: v.description };
-}
-
-// Reads `metadata.generatedBy` from a vendored skill's frontmatter.
-// Returns undefined when the key is absent or not a string.
-export function vendoredGeneratedBy(value: unknown): string | undefined {
-  if (!value || typeof value !== "object") {
-    return undefined;
-  }
-  const metadata = (value as Record<string, unknown>).metadata;
-  if (!metadata || typeof metadata !== "object") {
-    return undefined;
-  }
-  const generatedBy = (metadata as Record<string, unknown>).generatedBy;
-  return typeof generatedBy === "string" ? generatedBy : undefined;
 }
