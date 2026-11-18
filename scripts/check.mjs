@@ -170,12 +170,12 @@ function parseFrontmatter(text) {
         }
         if (fm.name !== id)
           fail(`vendor skill ${id}: frontmatter name differs`);
-        if (fm.metadata?.generatedBy !== manifest.generatedBy)
-          fail(
-            `vendor skill ${id}: generatedBy ${fm.metadata?.generatedBy} != manifest ${manifest.generatedBy}`,
-          );
+        // CLI 2.1 strips the per-release generatedBy stamp from skill
+        // frontmatter: the version invariant lives in manifest.json alone
+        // (semver shape and mirror checks below; byte drift via
+        // `sync-vendor --check`).
       }
-      // Never hand-edited: content must be self-stamped upstream version
+      // Never hand-edited: the manifest carries the upstream version stamp
       if (!/^\d+\.\d+\.\d+$/.test(String(manifest.generatedBy)))
         fail("vendor manifest: generatedBy must be a plain semver");
       // Mirror invariant: the plugin version IS the vendored OpenSpec

@@ -7,17 +7,17 @@
 //
 // How it generates: a throwaway HOME gets `config set profile custom` and
 // `config set workflows` with the explicit 12-workflow list, then
-// `openspec init --tools opencode` renders skills into a throwaway project
-// under `.agents/skills/` — the CLI 2.0 shared render location this script
-// reads — and the output is copied in byte-identically. The committed
-// manifest records the CLI version so --check can prove freshness without
-// regenerating.
+// `openspec init --tools opencode --no-animation --scope project` renders
+// skills into a throwaway project under `.agents/skills/` — the render
+// location the script reads (shared since CLI 2.0) — and the output is
+// copied byte-identically. The scope flag pins rendering into the sandbox
+// project because CLI 2.1 defaults `init` to the global scope
+// (`$HOME/.agents/skills`) and creates no project directory. First
+// generation clones the skill sources from GitHub, so git and network
+// are prerequisites. The manifest records the CLI version.
 //
-// Why not `openspec update`: `update` (still present in CLI 2.0:
-// `openspec update --help → Update OpenSpec instruction files`) refreshes
-// files only for tools already recorded in the project's openspec config;
-// `init` is the command that creates the tool files for a freshly configured
-// tool set.
+// Why not `openspec update`: `update` refreshes files only for tools
+// already recorded in project config; `init` creates them fresh.
 
 import { execFileSync } from "node:child_process";
 import {
@@ -48,8 +48,7 @@ if (typeof binField !== "string") {
 }
 const cliBin = join(pkgDir, binField);
 
-// Explicit workflow list (core + extended) so all skills render regardless
-// of upstream profile defaults.
+// Explicit workflow list (core + extended) so all 12 skills render.
 const ALL_WORKFLOWS = [
   "propose",
   "explore",
@@ -86,7 +85,8 @@ const env = { HOME: home, OPENSPEC_TELEMETRY: "0" };
 try {
   runCli(["config", "set", "profile", "custom"], env);
   runCli(["config", "set", "workflows", JSON.stringify(ALL_WORKFLOWS)], env);
-  runCli(["init", "--tools", "opencode", "--no-animation", proj], env);
+  const initCmd = ["init", "--tools", "opencode", "--no-animation"];
+  runCli([...initCmd, "--scope", "project", proj], env);
 } catch (err) {
   console.error(
     `sync-vendor: openspec init failed:\n${err.stdout ?? ""}${err.stderr ?? ""}`,

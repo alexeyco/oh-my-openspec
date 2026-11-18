@@ -123,7 +123,9 @@ to the server); validation rules stay upstream's.
 
 ## Node floor
 
-Node ≥ 22.18 — the same floor `package.json` `engines` declares. The
+Node ≥ 22.18 — the floor Node's type stripping requires for the bundled MCP
+server (`package.json` `engines` declares the repo's own, higher floor:
+≥ 22.20, set by the pinned OpenSpec CLI). The
 bundled MCP server (`assets/mcp-server.mjs`) imports `openspec-core.ts`
 — the verbatim `.ts` copy of `core/openspec.ts` shipped next to it —
 and relies on Node's type stripping for `.ts` imports, which needs

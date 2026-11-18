@@ -6,7 +6,6 @@ import {
   parseMarkdown,
   validateRoleDoc,
   validateSkillDoc,
-  vendoredGeneratedBy,
 } from "../core/markdown.ts";
 
 describe("parseMarkdown", () => {
@@ -90,7 +89,7 @@ describe("validateSkillDoc", () => {
       name: "a",
       description: "b",
       license: "MIT",
-      metadata: { generatedBy: "1.14.2" },
+      metadata: { author: "openspec" },
     });
     assert.equal(doc.name, "a");
   });
@@ -98,20 +97,5 @@ describe("validateSkillDoc", () => {
   it("rejects missing name or description", () => {
     assert.throws(() => validateSkillDoc({ description: "b" }), /'name'/);
     assert.throws(() => validateSkillDoc({ name: "a" }), /'description'/);
-  });
-});
-
-describe("vendoredGeneratedBy", () => {
-  it("extracts metadata.generatedBy", () => {
-    assert.equal(
-      vendoredGeneratedBy({ metadata: { generatedBy: "1.14.2" } }),
-      "1.14.2",
-    );
-  });
-
-  it("returns undefined when absent", () => {
-    assert.equal(vendoredGeneratedBy({ name: "a" }), undefined);
-    assert.equal(vendoredGeneratedBy({ metadata: "junk" }), undefined);
-    assert.equal(vendoredGeneratedBy(null), undefined);
   });
 });

@@ -160,7 +160,7 @@ Full catalog with report formats and dispatch mechanics: [docs/agents.md](docs/a
 
 ## Install
 
-Requires [OpenCode v2](https://opencode.ai) (plugin API), [Node.js ≥ 22.18](https://nodejs.org) and the [OpenSpec CLI](https://openspec.dev/docs/installation) — the plugin delegates every mechanical gate to it:
+Requires [OpenCode v2](https://opencode.ai) (plugin API), [Node.js ≥ 22.20](https://nodejs.org) and the [OpenSpec CLI](https://openspec.dev/docs/installation) — the plugin delegates every mechanical gate to it:
 
 ```sh
 npm install -g @fission-ai/openspec@latest
