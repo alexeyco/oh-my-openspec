@@ -13,7 +13,7 @@
       `openspec update --help → Update OpenSpec instruction files`). Then
       grep for stale references in the same task:
       `grep -rn "delivery" scripts/` → no hits; `grep -n ".opencode"
-    scripts/sync-vendor.mjs` → no hits. Scenarios: "Sandbox generation",
+scripts/sync-vendor.mjs` → no hits. Scenarios: "Sandbox generation",
       "Shared skills location", "init rather than update".
 - [x] 1.2 In `package.json` set `"@fission-ai/openspec": "^2.0.0"` (line 39)
       and run `npm install` (refreshes `package-lock.json`). Verify:
@@ -22,11 +22,11 @@
       `node -p "require('./node_modules/@fission-ai/openspec/package.json').engines.node"`
       → `>=22.12.0`, satisfied by the repo's own `engines.node` `>=22.18`
       (`package.json:53-55`). Expected result after group 1 alone: `node
-    scripts/check.mjs` → `check: ok` (vendor and mirror still coherent at
+scripts/check.mjs` → `check: ok` (vendor and mirror still coherent at
       1.17.0), but `node scripts/sync-vendor.mjs --check` exits 1 with 12
       `~ skills/openspec-*/SKILL.md (changed upstream)` lines, `~
-    manifest.json (version or skill set differs)`, and `Fix: make sync,
-    then commit vendor/` — the committed tree is still 1.17.0 bytes; group
+manifest.json (version or skill set differs)`, and `Fix: make sync,
+then commit vendor/` — the committed tree is still 1.17.0 bytes; group
       2 resolves it. Scenarios: "Drift fails with a fix hint".
 
 ## 2. Regenerate vendor and bundle, restore the mirror, update docs and baseline spec
@@ -48,7 +48,7 @@
 - [x] 2.3 In `package.json` set `"version": "2.0.0"` (line 3), restoring
       `version == manifest.generatedBy` as required by
       `scripts/check.mjs:184-194`. Verify: `node -e
-    "const v=require('./package.json').version,g=JSON.parse(require('fs').readFileSync('vendor/openspec/manifest.json','utf8')).generatedBy;console.log(v===g?'mirror ok':'MISMATCH '+v+' '+g)"`
+"const v=require('./package.json').version,g=JSON.parse(require('fs').readFileSync('vendor/openspec/manifest.json','utf8')).generatedBy;console.log(v===g?'mirror ok':'MISMATCH '+v+' '+g)"`
       → `mirror ok`. Scenarios: "Mismatched mirror fails local checks"
       (positive path — after the bump the check passes), "Migration change
       moves the mirror version" (release-publishing delta — this task is the
@@ -108,12 +108,12 @@
       describing is unchanged).
 - [x] 2.6 Update `docs/vendor-sync.md` for the 2.0 layout: (a) intro
       paragraph — the bundles are the exact files `openspec init --tools
-    opencode` writes into `<proj>/.agents/skills/` under CLI 2.0 (shared
+opencode` writes into `<proj>/.agents/skills/` under CLI 2.0 (shared
       location; no delivery setting); (b) "What is vendored" — example
       manifest `version`/`generatedBy` → `2.0.0`; (c) "Versioning: a strict
       mirror" — add the same migration exception as `CONTRIBUTING.md` (2.4)
       so the documents agree. Verify: `grep -n "1.14.2\|delivery"
-    docs/vendor-sync.md` → no hits. Expected result after group 2 alone:
+docs/vendor-sync.md` → no hits. Expected result after group 2 alone:
       `make check` green (confirmed in 3.1). Scenarios: "Sandbox generation"
       and "Shared skills location" (the intro paragraph documents what they
       assert), "Migration change moves the mirror version"
@@ -141,7 +141,7 @@
       running `make fmt` (it is non-empty by design: 2.1/2.2 left the
       regenerated trees uncommitted and the playback contract forbids
       committing). Run `make fmt`, then re-run `git status --porcelain vendor
-    plugins` and require byte-identical output — fmt adds no new
+plugins` and require byte-identical output — fmt adds no new
       modification in either tree (`.prettierignore:4,6` excludes `vendor/`
       and `plugins/`, so both stay byte-identical to their generators). Any
       prettier reformat of hand-edited files (`scripts/sync-vendor.mjs`,
