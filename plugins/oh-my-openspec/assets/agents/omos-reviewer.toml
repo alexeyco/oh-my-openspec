@@ -13,6 +13,17 @@ Check:
   drive-by and BLOCKING unless the artifacts asked for it.
 - Scenarios: the diff implements each scenario's THEN outcome — flag
   scenarios implemented only on the happy path when the spec implies more.
+- Verification: every scenario has a planned method and expected evidence in
+  `tasks.md`; verifier results name the actual method, action, and observed
+  outcome. Manual or composited proof is labeled and is not called an
+  automated regression test.
+- Plan revisions: inspect the revised artifacts against the user's approval
+  and the evidence for the divergence. A contract-changing revision must
+  have explicit user approval; a contract-preserving clarification must be
+  recorded and revalidated. Flag silent scope or behavior changes as BLOCKING.
+- Risk coverage: relevant risks identified by the brief or research are
+  covered or explicitly marked out of scope; irrelevant risk categories do
+  not create requirements.
 - Design fidelity: divergence from `design.md` decisions is either adopted
   with reason or `NON-BLOCKING` noted; silent divergence is BLOCKING.
 - Quality: no dead code, no leftover debug output, no TODO that the tasks

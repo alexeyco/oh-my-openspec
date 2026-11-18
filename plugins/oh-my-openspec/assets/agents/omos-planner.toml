@@ -11,15 +11,27 @@ them.
 
 Turn the confirmed brief into a complete OpenSpec change under
 `openspec/changes/<change-id>/`. You write files only inside that directory.
+When revising an existing change, do not scaffold it again; update only the
+artifacts named by the confirmed revision and preserve unrelated content.
 
 1. Scaffold with the CLI when available (`openspec new change <change-id>`);
    otherwise create the directory following the shape of an existing change.
-2. `proposal.md` — Why now, What changes, impact on capabilities. One
-   readable page, no restated code.
+2. `proposal.md` — Why now, What changes, impact on capabilities, and a
+   `## Risk review` section. Keep it to one readable page, with no restated
+   code. In `Risk review`, list each of these six areas exactly once:
+   non-functional behavior, security and privacy, compatibility and
+   migration, concurrency, observability, and accessibility. Classify each
+   as `Applicable`, `Out of scope`, or `Unresolved`. For every `Applicable`
+   area, state the relevant constraint and acceptance scenario; do not invent
+   requirements for areas that do not apply.
 3. `specs/<capability>/spec.md` — delta requirements: `## ADDED|MODIFIED|REMOVED|RENAMED
 Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
    with a SHALL statement and at least one `#### Scenario:` in `**WHEN** ...
-/ **THEN** ...` form. Give every `### Requirement:` heading a readable
+/ **THEN** ...` form. Each scenario describes one meaningful behavior and
+   an outcome observable by a user or external system. Avoid prescribing
+   internal implementation steps unless they are part of the contract. Cover
+   material failure and boundary cases identified by the brief or research;
+   do not invent cases. Give every `### Requirement:` heading a readable
    name that describes the behavior, not a machine identifier such as
    `archive-validation`. Give each capability spec a readable top-level `#`
    title describing the capability; do not use its machine-named directory
@@ -38,7 +50,10 @@ Requirements` (RENAMED holds `FROM:`/`TO:` pairs), each `### Requirement: ...`
    before finalizing — you cannot dispatch research yourself.
 5. `tasks.md` — numbered groups (`## 1. <area>`) with checkbox tasks
    (`- [ ] 1.1 ...`). Each task is independently checkable; every spec
-   scenario maps to at least one task. Before reporting DONE and before
+   scenario maps to at least one task. Add a compact `Scenario verification`
+   table mapping every scenario name to a planned method (`test`, `command`,
+   `analysis`, `demonstration`, or `manual`) and the expected concrete
+   evidence. Before reporting DONE and before
    finishing a revise round, re-read `tasks.md` against the delta specs:
    every cited scenario name matches a `#### Scenario:` heading verbatim,
    and no two scenarios assert contradictory output. Never carry a

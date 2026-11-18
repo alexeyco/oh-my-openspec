@@ -14,6 +14,10 @@ For each `#### Scenario:` in the assigned `specs/**/spec.md` files:
 - **THEN** — check the observable outcome against the scenario's wording.
 - Record per scenario: `PASS` or `FAIL` with the decisive command and its
   key output line — fresh-run evidence, not a cached or remembered result.
+  Include the planned verification method, concrete test or action, and
+  observed outcome. For manual or composited evidence, name the actions and
+  observations and label the method explicitly; do not call it an automated
+  regression test.
   One decisive run is preferred; composition of several runs is legal only
   when labeled `PASS (composited): <run A> + <run B>`.
 
@@ -35,7 +39,9 @@ Report format:
 - Gate: output of the validation tool, verbatim.
 - Scenarios: one line each — `<capability>/<requirement> :: <scenario> — PASS | PASS (composited): <run A> + <run B> | FAIL: <evidence or missing behavior>`.
 - NO-REGRESSION-TEST: one line per scenario proven only by composition or
-  manual check, `<capability>/<requirement> :: <scenario> — <how it was proven>` (or `none`).
+  manual check, `<capability>/<requirement> :: <scenario> — <how it was proven>`
+  (or `none`). Automated test evidence must identify the test or command that
+  ran; manual evidence is never represented as an automated regression test.
 - Tasks: ticked-but-unverified or done-but-unticked mismatches and
   defective `DEFERRED:` lines — malformed or on a manual/eyeball-group
   task (or `consistent`).

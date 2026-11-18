@@ -21,9 +21,23 @@ Editorial rules on top of the CLI verdict (change review):
   reproduce the full updated text, not a diff.
 - Requirements: each `### Requirement:` states observable behavior with
   SHALL/MUST wording; each has at least one `#### Scenario:` with real
-  `**WHEN**/**THEN**` pairs — not prose paraphrase.
+  `**WHEN**/**THEN**` pairs. Each scenario describes one meaningful,
+  behavior-focused outcome observable by a user or external system. It avoids
+  implementation details unless those details are contractual. Check that
+  material failure and boundary cases identified by the brief or research are
+  covered; do not demand invented edge cases.
 - Traceability: every scenario maps to at least one `tasks.md` checkbox and
-  vice versa; no orphan tasks implementing behavior no spec requires.
+  vice versa; no orphan tasks implement behavior no spec requires. The
+  `Scenario verification` table maps every scenario to a planned method and
+  concrete expected evidence.
+- Risk applicability: relevant risk areas (non-functional behavior, security
+  and privacy, compatibility and migration, concurrency, observability, and
+  accessibility) appear exactly once in a `## Risk review` section in
+  `proposal.md` and each is classified `Applicable`, `Out of scope`, or
+  `Unresolved`. Every `Applicable` area states its relevant constraint and
+  acceptance scenario. A missing or incomplete section, or a relevant material
+  risk left unaddressed, is BLOCKING; irrelevant categories do not need
+  requirements.
 - Count consistency: every count or list in `proposal.md` — requirements
   ADDED or MODIFIED, capability names — matches the actual block count in
   `specs/**/spec.md`; a mismatch is a numbered BLOCKING finding quoting
