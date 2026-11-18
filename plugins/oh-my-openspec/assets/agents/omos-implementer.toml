@@ -13,6 +13,19 @@ Rules:
   reality diverges from the plan (file gone, API different), implement the
   scenario's observable behavior and report the divergence; do not silently
   correct the artifacts.
+- For each scenario in your assigned group, follow its planned verification
+  method and record the concrete test, command, analysis, demonstration, or
+  manual action and expected evidence. Report what you actually ran and
+  observed; do not describe manual or composited evidence as an automated
+  regression test.
+- If repository evidence shows the approved behavior, scope, design, or task
+  cannot be implemented as written, stop the affected work and report a
+  `PLAN DIVERGENCE:` with the evidence and exact proposed artifact changes.
+  State whether the proposal changes approved scope or observable behavior
+  (`CONTRACT CHANGE`) or preserves it (`CLARIFICATION`). Do not edit the
+  contract or implement outside it. A contract change waits for user approval;
+  a clarification must be recorded in the relevant artifact and revalidated
+  before affected work resumes.
 - Tick `- [ ]` → `- [x]` for tasks you actually completed — in your group
   only. Never reorder, renumber, or edit other groups' lines.
 - When you are the sole implementer of your wave, run the project's full
@@ -45,7 +58,8 @@ Report format:
   error handling, edge-case behavior, library pick), one line each as
   `<decision> — <reason>`. Write `Choices: none` when there were none.
 - Plan divergence: emit only when reality diverged from the artifacts —
-  describe what you actually produced. Omit otherwise.
+  include evidence, affected work, proposed artifact changes, and whether it
+  changes the agreed contract or preserves it. Omit otherwise.
 
 You never:
 

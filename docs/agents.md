@@ -32,15 +32,15 @@ notifications, never by polling.
 | ------------ | ------------------------------------------------------ |
 | Research     | omos-researcher ×N (parallel, per area)                |
 | Grill        | orchestrator, attacks grounded in facts (1–3, up to 5) |
-| Draft        | omos-planner (`MODE: plan`)                            |
+| Draft        | omos-planner (`MODE: plan`; scenario verification map) |
 | Critique ≤3× | omos-critic ⇄ omos-planner revisions                   |
 
-| Phase (apply) | Roles                                                      |
-| ------------- | ---------------------------------------------------------- |
-| Wave plan     | omos-planner (`MODE: waves`)                               |
-| Execute waves | omos-implementer ×1 per task group, parallel within a wave |
-| Verify        | omos-verifier ×1 per capability (parallel)                 |
-| Review        | omos-reviewer, then scoped re-review                       |
+| Phase (apply) | Roles                                                             |
+| ------------- | ----------------------------------------------------------------- |
+| Wave plan     | omos-planner (`MODE: waves`)                                      |
+| Execute waves | omos-implementer ×1 per task group, parallel within a wave        |
+| Verify        | omos-verifier ×1 per capability (parallel, evidence per scenario) |
+| Review        | omos-reviewer, then scoped re-review                              |
 
 | Phase (retro) | Roles                                                 |
 | ------------- | ----------------------------------------------------- |
@@ -63,7 +63,13 @@ Three modes, named at the top of the dispatch prompt:
 - `MODE: plan` — the drafter: writes the complete change under
   `openspec/changes/<id>/` (proposal, spec deltas, design, tasks), seeding
   `ASSUMPTION:` lines for anything inferred and `REJECTED-RISK:` lines for
-  every grill dismissal.
+  every grill dismissal. Scenarios state atomic, observable behavior,
+  implementation-neutral outcomes, and material failure/boundary cases.
+  `tasks.md` maps each scenario to a planned verification method and expected
+  evidence. `proposal.md` includes a `## Risk review` section classifying all
+  six risk areas and stating constraints and acceptance scenarios for each
+  applicable area. Existing changes can be revised without scaffolding again,
+  using only the user's approved contract changes.
 - `MODE: baseline` — the bootstrapper: writes `openspec/specs/<capability>/spec.md`
   for each confirmed capability from quoted research facts — observed current
   behavior only, `UNVERIFIED:` instead of invented SHALLs.
@@ -79,8 +85,10 @@ Together these make the planner the only role that writes OpenSpec artifacts.
 Guards artifacts before user approval — a drafted change (default) or
 baseline specs (`REVIEW: specs`). Mechanical first: runs the
 `openspec_validate` tool; any INVALID line is automatically blocking. Then
-editorial: for changes — delta headers, scenario shape (`WHEN`/`THEN`),
-traceability spec ↔ tasks, one-capability scope, honest tasks; for specs —
+editorial: for changes — delta headers, atomic/observable scenario quality,
+complete `proposal.md` risk review, scenario-to-task and
+scenario-to-verification traceability, one-capability scope, honest tasks;
+for specs —
 present-tense behavior only, evidence per requirement, 2–6 requirements per
 capability, no duplicated behavior across capabilities. A `REJECTED-RISK:`
 dropped from paper is BLOCKING — the user dismissed it, the proposal must
@@ -96,15 +104,22 @@ project's full check suite when it is the sole implementer of its wave and
 otherwise a suite scoped to the group's files — deferring the full run to
 the apply flow's post-final-wave full check suite run — and reports
 DONE/BLOCKED with evidence, `Choices:` lines for every decision the
-artifacts left open, and plan divergences. A file conflict with a sibling
-implementer stops it (`BLOCKED: file conflict`).
+artifacts left open, and plan divergences. Divergences state whether they
+change the approved contract or preserve it; affected work pauses pending
+approval for contract changes and revalidation for either path. A file
+conflict with a sibling implementer stops it (`BLOCKED: file conflict`).
+Every divergence includes evidence, affected work, and proposed artifact
+changes; it identifies whether user approval is needed before work resumes.
 
 ### omos-verifier
 
 Checks implementation against artifacts by executing scenarios — actually
 triggering WHEN and observing THEN, plus the mechanical
 `openspec_validate` gate and `tasks.md` consistency. Fresh-run evidence per
-scenario, `PASS`/`FAIL` lines. Rejects lowered bars. Read-only.
+scenario names the planned method, concrete test or action, and observed
+result. Manual and composited evidence is labeled and never called an
+automated regression test. Reports `PASS`/`FAIL` and rejects lowered bars.
+Read-only.
 
 ### omos-reviewer
 
@@ -113,17 +128,20 @@ scope creep, happy-path-only scenarios, silent design divergence, leftover
 TODOs, and the implementers' `Choices:` lines — the verbatim `Choices:`
 report lines of every wave implementer arrive in the `REVIEW FOCUS:`
 payload. Verdict `APPROVE` or `CHANGES-REQUESTED`; re-review of fixed
-findings is scoped to `ADDRESSED`/`NOT-ADDRESSED`. Reads `git diff`,
-writes nothing.
+findings is scoped to `ADDRESSED`/`NOT-ADDRESSED`. It checks verification
+evidence for each scenario, approved plan revisions, and risk coverage. Reads
+`git diff`, writes nothing.
 
 ### omos-retrospector
 
-Mines the evidence bundle of one finished run for defects in the plugin's
-own prompt entities (`agents/*.md`, flow `skills/*/SKILL.md`,
-`core/prompts.ts`) — and nothing else: vendored skills, project code, and
-the CLI are out of scope, findings there are dropped. Every finding must
-quote one decisive bundle line verbatim; unquoted observations do not
-exist. At most 8 findings, ranked `HIGH` (wrong behavior or wasted work) →
+Reviews the evidence bundle of one finished run for prompt defects and
+process friction or quality gaps exposed by repeated blockers/failures,
+re-dispatches, extra rounds, plan divergences, or verification gaps. Every
+finding must quote one decisive bundle line verbatim and have an actionable
+fix in the plugin's own prompt entities (`agents/*.md`, flow `skills/*/SKILL.md`,
+`core/prompts.ts`); unsupported or hypothetical findings are omitted. Vendored
+skills, project code, and the CLI remain out of scope. Prompt and process
+findings share the limit of 8, ranked `HIGH` (wrong behavior or wasted work) →
 `MED` (friction, rework) → `LOW` (polish). The report is rendered Markdown
 and opens with the single tally line `N findings: X HIGH · Y MED · Z LOW`;
 findings are numbered, separated by blank lines, each headed by severity,
