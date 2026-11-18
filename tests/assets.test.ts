@@ -23,7 +23,13 @@ const repoRoot = path.join(import.meta.dirname, "..");
 const agentsDir = path.join(repoRoot, "agents");
 const skillsRoot = path.join(repoRoot, "skills");
 const vendorDir = path.join(repoRoot, VENDOR_ROOT);
-const FLOW_SKILL_IDS = ["omos-init", "omos-plan", "omos-apply", "omos-retro"];
+const FLOW_SKILL_IDS = [
+  "omos-init",
+  "omos-plan",
+  "omos-quick",
+  "omos-apply",
+  "omos-retro",
+];
 
 describe("roles assets", () => {
   it("agents/ contains exactly the ROLE_IDS", () => {
@@ -78,6 +84,94 @@ describe("flow skills", () => {
       "openspec_validate",
     ]) {
       assert.ok(plan.includes(ref), `omos-plan must reference ${ref}`);
+    }
+    const quick = readFileSync(
+      path.join(skillsRoot, "omos-quick", "SKILL.md"),
+      "utf8",
+    );
+    for (const ref of [
+      "omos-researcher",
+      "omos-planner",
+      "omos-critic",
+      "openspec_validate",
+      "one plan confirmation",
+      "full project check suite",
+      "/omos.archive <change-id>",
+    ]) {
+      assert.ok(quick.includes(ref), `omos-quick must reference ${ref}`);
+    }
+    const quickContracts = [
+      [
+        "eligible only for one behavior",
+        "The request changes exactly one externally observable behavior in one\n  capability.",
+      ],
+      [
+        "eligible request uses a short interview",
+        "Keep this to one concise interview round.",
+      ],
+      [
+        "eligible request uses focused research",
+        "Research only the relevant capability and conventions.",
+      ],
+      [
+        "eligible request skips the adversarial grill",
+        "Do not run the multi-area research or adversarial grill",
+      ],
+      [
+        "eligible request gets critic review and VALID before confirmation",
+        "Dispatch `omos-critic`",
+      ],
+      [
+        "eligible request is confirmed before project-code edits",
+        "Ask for one\nconfirmation before editing project code.",
+      ],
+      [
+        "declining the plan stops before project-code edits",
+        "If the user declines, stop before project-code edits.",
+      ],
+      [
+        "declining reports the change id and options",
+        "Report the OpenSpec\nchange id and ask whether they want to revise the plan or stop.",
+      ],
+      [
+        "confirmation applies approved tasks and verifies each scenario",
+        "After confirmation, implement the approved tasks in this same run",
+      ],
+      [
+        "confirmed apply runs full checks and reviews the cumulative diff",
+        "run the full project check suite once after the final wave, and review\n  the cumulative diff",
+      ],
+      [
+        "confirmed apply does not archive, commit, or push",
+        "Never commit, push, or archive.",
+      ],
+      [
+        "quick completion recommends archive separately",
+        "Offer the host's archive command as a separate next\nstep",
+      ],
+      [
+        "invalid validation blocks project-code edits",
+        "If it is not `VALID`, do not edit project\ncode",
+      ],
+      [
+        "invalid validation follows plan recovery and revalidation",
+        "send the exact findings to the planner and revalidate after each\nrevision",
+      ],
+      [
+        "broad and excluded requests use ordinary plan and apply gates",
+        "If any condition is false or unclear, use the ordinary plan and apply gates",
+      ],
+      [
+        "ordinary fallback retains full research and adversarial grill",
+        "full coverage\ninterview, research, adversarial grill, confirmed playback",
+      ],
+    ] as const;
+    const normalizedQuick = quick.replace(/\s+/g, " ");
+    for (const [scenario, contract] of quickContracts) {
+      assert.ok(
+        normalizedQuick.includes(contract.replace(/\s+/g, " ")),
+        `omos-quick must preserve ${scenario}: ${contract}`,
+      );
     }
     for (const behavior of [
       "### 9. Mechanical validation and recovery",

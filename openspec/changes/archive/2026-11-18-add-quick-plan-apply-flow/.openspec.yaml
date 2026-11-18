@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-11-18
+goal: Let users plan and apply one behavior in one capability in one run while
+  preserving quality gates and leaving archive separate.

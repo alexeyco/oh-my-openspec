@@ -1,5 +1,5 @@
 // Command descriptions and instruction builders for /omos.init,
-// /omos.plan, /omos.apply, /omos.archive, and /omos.retro.
+// /omos.plan, /omos.quick, /omos.apply, /omos.archive, and /omos.retro.
 // Also contains the SUBAGENT_CONTRACT text injected into every role
 // subagent session.
 
@@ -8,6 +8,9 @@ export const INIT_COMMAND_DESCRIPTION =
 
 export const PLAN_COMMAND_DESCRIPTION =
   "Draft an OpenSpec change through interview, research, and critique";
+
+export const QUICK_COMMAND_DESCRIPTION =
+  "Plan and apply one behavior in one capability in a single run";
 
 export const APPLY_COMMAND_DESCRIPTION =
   "Implement an OpenSpec change through parallel subagent waves";
@@ -67,6 +70,28 @@ export function planInstruction(request: string, skillPath?: string): string {
     parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
   } else {
     parts.push("Load the omos-plan skill and follow it exactly.");
+  }
+
+  if (!request.trim()) {
+    parts.push(
+      "The user gave no request text — your first job is to elicit it.",
+    );
+  } else {
+    parts.push(`User request: ${request}`);
+  }
+
+  return parts.join("\n");
+}
+
+// Build the instruction text for /omos.quick.
+// When request is empty, tells the agent to elicit it first.
+export function quickInstruction(request: string, skillPath?: string): string {
+  const parts: string[] = [];
+
+  if (skillPath) {
+    parts.push(`Read the skill file ${skillPath} and follow it exactly.`);
+  } else {
+    parts.push("Load the omos-quick skill and follow it exactly.");
   }
 
   if (!request.trim()) {

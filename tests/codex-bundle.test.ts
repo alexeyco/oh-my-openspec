@@ -39,8 +39,8 @@ const repoRoot = join(import.meta.dirname, "..");
 const committedBundle = join(repoRoot, "plugins", "oh-my-openspec");
 const vendorSkillsRoot = join(repoRoot, "vendor", "openspec", "skills");
 
-// The design.md §1 tree, pinned: exactly 31 files — eighteen skills
-// (six flow-family including the omos-archive wrapper, twelve vendored
+// The design.md §1 tree, pinned: exactly 32 files — nineteen skills
+// (seven flow-family including the omos-archive wrapper, twelve vendored
 // upstream), seven role TOMLs, two manifests, four asset files
 // (mcp-server.mjs with its sibling openspec-core.ts copy,
 // install-agents.mjs, and the catalog icon).
@@ -62,6 +62,7 @@ const EXPECTED_FILES: readonly string[] = [
   "skills/omos-archive/SKILL.md",
   "skills/omos-init/SKILL.md",
   "skills/omos-plan/SKILL.md",
+  "skills/omos-quick/SKILL.md",
   "skills/omos-retro/SKILL.md",
   "skills/omos-setup/SKILL.md",
   "skills/openspec-apply-change/SKILL.md",
@@ -181,7 +182,7 @@ after(() => {
 });
 
 describe("renderBundle", () => {
-  it("writes exactly the design.md §1 tree — 31 files", () => {
+  it("writes exactly the design.md §1 tree — 32 files", () => {
     assert.deepEqual(freshFiles, [...EXPECTED_FILES]);
     assert.deepEqual(listFiles(freshDir), [...EXPECTED_FILES]);
   });
@@ -253,7 +254,7 @@ describe("renderBundle", () => {
     assert.match(docs, /not required for the current local `stdio` package/);
   });
 
-  it("ships exactly the six flow-family skills, omos-archive wrapper included", () => {
+  it("ships exactly the seven flow-family skills, omos-archive wrapper included", () => {
     assertCommittedBundleExists();
     const committed = listFiles(committedBundle);
     assert.deepEqual(
@@ -263,10 +264,11 @@ describe("renderBundle", () => {
         "skills/omos-archive/SKILL.md",
         "skills/omos-init/SKILL.md",
         "skills/omos-plan/SKILL.md",
+        "skills/omos-quick/SKILL.md",
         "skills/omos-retro/SKILL.md",
         "skills/omos-setup/SKILL.md",
       ],
-      "exactly the six flow-family skills — the omos-archive wrapper (renderArchiveSkill) is wired into the bundle",
+      "exactly the seven flow-family skills — the omos-archive wrapper (renderArchiveSkill) is wired into the bundle",
     );
   });
 

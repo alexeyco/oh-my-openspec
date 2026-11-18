@@ -67,7 +67,7 @@ describe("renderFlowSkill", () => {
   });
 
   it("Rendered flow skill carries the Codex host header", () => {
-    assert.equal(FLOW_SKILL_IDS.length, 4, "exactly four flow skills render");
+    assert.equal(FLOW_SKILL_IDS.length, 5, "exactly five flow skills render");
     for (const id of FLOW_SKILL_IDS) {
       const rendered = renderFlowSkill(readFlowSkill(id));
       const { body } = parseMarkdown<unknown>(rendered);
@@ -131,6 +131,19 @@ describe("renderFlowSkill", () => {
       // body may legitimately use `<id>` as a change-id placeholder.)
       assert.ok(!header.includes("<id>"), `${id}: <id> leaked`);
     }
+  });
+
+  it("Quick skill renders as a Codex mention without OpenCode aliases", () => {
+    const rendered = renderFlowSkill(readFlowSkill("omos-quick"));
+    const { frontmatter, body } = parseMarkdown<unknown>(rendered);
+    const doc = validateSkillDoc(frontmatter);
+
+    assert.ok(
+      doc.description.endsWith("Invoke via $oh-my-openspec:omos-quick."),
+    );
+    assert.doesNotMatch(doc.description, /\/omos\./);
+    assert.doesNotMatch(body, /\/omos\./);
+    assert.ok(body.includes("$oh-my-openspec:omos-archive <change-id>"));
   });
 
   it("OpenCode dispatch sentence is replaced", () => {

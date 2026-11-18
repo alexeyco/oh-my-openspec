@@ -12,10 +12,11 @@ import {
   archiveSkillId,
 } from "../core/prompts.ts";
 
-/** The four flow skills rendered for Codex (design.md §1, §3). */
+/** The five flow skills rendered for Codex (design.md §1, §3). */
 export const FLOW_SKILL_IDS: readonly string[] = [
   "omos-init",
   "omos-plan",
+  "omos-quick",
   "omos-apply",
   "omos-retro",
 ];
@@ -108,6 +109,7 @@ export const SUBSTITUTIONS: readonly SkillSubstitution[] = [
 export const TOKEN_SUBSTITUTIONS: readonly (readonly [string, string])[] = [
   ["/omos.init", "$oh-my-openspec:omos-init"],
   ["/omos.plan", "$oh-my-openspec:omos-plan"],
+  ["/omos.quick", "$oh-my-openspec:omos-quick"],
   ["/omos.apply", "$oh-my-openspec:omos-apply"],
   ["/omos.retro", "$oh-my-openspec:omos-retro"],
   ["/omos.archive", "$oh-my-openspec:omos-archive"],
