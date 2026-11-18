@@ -16,37 +16,42 @@ immediately with an actionable message.
 
 ### Requirement: Flow skills registered from fixed ids
 
-The plugin SHALL register exactly the four flow skills named in
-`FLOW_SKILL_IDS` (`omos-init`, `omos-plan`, `omos-apply`,
-`omos-retro`), each read from `skills/<id>/SKILL.md`
-(opencode/index.ts:39-44,90-95). Each flow skill's frontmatter `name` SHALL
-equal its directory id and its body SHALL be non-empty, as enforced by the
-assets test (tests/assets.test.ts:52-60).
+The plugin SHALL register exactly the five flow skills named in
+`FLOW_SKILL_IDS` (`omos-init`, `omos-plan`, `omos-quick`, `omos-apply`,
+`omos-retro`), each read from `skills/<id>/SKILL.md`. Each flow skill's
+frontmatter `name` SHALL equal its directory id and its body SHALL be
+non-empty.
+
+#### Scenario: Quick flow skill added to host catalog
+
+- **WHEN** plugin setup runs the skill transform
+- **THEN** a `Skill.Info` is added for `omos-quick` using the doc's
+  frontmatter `name` and `description` and its body as content
 
 #### Scenario: Flow skill added to host catalog
 
 - **WHEN** plugin setup runs the skill transform
-- **THEN** a `Skill.Info` is added for each of the four ids using the doc's frontmatter `name`/`description` and the file body as content (opencode/index.ts:101-115)
+- **THEN** a `Skill.Info` is added for each of the five ids using the doc's
+  frontmatter `name`/`description` and the file body as content
 
 ### Requirement: Vendored skills discovered from manifest and disk
 
 Vendored skill ids SHALL be discovered by scanning `vendor/openspec/skills/`
 for subdirectories containing a readable `SKILL.md`, sorted for deterministic
-order (core/vendor.ts:39-49), and the manifest SHALL be validated at load:
-`package`, `version`, `generatedBy` must be strings and `skills` must be an
-array of strings, otherwise loading throws (core/vendor.ts:19-35). The
-current manifest vendors 12 upstream skills (vendor/openspec/manifest.json),
-for 16 skills total with the flow set.
+order, and the manifest SHALL be validated at load: `package`, `version`,
+`generatedBy` must be strings and `skills` must be an array of strings,
+otherwise loading throws. The current manifest vendors 12 upstream skills,
+for 17 skills total with the flow set.
 
 #### Scenario: Unreadable SKILL.md directory skipped in discovery
 
 - **WHEN** a directory under `vendor/openspec/skills/` has no readable `SKILL.md`
-- **THEN** `listVendoredSkillIds` omits it (core/vendor.ts:42-48,51-57)
+- **THEN** `listVendoredSkillIds` omits it
 
 #### Scenario: Manifest shape enforced
 
 - **WHEN** `manifest.json` lacks a string `generatedBy` or has a non-string entry in `skills`
-- **THEN** `loadVendorManifest` throws with the key named in the message (core/vendor.ts:26-33)
+- **THEN** `loadVendorManifest` throws with the key named in the message
 
 ### Requirement: Startup integrity gate against the manifest
 
@@ -65,17 +70,20 @@ vendored (tests/assets.test.ts:114-118).
 
 ### Requirement: SKILL.md frontmatter validation
 
-Every registered `SKILL.md` (flow and vendored) SHALL be parsed with the
-shared markdown parser and validated: frontmatter must be an object with
-string `name` and string `description`, otherwise setup throws
-(core/markdown.ts:85-97, opencode/index.ts:101-105). A vendored skill's
-frontmatter `name` SHALL equal its directory id, checked by the assets test
-(tests/assets.test.ts, "vendored OpenSpec skills" suite). Vendored skills
-SHALL NOT be required to carry a `metadata.generatedBy` frontmatter stamp:
-CLI 2.1 strips the per-release stamp from generated frontmatter
-(`dist/core/shared/skill-generation.js`, `stripVolatileFrontmatter`), so
-`vendor/openspec/manifest.json` is the sole carrier of the vendored CLI
-version and no gate compares frontmatter against it.
+Every registered `SKILL.md` SHALL have valid `name` and `description`
+frontmatter. Vendored skill names SHALL match their directory ids. A
+`metadata.generatedBy` frontmatter stamp is not required.
+
+#### Scenario: Invalid frontmatter is rejected
+
+- **WHEN** a registered skill lacks an object frontmatter or string `name`
+  and `description`
+- **THEN** setup throws during validation by the shared markdown parser
+
+#### Scenario: Vendored skill name matches its directory
+
+- **WHEN** a vendored skill's frontmatter `name` differs from its directory id
+- **THEN** the assets validation fails
 
 #### Scenario: Skill missing description
 
@@ -95,12 +103,13 @@ version and no gate compares frontmatter against it.
 ### Requirement: Catalog reload after transform
 
 After all skill entries are added, the plugin SHALL call `ctx.skill.reload()`
-once so the host picks up the full catalog (opencode/index.ts:118).
+once so the host picks up the full catalog.
 
 #### Scenario: Skills visible post-setup
 
 - **WHEN** plugin setup completes without throwing
-- **THEN** the host skill catalog includes the four flow skills and every vendored skill id, in manifest order after the flow skills (opencode/index.ts:90-118)
+- **THEN** the host skill catalog includes the five flow skills and every
+  vendored skill id, in manifest order after the flow skills
 
 UNVERIFIED: Which skill the host ultimately serves when a vendored id also
 exists as a project-local skill written by `openspec init` is decided by the

@@ -73,17 +73,10 @@ depending on an `npm ci`-populated `node_modules` (`Makefile:12-17,23-25`,
 
 ### Requirement: check.mjs enforces six invariant groups
 
-scripts/check.mjs SHALL aggregate failures across six invariant groups
-covering package shape, roles, flow skills, vendor metadata, documentation
-links, and plugin identity before exiting non-zero. The vendor-metadata
-group SHALL validate the manifest and the tree against it: the directory ids
-on disk equal `manifest.skills`, every vendored skill's frontmatter `name`
-equals its directory id, `manifest.generatedBy` is a plain semver, and the
-mirror invariant holds (`scripts/check.mjs:154-194`). It SHALL NOT compare a
-per-skill frontmatter stamp against the manifest: CLI 2.1 strips
-`generatedBy` from generated frontmatter
-(`dist/core/shared/skill-generation.js`, `stripVolatileFrontmatter`), so
-`vendor/openspec/manifest.json` is the sole carrier of the vendored version.
+`scripts/check.mjs` SHALL aggregate failures across six invariant groups:
+package shape, roles, flow skills, vendor metadata, documentation links, and
+plugin identity. Its vendor-metadata group SHALL validate the manifest, tree,
+and version mirror (`scripts/check.mjs:154-194`).
 
 #### Scenario: All invariants hold
 
@@ -106,6 +99,12 @@ per-skill frontmatter stamp against the manifest: CLI 2.1 strips
   `generatedBy`, the directories equal `manifest.skills`, and the mirror
   invariant holds — no stamp comparison is attempted
 
+#### Scenario: Per-skill stamp is not required
+
+- **WHEN** generated frontmatter omits `metadata.generatedBy`
+- **THEN** the vendor-metadata group relies on `manifest.generatedBy`, since
+  CLI 2.1 strips the per-skill stamp (`stripVolatileFrontmatter`)
+
 ### Requirement: Formatting is a manual developer step
 
 `make fmt` SHALL run `npx --yes prettier@3 --write .` and CONTRIBUTING SHALL
@@ -122,18 +121,9 @@ instruct running it before committing; no CI workflow executes prettier or
 
 ### Requirement: The release record is tags and npm, not a CHANGELOG
 
-Releases SHALL use version tags and npm; the plugin `version` in
-`package.json` is machine-owned and mirrors the vendored OpenSpec version, so
-feature branches add no CHANGELOG. The mirror version SHALL move only in the
-daily `vendor-sync` workflow PR or in a migration change that moves the
-vendored CLI's layout in a way that breaks vendoring — whether the upstream
-release is major or minor. Such a migration regenerates `vendor/openspec/**`
-and bumps `version` to the regenerated `manifest.generatedBy` in its own
-branch, keeping the `version == manifest.generatedBy` invariant
-(`scripts/check.mjs:184-194`) true through the migration. The no-CHANGELOG
-half of the rule is unaffected: merged PRs and npm history remain the record
-(`CONTRIBUTING.md`, Publishing — version-mirror paragraph;
-`docs/vendor-sync.md`, "Versioning: a strict mirror").
+Releases SHALL use version tags and npm without adding a CHANGELOG. The
+package version SHALL mirror the vendored CLI version and move only through
+the vendor-sync workflow or a migration that requires re-vendoring.
 
 #### Scenario: Hotfix window with no upstream release
 
@@ -158,17 +148,17 @@ half of the rule is unaffected: merged PRs and npm history remain the record
 
 ### Requirement: package.json declares homepage, bugs, and author
 
-`package.json` SHALL declare
-`"homepage": "https://github.com/alexeyco/oh-my-openspec"`,
-`"bugs": "https://github.com/alexeyco/oh-my-openspec/issues"` in the
-plain-string npm form,
-`"repository.url": "git+https://github.com/alexeyco/oh-my-openspec.git"`,
-and
-`"author": { "name": "Alexeyco", "url": "https://github.com/alexeyco" }`
-with no email key. It SHALL NOT declare a `funding` field, and the
-`engines.node` key SHALL be `">=22.20"` — raised from `">=22.18"` by the
-OpenSpec 2.1 migration to match the floor the pinned CLI itself declares
-(`@fission-ai/openspec@2.1.0` `engines.node: >=22.20.0`).
+`package.json` SHALL provide repository metadata and a Node.js engine floor
+compatible with the pinned CLI.
+
+#### Scenario: Package metadata fields are exact
+
+- **WHEN** `package.json` is inspected
+- **THEN** `homepage` is `https://github.com/alexeyco/oh-my-openspec`,
+  `bugs` is the plain string `https://github.com/alexeyco/oh-my-openspec/issues`,
+  `repository.url` is `git+https://github.com/alexeyco/oh-my-openspec.git`,
+  `author` is `{ "name": "Alexeyco", "url": "https://github.com/alexeyco" }`
+  with no email, and no `funding` field exists
 
 #### Scenario: Metadata renders on npm
 

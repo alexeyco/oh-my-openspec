@@ -1,6 +1,6 @@
 // OpenCode v2 plugin entry: registers 7 subagent roles from bundled markdown,
-// 16 skills (4 flow skills + 12 vendored OpenSpec workflow skills), five
-// commands (/omos.init, /omos.plan, /omos.apply,
+// 17 skills (5 flow skills + 12 vendored OpenSpec workflow skills), six
+// commands (/omos.init, /omos.plan, /omos.quick, /omos.apply,
 // /omos.archive, /omos.retro), and the openspec_validate tool
 // (mechanical gate wrapping the upstream CLI).
 // Injects SUBAGENT_CONTRACT into every role's session context.
@@ -15,6 +15,7 @@ import {
   APPLY_COMMAND_DESCRIPTION,
   INIT_COMMAND_DESCRIPTION,
   PLAN_COMMAND_DESCRIPTION,
+  QUICK_COMMAND_DESCRIPTION,
   RETRO_COMMAND_DESCRIPTION,
   SUBAGENT_CONTRACT,
   applyInstruction,
@@ -22,6 +23,7 @@ import {
   archiveSkillId,
   initInstruction,
   planInstruction,
+  quickInstruction,
   retroInstruction,
 } from "../core/prompts.ts";
 import { validateProject } from "../core/openspec.ts";
@@ -42,6 +44,7 @@ const vendorDir = path.join(import.meta.dirname, "..", VENDOR_ROOT);
 const FLOW_SKILL_IDS = [
   "omos-init",
   "omos-plan",
+  "omos-quick",
   "omos-apply",
   "omos-retro",
 ] as const;
@@ -144,6 +147,8 @@ export default Plugin.define({
     // what the code actually does.
     // /omos.plan <idea> — interview, research, draft the OpenSpec
     // change artifacts, critic loop, mechanical validate gate.
+    // /omos.quick <request> — short plan-and-apply flow for one behavior
+    // in one capability, with focused research and full verification.
     // /omos.apply [change-id] — implement tasks.md through
     // dependency-ordered parallel subagent waves with verification.
     // /omos.archive [change-id ...] — archive completed changes through
@@ -172,6 +177,17 @@ export default Plugin.define({
             sessionID: sessionID as never,
             text: planInstruction(prompt?.text ?? ""),
             skills: [{ id: Skill.ID.make("omos-plan") }],
+          } as never);
+        },
+      });
+      editor.add({
+        name: "omos.quick",
+        description: QUICK_COMMAND_DESCRIPTION,
+        execute: async ({ sessionID, prompt }) => {
+          await ctx.session.prompt({
+            sessionID: sessionID as never,
+            text: quickInstruction(prompt?.text ?? ""),
+            skills: [{ id: Skill.ID.make("omos-quick") }],
           } as never);
         },
       });

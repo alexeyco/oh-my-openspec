@@ -7,6 +7,7 @@ import {
   ARCHIVE_COMMAND_DESCRIPTION,
   INIT_COMMAND_DESCRIPTION,
   PLAN_COMMAND_DESCRIPTION,
+  QUICK_COMMAND_DESCRIPTION,
   RETRO_COMMAND_DESCRIPTION,
   SUBAGENT_CONTRACT,
   applyInstruction,
@@ -14,6 +15,7 @@ import {
   archiveSkillId,
   initInstruction,
   planInstruction,
+  quickInstruction,
   retroInstruction,
 } from "../core/prompts.ts";
 
@@ -44,6 +46,31 @@ describe("planInstruction", () => {
     const text = planInstruction("x", "/abs/SKILL.md");
     assert.match(text, /Read the skill file \/abs\/SKILL\.md/);
     assert.doesNotMatch(text, /Load the omos-plan/);
+  });
+});
+
+describe("quickInstruction", () => {
+  it("names the skill and echoes the request", () => {
+    const text = quickInstruction("add a small export option");
+    assert.match(text, /omos-quick/);
+    assert.match(text, /User request: add a small export option/);
+  });
+
+  it("asks the skill to elicit an empty request", () => {
+    assert.match(quickInstruction("   "), /elicit it/);
+  });
+
+  it("prefers an explicit skill path", () => {
+    const text = quickInstruction("x", "/abs/SKILL.md");
+    assert.match(text, /Read the skill file \/abs\/SKILL\.md/);
+    assert.doesNotMatch(text, /Load the omos-quick/);
+  });
+});
+
+describe("quick command description", () => {
+  it("states the single-behavior plan-and-apply scope", () => {
+    assert.match(QUICK_COMMAND_DESCRIPTION, /one behavior in one capability/);
+    assert.match(QUICK_COMMAND_DESCRIPTION, /single run/);
   });
 });
 

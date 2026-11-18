@@ -15,12 +15,17 @@ like this. Where the two disagree, the specs and the code win.
 ## Overview
 
 The orchestrator (the main session running `/omos.init`,
-`/omos.plan`, `/omos.apply`, `/omos.archive` or
+`/omos.plan`, `/omos.quick`, `/omos.apply`, `/omos.archive` or
 `/omos.retro`) dispatches roles
 and never implements itself. Role dispatches are forced into the background by
 [`opencode/background.ts`](../opencode/background.ts), so independent work
 runs concurrently; the orchestrator collects results from completion
 notifications, never by polling.
+
+For one bounded behavior in one capability, `/omos.quick` combines a short
+planning pass with implementation and verification. Codex exposes the same
+flow as `$oh-my-openspec:omos-quick`. Quick stops before archiving; use
+`/omos.archive` or `$oh-my-openspec:omos-archive` separately.
 
 | Phase (init) | Roles                                   |
 | ------------ | --------------------------------------- |

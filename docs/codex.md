@@ -54,20 +54,22 @@ namespaced `oh-my-openspec:omos-*` and `oh-my-openspec:openspec-*`, and
 
 ## Invocation
 
-Two shapes, nothing else: a `$omos-*` or `$openspec-*` mention in your
-message, or the /skills picker. There are no `/omos.*` slash aliases on
-Codex. Arguments are plain text after the mention — `$omos-plan add
-search filtering to the API` delivers "add search filtering to the API"
-to the skill — with no argument substitution of any kind.
+Invoke plugin flows with namespaced `$oh-my-openspec:omos-*` mentions and
+vendored flows with `$openspec-*` mentions, or use the /skills picker. There
+are no `/omos.*` slash aliases on Codex. Arguments are plain text after the
+mention — `$oh-my-openspec:omos-plan add search filtering to the API` delivers
+"add search filtering to the API" to the skill — with no argument
+substitution of any kind.
 
-| Skill        | Mention              | Purpose                                             |
-| ------------ | -------------------- | --------------------------------------------------- |
-| omos-init    | `$omos-init`         | Bootstrap baseline specs describing what exists     |
-| omos-plan    | `$omos-plan <idea>`  | Draft one complete change under `openspec/changes/` |
-| omos-apply   | `$omos-apply <id>`   | Implement task groups in waves, verify, review      |
-| omos-archive | `$omos-archive <id>` | Archive a finished change (bulk for 2+ ids)         |
-| omos-retro   | `$omos-retro`        | Retrospect a finished run into cited findings       |
-| omos-setup   | `$omos-setup`        | (Re)install the role TOMLs and the MCP approval     |
+| Skill        | Mention                                | Purpose                                                 |
+| ------------ | -------------------------------------- | ------------------------------------------------------- |
+| omos-init    | `$oh-my-openspec:omos-init`            | Bootstrap baseline specs describing what exists         |
+| omos-plan    | `$oh-my-openspec:omos-plan <idea>`     | Draft one complete change under `openspec/changes/`     |
+| omos-quick   | `$oh-my-openspec:omos-quick <request>` | Plan and apply one bounded behavior; archive separately |
+| omos-apply   | `$oh-my-openspec:omos-apply <id>`      | Implement task groups in waves, verify, review          |
+| omos-archive | `$oh-my-openspec:omos-archive <id>`    | Archive a finished change (bulk for 2+ ids)             |
+| omos-retro   | `$oh-my-openspec:omos-retro`           | Retrospect a finished run into cited findings           |
+| omos-setup   | `$oh-my-openspec:omos-setup`           | (Re)install the role TOMLs and the MCP approval         |
 
 The twelve vendored upstream workflow skills ship in the bundle too —
 the same set the OpenCode plugin registers, namespaced

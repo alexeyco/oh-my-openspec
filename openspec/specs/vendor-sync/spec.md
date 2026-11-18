@@ -21,23 +21,8 @@ plugin refuses to load when it disagrees with its manifest
 
 ### Requirement: Generation runs the pinned CLI in a throwaway sandbox
 
-The sync script SHALL resolve the `openspec` CLI from
-`node_modules/@fission-ai/openspec` via its `bin` field and generate skills by
-running it in a fresh `mkdtemp` sandbox with a fake `HOME` and
-`OPENSPEC_TELEMETRY=0`, after configuring `profile=custom` and the explicit
-12-workflow list (`scripts/sync-vendor.mjs`). It SHALL pass `--scope project`
-to `init`: CLI 2.1 defaults `init` to the global scope, rendering skills into
-the sandbox's `$HOME/.agents/skills` and creating no project directory at
-all, so without the flag the script exits 2 with "sync-vendor: CLI produced
-no skills directory". It SHALL collect generated skills from
-`<proj>/.agents/skills/<id>/SKILL.md` — the shared render location since CLI
-2.0 — with no fallback to the global location and none to the 1.x location
-`<proj>/.opencode/skills`. It SHALL NOT run `config set delivery skills` —
-the command is retired since CLI 2.0. Because CLI 2.1 clones the skill
-sources from GitHub (`git clone --depth 1 --branch v<version>`) on first
-generation in a fresh sandbox, git and network access SHALL be treated as
-prerequisites of both sync and `--check`, documented in
-`docs/vendor-sync.md`.
+The sync script SHALL run the pinned OpenSpec CLI in an isolated sandbox and
+generate project-scoped skills from the configured workflow list.
 
 #### Scenario: Sandbox generation
 
@@ -47,6 +32,14 @@ prerequisites of both sync and `--check`, documented in
 workflows <12 ids>`, and `init --tools opencode --no-animation --scope
 project <tmpdir>` against a throwaway home and project, and executes no
   `config set delivery` command
+
+#### Scenario: CLI resolution and sandbox prerequisites
+
+- **WHEN** sync or check mode starts
+- **THEN** the script resolves the pinned CLI through its package `bin` field,
+  creates a fresh `mkdtemp` sandbox with fake `HOME` and
+  `OPENSPEC_TELEMETRY=0`, and requires git and network access for CLI 2.1's
+  first source clone
 
 #### Scenario: Shared skills location
 
@@ -68,14 +61,9 @@ project <tmpdir>` against a throwaway home and project, and executes no
 
 ### Requirement: The vendor tree is a byte-identical copy plus a manifest
 
-Generated skill files SHALL be copied into `vendor/openspec/skills/<id>/SKILL.md`
-with no transformation, and `vendor/openspec/manifest.json` SHALL record
-`package`, `version`, `generatedBy`, and the sorted skill ids
-(`scripts/sync-vendor.mjs`). Collection SHALL consider only entries of the
-generated skills directory that are directories containing a `SKILL.md`;
-non-skill entries — including the CLI 2.0 marker file
-`.agents/skills/.openspec-target` (content `opencode` plus a newline) — SHALL
-NOT be vendored and SHALL NOT appear in the manifest.
+Generated skill files SHALL be copied without transformation, and the
+manifest SHALL record package metadata and sorted skill ids. Only skill
+directories containing `SKILL.md` SHALL be collected.
 
 #### Scenario: Write mode replaces the tree
 
@@ -83,6 +71,12 @@ NOT be vendored and SHALL NOT appear in the manifest.
 - **THEN** `vendor/openspec/skills/` is deleted and rewritten from the generated
   buffers, and `manifest.json` is written with `generatedBy` equal to the CLI
   package version (`scripts/sync-vendor.mjs`)
+
+#### Scenario: Manifest records generated package and skills
+
+- **WHEN** sync writes the generated vendor tree
+- **THEN** `manifest.json` records `package`, `version`, `generatedBy`, and
+  the sorted skill ids
 
 #### Scenario: Non-skill entries are skipped
 
