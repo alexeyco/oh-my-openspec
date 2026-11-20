@@ -1,7 +1,7 @@
 {
   "package": "@fission-ai/openspec",
-  "version": "2.1.0",
-  "generatedBy": "2.1.0",
+  "version": "2.1.1",
+  "generatedBy": "2.1.1",
   "skills": [
     "openspec-apply-change",
     "openspec-archive-change",
